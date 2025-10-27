@@ -60,7 +60,7 @@
       import { createRoot } from 'react-dom/client';
       import { createClient } from '@supabase/supabase-js';
 
-      // --- InÌcio de: types.ts (Enums) ---
+      // --- In√≠cio de: types.ts (Enums) ---
       var TestType;
       (function (TestType) {
           TestType["DENGUE"] = "DENGUE - NS1";
@@ -83,13 +83,13 @@
       })(CovidResult || (CovidResult = {}));
       // --- Fim de: types.ts (Enums) ---
 
-      // --- InÌcio de: lib/supabaseClient.ts ---
+      // --- In√≠cio de: lib/supabaseClient.ts ---
       const supabaseUrl = 'https://avcpoeouasfeuqsbyuoy.supabase.co';
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2Y3BvZW91YXNmZXVxc2J5dW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0OTkxMjIsImV4cCI6MjA3NzA3NTEyMn0.0eF-yCEBAuHl8B3ORN7VYfJnnEIY0m1bMj8R_FsntNM';
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
       // --- Fim de: lib/supabaseClient.ts ---
 
-      // --- InÌcio de: contexts/AppContext.ts ---
+      // --- In√≠cio de: contexts/AppContext.ts ---
       const AppContext = createContext({
         reports: [],
         stock: [],
@@ -108,7 +108,7 @@
       });
       // --- Fim de: contexts/AppContext.ts ---
 
-      // --- InÌcio de: components/icons/Icons.tsx ---
+      // --- In√≠cio de: components/icons/Icons.tsx ---
       const iconClass = "h-6 w-6";
 
       const HomeIcon = () => (
@@ -172,7 +172,7 @@
       );
       // --- Fim de: components/icons/Icons.tsx ---
 
-      // --- InÌcio de: components/ConfirmationModal.tsx ---
+      // --- In√≠cio de: components/ConfirmationModal.tsx ---
       const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         if (!isOpen) return null;
 
@@ -187,7 +187,7 @@
                     Cancelar
                   </button>
                   <button onClick={onConfirm} className="py-2 px-4 bg-danger hover:bg-opacity-80 text-white font-bold rounded-lg transition">
-                    Confirmar Exclus„o
+                    Confirmar Exclus√£o
                   </button>
                 </div>
               </div>
@@ -197,7 +197,7 @@
       };
       // --- Fim de: components/ConfirmationModal.tsx ---
 
-      // --- InÌcio de: components/PasswordModal.tsx ---
+      // --- In√≠cio de: components/PasswordModal.tsx ---
       const PasswordModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         const [password, setPassword] = useState('');
 
@@ -241,7 +241,7 @@
       };
       // --- Fim de: components/PasswordModal.tsx ---
 
-      // --- InÌcio de: components/StockFormModal.tsx ---
+      // --- In√≠cio de: components/StockFormModal.tsx ---
       const StockFormModal = ({ isOpen, onClose, itemToEdit }) => {
         const { addStockItem, updateStockItem } = useContext(AppContext);
         const [formData, setFormData] = useState({
@@ -334,7 +334,7 @@
 
                 <div className="flex justify-end space-x-4 pt-3">
                   <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar</button>
-                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{itemToEdit ? 'Salvar AlteraÁıes' : 'Adicionar Item'}</button>
+                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{itemToEdit ? 'Salvar Altera√ß√µes' : 'Adicionar Item'}</button>
                 </div>
               </form>
             </div>
@@ -343,7 +343,7 @@
       };
       // --- Fim de: components/StockFormModal.tsx ---
 
-      // --- InÌcio de: components/ReportPDF.tsx ---
+      // --- In√≠cio de: components/ReportPDF.tsx ---
       const renderUnderlinedField = (label, value) => (
         <div className="flex items-baseline">
           <span className="font-semibold mr-2">{label}</span>
@@ -357,18 +357,18 @@
             <h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1>
           </header>
           <section className="text-center my-8">
-            <h1 className="text-lg font-bold uppercase">Teste de AntÌgeno para Dengue - NS1</h1>
+            <h1 className="text-lg font-bold uppercase">Teste de Ant√≠geno para Dengue - NS1</h1>
             <h2 className="text-md">(Vida Rapid Test - Vida Biotecnologia)</h2>
           </section>
           <section className="space-y-3 mb-6 text-sm">
-            {renderUnderlinedField("Nome do usu·rio:", report.patient_name)}
+            {renderUnderlinedField("Nome do usu√°rio:", report.patient_name)}
             {renderUnderlinedField("Identidade/CPF:", report.patient_id)}
             <div className="flex space-x-8">
               <div className="w-1/2">{renderUnderlinedField("Data de Nascimento:", new Date(report.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}</div>
               <div className="w-1/2">{renderUnderlinedField("Sexo:", report.sex)}</div>
             </div>
-            {renderUnderlinedField("Unidade de realizaÁ„o do exame:", report.execution_unit)}
-            {renderUnderlinedField("Data do inÌcio dos sintomas:", new Date(report.symptom_start_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
+            {renderUnderlinedField("Unidade de realiza√ß√£o do exame:", report.execution_unit)}
+            {renderUnderlinedField("Data do in√≠cio dos sintomas:", new Date(report.symptom_start_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
             {renderUnderlinedField("Data da coleta da amostra:", new Date(report.sample_collection_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
           </section>
           <section className="border-2 border-black text-sm">
@@ -378,15 +378,15 @@
               <div className="w-1/2 p-2 border-r-2 border-black"><strong>Lote:</strong> {report.lote}</div>
               <div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</div>
             </div>
-            <div className="p-2"><strong>MÈtodo:</strong> {report.method}</div>
+            <div className="p-2"><strong>M√©todo:</strong> {report.method}</div>
           </section>
           <section className="border border-black mt-6 p-2" style={{ backgroundColor: '#f0f0f0' }}>
             <div className="text-right font-semibold text-lg">Resultado</div>
             <div className="text-center text-3xl font-bold my-4 uppercase">{report.result}</div>
           </section>
           <section className="mt-6 space-y-3" style={{ fontSize: '8pt', lineHeight: '1.2' }}>
-              <p><span className="font-bold">? Em caso de resultado NEGATIVO ou INCONCLUSIVO: REALIZAR NOVA COLETA A PARTIR DO 7∫ DIA DO INÕCIO DOS SINTOMAS, para o exame de an·lise de anticorpos IgM.</span> Dirigir-se ao LaboratÛrio P˙blico Municipal de Novo Hamburgo, localizado na Rua Pedro Adams Filho, n.∫ 6520, Bairro Oper·rio, junto ao Hospital Municipal, das 7 ‡s 18h, de segunda ‡ sexta-feira. OBS: Essa coleta deve ser realizada, NO M¡XIMO, atÈ o 30∫ dia de sintomas.</p>
-              <p><span className="font-bold">Nota:</span> O resultado deste teste laboratorial deve ser sempre considerado no contexto da clÌnica e dos dados epidemiolÛgicos no estabelecimento do diagnÛstico. Adverte-se que os testes r·pidos (punÁ„o digital) dever„o ser utilizados apenas como triagem, necessitando a realizaÁ„o de um teste laboratorial para confirmaÁ„o do caso. Os resultados mostraram que a sensibilidade relativa do Teste R·pido de Dengue NS1 da Vida Biotecnologia/Vida Rapide Test (sangue total/soro/plasma) È de 95,8% e a especificidade relativa È de 96,1%.</p>
+              <p><span className="font-bold">‚ûî Em caso de resultado NEGATIVO ou INCONCLUSIVO: REALIZAR NOVA COLETA A PARTIR DO 7¬∫ DIA DO IN√çCIO DOS SINTOMAS, para o exame de an√°lise de anticorpos IgM.</span> Dirigir-se ao Laborat√≥rio P√∫blico Municipal de Novo Hamburgo, localizado na Rua Pedro Adams Filho, n.¬∫ 6520, Bairro Oper√°rio, junto ao Hospital Municipal, das 7 √†s 18h, de segunda √† sexta-feira. OBS: Essa coleta deve ser realizada, NO M√ÅXIMO, at√© o 30¬∫ dia de sintomas.</p>
+              <p><span className="font-bold">Nota:</span> O resultado deste teste laboratorial deve ser sempre considerado no contexto da cl√≠nica e dos dados epidemiol√≥gicos no estabelecimento do diagn√≥stico. Adverte-se que os testes r√°pidos (pun√ß√£o digital) dever√£o ser utilizados apenas como triagem, necessitando a realiza√ß√£o de um teste laboratorial para confirma√ß√£o do caso. Os resultados mostraram que a sensibilidade relativa do Teste R√°pido de Dengue NS1 da Vida Biotecnologia/Vida Rapide Test (sangue total/soro/plasma) √© de 95,8% e a especificidade relativa √© de 96,1%.</p>
           </section>
           <div className="flex-grow"></div>
           <footer className="mt-auto pt-12 text-sm">
@@ -394,13 +394,13 @@
               <div className="text-center">
                   <div className="w-80 border-t-2 border-black mb-1"></div>
                   <p className="font-semibold uppercase">{report.technician_name}</p>
-                  <p>TÈcnico Respons·vel</p>
+                  <p>T√©cnico Respons√°vel</p>
               </div>
               <div>
                   <p className="font-semibold">Data do Laudo: {new Date(report.report_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
               </div>
             </div>
-            <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informaÁıes com o profissional de sa˙de.</p>
+            <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informa√ß√µes com o profissional de sa√∫de.</p>
              <div className="text-center mt-8 pt-4 border-t border-black" style={{ fontSize: '8pt' }}>
               <p className="font-bold">Desenvolvido por: Jaime Eduardo | Whats: 51985502897</p>
             </div>
@@ -413,30 +413,30 @@
           <header className="text-center mb-6">
             <h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1>
           </header>
-          <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">Teste R·pido de AntÌgeno - COVID-19</h1><h2 className="text-md">({report.manufacturer || 'Fabricante n„o informado'})</h2></section>
+          <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">Teste R√°pido de Ant√≠geno - COVID-19</h1><h2 className="text-md">({report.manufacturer || 'Fabricante n√£o informado'})</h2></section>
           <section className="space-y-3 mb-6 text-sm">
-            {renderUnderlinedField("Nome do usu·rio:", report.patient_name)}
+            {renderUnderlinedField("Nome do usu√°rio:", report.patient_name)}
             {renderUnderlinedField("Identidade/CPF:", report.patient_id)}
             <div className="flex space-x-8"><div className="w-1/2">{renderUnderlinedField("Data de Nascimento:", new Date(report.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}</div><div className="w-1/2">{renderUnderlinedField("Sexo:", report.sex)}</div></div>
-            {renderUnderlinedField("Unidade de realizaÁ„o do exame:", report.execution_unit)}
+            {renderUnderlinedField("Unidade de realiza√ß√£o do exame:", report.execution_unit)}
             {renderUnderlinedField("Cidade:", report.city)}
             {renderUnderlinedField("Data da coleta da amostra:", new Date(report.sample_collection_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
           </section>
           <section className="border-2 border-black text-sm">
             <div className="p-2 border-b-2 border-black"><strong>Amostra:</strong> {report.sample_type}</div>
-            <div className="p-2 border-b-2 border-black"><strong>Teste:</strong> Teste R·pido de AntÌgeno para COVID-19</div>
+            <div className="p-2 border-b-2 border-black"><strong>Teste:</strong> Teste R√°pido de Ant√≠geno para COVID-19</div>
             <div className="flex border-b-2 border-black"><div className="w-1/2 p-2 border-r-2 border-black"><strong>Lote:</strong> {report.lote}</div><div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</div></div>
-            <div className="p-2"><strong>MÈtodo:</strong> {report.method}</div>
+            <div className="p-2"><strong>M√©todo:</strong> {report.method}</div>
           </section>
           <section className="border border-black mt-6 p-2" style={{ backgroundColor: '#f0f0f0' }}><div className="text-right font-semibold text-lg">Resultado</div><div className="text-center text-3xl font-bold my-4 uppercase">{report.result}</div></section>
-          <section className="mt-6 space-y-3" style={{ fontSize: '8pt', lineHeight: '1.2' }}><p><span className="font-bold">Nota:</span> Um resultado <strong>POSITIVO</strong> indica a presenÁa de antÌgenos do vÌrus SARS-CoV-2 na amostra coletada. … fundamental seguir as orientaÁıes de isolamento e procurar acompanhamento mÈdico.</p><p>Um resultado <strong>NEGATIVO</strong> n„o exclui a possibilidade de infecÁ„o, especialmente em fases iniciais dos sintomas. A coleta inadequada da amostra ou baixa carga viral podem levar a um resultado falso-negativo. Se os sintomas persistirem ou em caso de contato com caso confirmado, a avaliaÁ„o mÈdica È recomendada.</p></section>
+          <section className="mt-6 space-y-3" style={{ fontSize: '8pt', lineHeight: '1.2' }}><p><span className="font-bold">Nota:</span> Um resultado <strong>POSITIVO</strong> indica a presen√ßa de ant√≠genos do v√≠rus SARS-CoV-2 na amostra coletada. √â fundamental seguir as orienta√ß√µes de isolamento e procurar acompanhamento m√©dico.</p><p>Um resultado <strong>NEGATIVO</strong> n√£o exclui a possibilidade de infec√ß√£o, especialmente em fases iniciais dos sintomas. A coleta inadequada da amostra ou baixa carga viral podem levar a um resultado falso-negativo. Se os sintomas persistirem ou em caso de contato com caso confirmado, a avalia√ß√£o m√©dica √© recomendada.</p></section>
           <div className="flex-grow"></div>
           <footer className="mt-auto pt-12 text-sm">
             <div className="flex justify-between items-end">
-              <div className="text-center"><div className="w-80 border-t-2 border-black mb-1"></div><p className="font-semibold uppercase">{report.technician_name}</p><p>TÈcnico Respons·vel</p></div>
+              <div className="text-center"><div className="w-80 border-t-2 border-black mb-1"></div><p className="font-semibold uppercase">{report.technician_name}</p><p>T√©cnico Respons√°vel</p></div>
               <div><p className="font-semibold">Data do Laudo: {new Date(report.report_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p></div>
             </div>
-            <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informaÁıes com o profissional de sa˙de.</p>
+            <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informa√ß√µes com o profissional de sa√∫de.</p>
              <div className="text-center mt-8 pt-4 border-t border-black" style={{ fontSize: '8pt' }}><p className="font-bold">Desenvolvido por: Jaime Eduardo | Whats: 51985502897</p></div>
           </footer>
         </div>
@@ -447,29 +447,29 @@
           <header className="text-center mb-6">
             <h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1>
           </header>
-          <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">Teste R·pido para DetecÁ„o de HCG</h1></section>
+          <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">Teste R√°pido para Detec√ß√£o de HCG</h1></section>
           <section className="space-y-3 mb-6 text-sm">
-            {renderUnderlinedField("Nome do usu·rio:", report.patient_name)}
-            {renderUnderlinedField("Prontu·rio:", report.prontuario)}
+            {renderUnderlinedField("Nome do usu√°rio:", report.patient_name)}
+            {renderUnderlinedField("Prontu√°rio:", report.prontuario)}
             <div className="flex space-x-8"><div className="w-1/2">{renderUnderlinedField("Data de Nascimento:", new Date(report.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}</div><div className="w-1/2">{renderUnderlinedField("Sexo:", report.sex)}</div></div>
-            {renderUnderlinedField("Unidade de realizaÁ„o do exame:", report.execution_unit)}
+            {renderUnderlinedField("Unidade de realiza√ß√£o do exame:", report.execution_unit)}
             {renderUnderlinedField("Data da coleta da amostra:", new Date(report.sample_collection_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
           </section>
           <section className="border-2 border-black text-sm">
             <div className="p-2 border-b-2 border-black"><strong>Amostra:</strong> {report.sample_type}</div>
-            <div className="p-2 border-b-2 border-black"><strong>Teste:</strong> Teste R·pido para DetecÁ„o de HCG</div>
+            <div className="p-2 border-b-2 border-black"><strong>Teste:</strong> Teste R√°pido para Detec√ß√£o de HCG</div>
             <div className="flex border-b-2 border-black"><div className="w-1/2 p-2 border-r-2 border-black"><strong>Lote:</strong> {report.lote}</div><div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</div></div>
-            <div className="p-2"><strong>MÈtodo:</strong> {report.method}</div>
+            <div className="p-2"><strong>M√©todo:</strong> {report.method}</div>
           </section>
           <section className="border border-black mt-6 p-2" style={{ backgroundColor: '#f0f0f0' }}><div className="text-right font-semibold text-lg">Resultado</div><div className="text-center text-3xl font-bold my-4 uppercase">{report.result_value}</div></section>
-          <section className="mt-6 space-y-3" style={{ fontSize: '8pt', lineHeight: '1.2' }}><p><span className="font-bold">Nota:</span> Este È um teste de triagem qualitativo. A interpretaÁ„o do resultado deve ser realizada por um profissional de sa˙de, correlacionando com os dados clÌnicos do paciente.</p><p>Resultados <strong>POSITIVOS</strong> s„o sugestivos de gravidez, mas devem ser confirmados por avaliaÁ„o mÈdica. Resultados <strong>NEGATIVOS</strong> em fases muito iniciais da gestaÁ„o podem n„o ser conclusivos. Recomenda-se repetir o teste apÛs alguns dias caso a suspeita persista ou a menstruaÁ„o atrase.</p></section>
+          <section className="mt-6 space-y-3" style={{ fontSize: '8pt', lineHeight: '1.2' }}><p><span className="font-bold">Nota:</span> Este √© um teste de triagem qualitativo. A interpreta√ß√£o do resultado deve ser realizada por um profissional de sa√∫de, correlacionando com os dados cl√≠nicos do paciente.</p><p>Resultados <strong>POSITIVOS</strong> s√£o sugestivos de gravidez, mas devem ser confirmados por avalia√ß√£o m√©dica. Resultados <strong>NEGATIVOS</strong> em fases muito iniciais da gesta√ß√£o podem n√£o ser conclusivos. Recomenda-se repetir o teste ap√≥s alguns dias caso a suspeita persista ou a menstrua√ß√£o atrase.</p></section>
           <div className="flex-grow"></div>
           <footer className="mt-auto pt-12 text-sm">
             <div className="flex justify-between items-end">
-              <div className="text-center"><div className="w-80 border-t-2 border-black mb-1"></div><p className="font-semibold uppercase">{report.technician_name}</p><p>TÈcnico Respons·vel</p></div>
+              <div className="text-center"><div className="w-80 border-t-2 border-black mb-1"></div><p className="font-semibold uppercase">{report.technician_name}</p><p>T√©cnico Respons√°vel</p></div>
               <div><p className="font-semibold">Data do Laudo: {new Date(report.report_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p></div>
             </div>
-            <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informaÁıes com o profissional de sa˙de.</p>
+            <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informa√ß√µes com o profissional de sa√∫de.</p>
              <div className="text-center mt-8 pt-4 border-t border-black" style={{ fontSize: '8pt' }}><p className="font-bold">Desenvolvido por: Jaime Eduardo | Whats: 51985502897</p></div>
           </footer>
         </div>
@@ -481,8 +481,8 @@
             const reportElement = document.getElementById('printable-report-for-pdf');
             
             if (!reportElement || !window.html2canvas || !window.jspdf) {
-              console.error("Elemento do laudo ou bibliotecas de PDF n„o encontrados.");
-              alert("Ocorreu um erro ao preparar a geraÁ„o do PDF. Tente novamente.");
+              console.error("Elemento do laudo ou bibliotecas de PDF n√£o encontrados.");
+              alert("Ocorreu um erro ao preparar a gera√ß√£o do PDF. Tente novamente.");
               onDone();
               return;
             }
@@ -511,7 +511,7 @@
               
               onDone();
             }).catch((err) => {
-              console.error("Erro durante a geraÁ„o do PDF:", err);
+              console.error("Erro durante a gera√ß√£o do PDF:", err);
               alert("Ocorreu um erro ao gerar o arquivo PDF. Verifique o console para mais detalhes.");
               onDone();
             });
@@ -523,14 +523,16 @@
 
         const renderReport = () => {
           switch (report.test_type) {
+            // ########## IN√çCIO DA CORRE√á√ÉO ##########
             case TestType.DENGUE:
               return <DengueTemplate report={report} />;
             case TestType.COVID:
               return <CovidTemplate report={report} />;
             case TestType.HCG:
               return <HcgTemplate report={report} />;
+            // ########## FIM DA CORRE√á√ÉO ##########
             default:
-              return <div className="p-8">Tipo de laudo n„o suportado.</div>;
+              return <div className="p-8">Tipo de laudo n√£o suportado.</div>;
           }
         };
 
@@ -556,7 +558,7 @@
       };
       // --- Fim de: components/ReportPDF.tsx ---
 
-      // --- InÌcio de: components/ReportFormModal.tsx ---
+      // --- In√≠cio de: components/ReportFormModal.tsx ---
       const ReportFormModal = ({ isOpen, onClose, reportToEdit }) => {
         const { addReport, updateReport, stock } = useContext(AppContext);
         
@@ -578,7 +580,7 @@
             lote: '',
             validade: '',
             symptom_start_date: today,
-            sample_type: 'punÁ„o digital',
+            sample_type: 'pun√ß√£o digital',
             method: 'IMUNOCROMATOGRAFIA',
             result: DengueResult.NEGATIVE,
             city: '',
@@ -622,7 +624,7 @@
                   setFormData({
                       ...baseData,
                       symptom_start_date: today,
-                      sample_type: 'punÁ„o digital',
+                      sample_type: 'pun√ß√£o digital',
                       method: 'IMUNOCROMATOGRAFIA',
                       result: DengueResult.NEGATIVE,
                   });
@@ -677,7 +679,7 @@
                   ...commonData,
                   test_type: TestType.DENGUE,
                   symptom_start_date: formData.symptom_start_date || '',
-                  sample_type: 'punÁ„o digital',
+                  sample_type: 'pun√ß√£o digital',
                   method: 'IMUNOCROMATOGRAFIA',
                   result: formData.result,
                 };
@@ -722,7 +724,7 @@
                 break;
               }
               default:
-                alert("Tipo de teste inv·lido selecionado.");
+                alert("Tipo de teste inv√°lido selecionado.");
                 return;
             }
             onClose();
@@ -741,7 +743,7 @@
               return (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Data de InÌcio dos Sintomas</label>
+                    <label className="block text-sm font-medium text-gray-300">Data de In√≠cio dos Sintomas</label>
                     <input type="date" name="symptom_start_date" value={dengueData.symptom_start_date || ''} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
                   </div>
                   <div>
@@ -763,7 +765,7 @@
                    <div>
                     <label className="block text-sm font-medium text-gray-300">Amostra</label>
                     <select name="sample_type" value={covidData.sample_type} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                      <option value="swab nasofarÌngeo">Swab NasofarÌngeo</option>
+                      <option value="swab nasofar√≠ngeo">Swab Nasofar√≠ngeo</option>
                       <option value="swab nasal">Swab Nasal</option>
                     </select>
                   </div>
@@ -784,11 +786,11 @@
               return (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Prontu·rio</label>
+                    <label className="block text-sm font-medium text-gray-300">Prontu√°rio</label>
                     <input type="text" name="prontuario" value={hcgData.prontuario || ''} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Valor de ReferÍncia</label>
+                    <label className="block text-sm font-medium text-gray-300">Valor de Refer√™ncia</label>
                     <input type="text" name="result_value" value={hcgData.result_value || ''} placeholder="ex: <25mUI/mL" className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
                   </div>
                 </>
@@ -837,12 +839,12 @@
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-300">Unidade de ExecuÁ„o</label>
+                      <label className="block text-sm font-medium text-gray-300">Unidade de Execu√ß√£o</label>
                       <input type="text" name="execution_unit" value={formData.execution_unit} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
                     </div>
                     
                      <div>
-                      <label className="block text-sm font-medium text-gray-300">TÈcnico Respons·vel</label>
+                      <label className="block text-sm font-medium text-gray-300">T√©cnico Respons√°vel</label>
                       <input type="text" name="technician_name" value={formData.technician_name} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
                     </div>
 
@@ -878,7 +880,7 @@
                   </div>
                   <div className="flex justify-end space-x-4 pt-4">
                     <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar</button>
-                    <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{reportToEdit ? 'Salvar AlteraÁıes' : 'Criar Laudo'}</button>
+                    <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{reportToEdit ? 'Salvar Altera√ß√µes' : 'Criar Laudo'}</button>
                   </div>
               </form>
             </div>
@@ -887,7 +889,7 @@
       };
       // --- Fim de: components/ReportFormModal.tsx ---
 
-      // --- InÌcio de: components/Sidebar.tsx ---
+      // --- In√≠cio de: components/Sidebar.tsx ---
       const Sidebar = ({ currentPage, setPage }) => {
         const { isInventoryUnlocked, setIsInventoryUnlocked } = useContext(AppContext);
         const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -956,10 +958,10 @@
             />
           </>
         );
-      [cite_start]}; [cite: 1]
+      };
       // --- Fim de: components/Sidebar.tsx ---
 
-      // --- InÌcio de: components/Dashboard.tsx ---
+      // --- In√≠cio de: components/Dashboard.tsx ---
       const DashboardCard = ({ title, value, icon, colorClass }) => (
           <div className={`bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d hover:shadow-3d-hover transition-all duration-300 flex items-center space-x-4 border border-gray-700/50 transform hover:-translate-y-1`}>
               <div className={`p-3 rounded-full ${colorClass}`}>
@@ -1067,7 +1069,7 @@
             <div className="mt-8 flex justify-center">
               <img 
                 src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" 
-                alt="Campanha de conscientizaÁ„o sobre violÍncia contra a mulher"
+                alt="Campanha de conscientiza√ß√£o sobre viol√™ncia contra a mulher"
                 className="rounded-lg shadow-3d w-full h-64 object-cover border border-gray-700/50"
               />
             </div>
@@ -1077,7 +1079,7 @@
       };
       // --- Fim de: components/Dashboard.tsx ---
 
-      // --- InÌcio de: components/Reports.tsx ---
+      // --- In√≠cio de: components/Reports.tsx ---
       const Reports = () => {
         const { reports, deleteReport } = useContext(AppContext);
         const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1143,8 +1145,8 @@
                       <th className="p-4">Paciente</th>
                       <th className="p-4">Tipo de Teste</th>
                       <th className="p-4">Data do Laudo</th>
-                      <th className="p-4">TÈcnico</th>
-                      <th className="p-4 text-center">AÁıes</th>
+                      <th className="p-4">T√©cnico</th>
+                      <th className="p-4 text-center">A√ß√µes</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1186,8 +1188,8 @@
                 isOpen={!!reportToDelete}
                 onClose={() => setReportToDelete(null)}
                 onConfirm={handleDelete}
-                title="Confirmar Exclus„o"
-                message={`Tem certeza que deseja excluir o laudo do paciente ${reportToDelete.patient_name}? Esta aÁ„o n„o pode ser desfeita.`}
+                title="Confirmar Exclus√£o"
+                message={`Tem certeza que deseja excluir o laudo do paciente ${reportToDelete.patient_name}? Esta a√ß√£o n√£o pode ser desfeita.`}
               />
             )}
 
@@ -1202,7 +1204,7 @@
       };
       // --- Fim de: components/Reports.tsx ---
 
-      // --- InÌcio de: components/Inventory.tsx ---
+      // --- In√≠cio de: components/Inventory.tsx ---
       const Inventory = () => {
         const { stock, deleteStockItem } = useContext(AppContext);
         const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1254,7 +1256,7 @@
                       <th className="p-4">Lote</th>
                       <th className="p-4">Validade</th>
                       <th className="p-4">Quantidade</th>
-                      <th className="p-4 text-center">AÁıes</th>
+                      <th className="p-4 text-center">A√ß√µes</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1293,7 +1295,7 @@
                 isOpen={!!itemToDelete}
                 onClose={() => setItemToDelete(null)}
                 onConfirm={handleDelete}
-                title="Confirmar Exclus„o"
+                title="Confirmar Exclus√£o"
                 message={`Tem certeza que deseja excluir o item de estoque "${itemToDelete.test_type}" (Lote: ${itemToDelete.lote})?`}
               />
             )}
@@ -1302,7 +1304,7 @@
       };
       // --- Fim de: components/Inventory.tsx ---
 
-      // --- InÌcio de: components/Indicators.tsx ---
+      // --- In√≠cio de: components/Indicators.tsx ---
       const Indicators = () => {
         const { indicators, addIndicator, updateIndicator, deleteIndicator } = useContext(AppContext);
 
@@ -1345,7 +1347,7 @@
         const handleSubmit = async (e) => {
           e.preventDefault();
           if (!formData.gmus || !formData.professional) {
-              alert("Os campos G'mus e Profissional s„o obrigatÛrios.");
+              alert("Os campos G'mus e Profissional s√£o obrigat√≥rios.");
               return;
           }
           
@@ -1387,7 +1389,7 @@
         };
         
         const handleExportCSV = () => {
-          const headers = ['Data', 'G\'mus', 'Press„o', 'HGT', 'Peso (Kg)', 'Estatura (Cm)', 'Profissional'];
+          const headers = ['Data', 'G\'mus', 'Press√£o', 'HGT', 'Peso (Kg)', 'Estatura (Cm)', 'Profissional'];
           const rows = sortedIndicators.map(rec => 
               [
                   new Date(rec.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}),
@@ -1432,7 +1434,7 @@
                     <input type="text" name="gmus" value={formData.gmus} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
                   </div>
                    <div>
-                    <label className="block text-sm font-medium text-gray-300">Press„o</label>
+                    <label className="block text-sm font-medium text-gray-300">Press√£o</label>
                     <input type="text" name="pressure" value={formData.pressure} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
                   </div>
                    <div>
@@ -1454,16 +1456,16 @@
                 </div>
                 <div className="flex justify-end space-x-4 pt-2">
                   {recordToEdit && (
-                      <button type="button" onClick={handleCancelEdit} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar EdiÁ„o</button>
+                      <button type="button" onClick={handleCancelEdit} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar Edi√ß√£o</button>
                   )}
-                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{recordToEdit ? 'Salvar AlteraÁıes' : 'Salvar Registro'}</button>
+                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{recordToEdit ? 'Salvar Altera√ß√µes' : 'Salvar Registro'}</button>
                 </div>
               </form>
             </div>
 
             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d border border-gray-700/50">
               <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-white">RelatÛrios</h2>
+                  <h2 className="text-2xl font-bold text-white">Relat√≥rios</h2>
                   <button onClick={handleExportCSV} className="bg-brand-accent hover:bg-opacity-80 text-black font-bold py-2 px-4 rounded-lg flex items-center transition-transform duration-200 transform hover:scale-105 shadow-lg">
                       <DownloadIcon /> <span className="ml-2">Exportar para CSV</span>
                   </button>
@@ -1474,12 +1476,12 @@
                     <tr>
                       <th className="p-4">Data</th>
                       <th className="p-4">G'mus</th>
-                      <th className="p-4">Press„o</th>
+                      <th className="p-4">Press√£o</th>
                       <th className="p-4">HGT</th>
                       <th className="p-4">Peso</th>
                       <th className="p-4">Estatura</th>
                       <th className="p-4">Profissional</th>
-                      <th className="p-4 text-center">AÁıes</th>
+                      <th className="p-4 text-center">A√ß√µes</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1513,7 +1515,7 @@
                 isOpen={!!recordToDelete}
                 onClose={() => setRecordToDelete(null)}
                 onConfirm={handleDelete}
-                title="Confirmar Exclus„o"
+                title="Confirmar Exclus√£o"
                 message={`Tem certeza que deseja excluir o registro do dia ${new Date(recordToDelete.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}?`}
               />
             )}
@@ -1522,7 +1524,7 @@
       };
       // --- Fim de: components/Indicators.tsx ---
 
-      // --- InÌcio de: App.tsx ---
+      // --- In√≠cio de: App.tsx ---
       const App = () => {
         const [currentPage, setCurrentPage] = useState('dashboard');
         const [reports, setReports] = useState([]);
@@ -1550,7 +1552,7 @@
 
           } catch (error) {
             console.error("Erro ao buscar dados:", error);
-            alert("N„o foi possÌvel carregar os dados do banco de dados. Verifique sua conex„o e as configuraÁıes do Supabase.");
+            alert("N√£o foi poss√≠vel carregar os dados do banco de dados. Verifique sua conex√£o e as configura√ß√µes do Supabase.");
           } finally {
             setIsLoading(false);
           }
@@ -1560,7 +1562,7 @@
           fetchData();
         }, [fetchData]);
 
-        // FunÁıes de AÁ„o (CRUD)
+        // Fun√ß√µes de A√ß√£o (CRUD)
         const addReport = async (reportData) => {
           // 1. Adicionar o laudo
           const { data: newReport, error: reportError } = await supabase
@@ -1686,7 +1688,7 @@
       };
       // --- Fim de: App.tsx ---
 
-      // --- InÌcio de: index.tsx (Ponto de Entrada) ---
+      // --- In√≠cio de: index.tsx (Ponto de Entrada) ---
       const rootElement = document.getElementById('root');
       if (!rootElement) {
         throw new Error("Could not find root element to mount to");
