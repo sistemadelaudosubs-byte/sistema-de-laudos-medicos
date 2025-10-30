@@ -9,6 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
     <script>
       tailwind.config = {
         theme: {
@@ -32,9 +34,21 @@
                 '0%': { opacity: '0', transform: 'translateY(10px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
               },
+              // NOVO: Animação para "pular" (pop)
+              'pop-in': {
+                '0%': { opacity: '0', transform: 'scale(0.9)' },
+                '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              // NOVO: Animação para deslizar da esquerda
+              'slide-in-left': {
+                '0%': { opacity: '0', transform: 'translateX(-100px)' },
+                '100%': { opacity: '1', transform: 'translateX(0)' },
+              },
             },
             animation: {
               'fade-in': 'fade-in 0.5s ease-out forwards',
+              'pop-in': 'pop-in 0.3s ease-out forwards',
+              'slide-in-left': 'slide-in-left 0.5s ease-out forwards',
             },
           },
         },
@@ -143,7 +157,7 @@
 
       const DocumentTextIcon = () => (
           <svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
       );
 
@@ -155,29 +169,30 @@
 
       const PencilIcon = () => (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
           </svg>
       );
 
       const TrashIcon = () => (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
       );
 
       const DownloadIcon = () => (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
       );
       // --- Fim de: components/icons/Icons.tsx ---
 
       // --- Início de: components/ConfirmationModal.tsx ---
+      // MODIFICADO: Animação "animate-pop-in"
       const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         if (!isOpen) return null;
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-fade-in p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
             <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
               <div className="p-5 space-y-4">
                 <h2 className="text-2xl font-bold text-white">{title}</h2>
@@ -198,6 +213,7 @@
       // --- Fim de: components/ConfirmationModal.tsx ---
 
       // --- Início de: components/PasswordModal.tsx ---
+      // MODIFICADO: Animação "animate-pop-in"
       const PasswordModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         const [password, setPassword] = useState('');
 
@@ -209,7 +225,7 @@
         };
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-fade-in p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
             <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
               <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 <h2 className="text-2xl font-bold text-white">{title}</h2>
@@ -242,6 +258,7 @@
       // --- Fim de: components/PasswordModal.tsx ---
 
       // --- Início de: components/StockFormModal.tsx ---
+      // MODIFICADO: Animação "animate-pop-in"
       const StockFormModal = ({ isOpen, onClose, itemToEdit }) => {
         const { addStockItem, updateStockItem } = useContext(AppContext);
         const [formData, setFormData] = useState({
@@ -303,7 +320,7 @@
         if (!isOpen) return null;
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-fade-in">
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in">
             <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
               <form onSubmit={handleSubmit} className="p-5 space-y-3">
                 <h2 className="text-2xl font-bold text-white pb-2">{itemToEdit ? 'Editar Item do Estoque' : 'Adicionar ao Estoque'}</h2>
@@ -523,14 +540,12 @@
 
         const renderReport = () => {
           switch (report.test_type) {
-            // ########## INÍCIO DA CORREÇÃO ##########
             case TestType.DENGUE:
               return <DengueTemplate report={report} />;
             case TestType.COVID:
               return <CovidTemplate report={report} />;
             case TestType.HCG:
               return <HcgTemplate report={report} />;
-            // ########## FIM DA CORREÇÃO ##########
             default:
               return <div className="p-8">Tipo de laudo não suportado.</div>;
           }
@@ -559,6 +574,7 @@
       // --- Fim de: components/ReportPDF.tsx ---
 
       // --- Início de: components/ReportFormModal.tsx ---
+      // MODIFICADO: Animação "animate-pop-in"
       const ReportFormModal = ({ isOpen, onClose, reportToEdit }) => {
         const { addReport, updateReport, stock } = useContext(AppContext);
         
@@ -801,7 +817,7 @@
         };
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-fade-in p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
             <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-700/50">
               <form onSubmit={handleSubmit} className="p-5">
                   <h2 className="text-2xl font-bold text-white mb-4">{reportToEdit ? 'Editar Laudo' : 'Novo Laudo'}</h2>
@@ -890,6 +906,7 @@
       // --- Fim de: components/ReportFormModal.tsx ---
 
       // --- Início de: components/Sidebar.tsx ---
+      // MODIFICADO: Animação "animate-slide-in-left"
       const Sidebar = ({ currentPage, setPage }) => {
         const { isInventoryUnlocked, setIsInventoryUnlocked } = useContext(AppContext);
         const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -922,7 +939,7 @@
 
         return (
           <>
-            <aside className="w-16 sm:w-64 bg-black bg-opacity-20 backdrop-blur-lg border-r border-gray-700/50 flex flex-col transition-all duration-300">
+            <aside className="w-16 sm:w-64 bg-black bg-opacity-20 backdrop-blur-lg border-r border-gray-700/50 flex flex-col transition-all duration-300 animate-slide-in-left">
               <div className="flex items-center justify-center sm:justify-start h-20 border-b border-gray-700/50 px-4">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -1524,6 +1541,36 @@
       };
       // --- Fim de: components/Indicators.tsx ---
 
+      // --- NOVO: componente SplashScreen ---
+      const SplashScreen = ({ onFinished }) => {
+        // Este efeito vai rodar apenas uma vez
+        useEffect(() => {
+          const timer = setTimeout(() => {
+            onFinished();
+          }, 4000); // 4 segundos
+          
+          // Limpa o timer se o componente for desmontado
+          return () => clearTimeout(timer);
+        }, [onFinished]);
+
+        return (
+          <div className="flex h-screen w-full flex-col items-center justify-center bg-brand-gray animate-fade-in">
+            <lottie-player
+              src="https://lottie.host/190369e5-9051-4b10-9111-c91f0f0c090d/YlQBqa3Y13.json"
+              background="transparent"
+              speed="1"
+              style={{ width: '300px', height: '300px' }}
+              loop
+              autoplay
+            ></lottie-player>
+            <h1 className="text-2xl font-bold text-white opacity-80">
+              Carregando Sistema de Laudos...
+            </h1>
+          </div>
+        );
+      };
+      // --- FIM: SplashScreen ---
+
       // --- Início de: App.tsx ---
       const App = () => {
         const [currentPage, setCurrentPage] = useState('dashboard');
@@ -1688,18 +1735,31 @@
       };
       // --- Fim de: App.tsx ---
 
-      // --- Início de: index.tsx (Ponto de Entrada) ---
+      // --- Início de: index.tsx (Ponto de Entrada MODIFICADO) ---
+      
+      // Componente principal que decide entre Splash e App
+      const Main = () => {
+        const [showSplash, setShowSplash] = useState(true);
+
+        if (showSplash) {
+          return <SplashScreen onFinished={() => setShowSplash(false)} />;
+        }
+
+        return (
+          <React.StrictMode>
+            <App />
+          </React.StrictMode>
+        );
+      };
+
+      // Renderiza o componente Main
       const rootElement = document.getElementById('root');
       if (!rootElement) {
         throw new Error("Could not find root element to mount to");
       }
 
       const root = createRoot(rootElement);
-      root.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
+      root.render(<Main />);
       // --- Fim de: index.tsx ---
 
     </script>
