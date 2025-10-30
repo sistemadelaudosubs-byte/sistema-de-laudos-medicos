@@ -9,8 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
     <script>
       tailwind.config = {
         theme: {
@@ -34,12 +32,10 @@
                 '0%': { opacity: '0', transform: 'translateY(10px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
               },
-              // NOVO: Animação para "pular" (pop)
               'pop-in': {
                 '0%': { opacity: '0', transform: 'scale(0.9)' },
                 '100%': { opacity: '1', transform: 'scale(1)' },
               },
-              // NOVO: Animação para deslizar da esquerda
               'slide-in-left': {
                 '0%': { opacity: '0', transform: 'translateX(-100px)' },
                 '100%': { opacity: '1', transform: 'translateX(0)' },
@@ -187,7 +183,6 @@
       // --- Fim de: components/icons/Icons.tsx ---
 
       // --- Início de: components/ConfirmationModal.tsx ---
-      // MODIFICADO: Animação "animate-pop-in"
       const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         if (!isOpen) return null;
 
@@ -213,7 +208,6 @@
       // --- Fim de: components/ConfirmationModal.tsx ---
 
       // --- Início de: components/PasswordModal.tsx ---
-      // MODIFICADO: Animação "animate-pop-in"
       const PasswordModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         const [password, setPassword] = useState('');
 
@@ -258,7 +252,6 @@
       // --- Fim de: components/PasswordModal.tsx ---
 
       // --- Início de: components/StockFormModal.tsx ---
-      // MODIFICADO: Animação "animate-pop-in"
       const StockFormModal = ({ isOpen, onClose, itemToEdit }) => {
         const { addStockItem, updateStockItem } = useContext(AppContext);
         const [formData, setFormData] = useState({
@@ -574,7 +567,6 @@
       // --- Fim de: components/ReportPDF.tsx ---
 
       // --- Início de: components/ReportFormModal.tsx ---
-      // MODIFICADO: Animação "animate-pop-in"
       const ReportFormModal = ({ isOpen, onClose, reportToEdit }) => {
         const { addReport, updateReport, stock } = useContext(AppContext);
         
@@ -906,7 +898,6 @@
       // --- Fim de: components/ReportFormModal.tsx ---
 
       // --- Início de: components/Sidebar.tsx ---
-      // MODIFICADO: Animação "animate-slide-in-left"
       const Sidebar = ({ currentPage, setPage }) => {
         const { isInventoryUnlocked, setIsInventoryUnlocked } = useContext(AppContext);
         const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -1083,13 +1074,15 @@
               </div>
             </div>
             
-            <div className="mt-8 flex justify-center">
+            {/* --- MODIFICAÇÃO DA IMAGEM --- */}
+            <div className="mt-8">
               <img 
                 src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" 
                 alt="Campanha de conscientização sobre violência contra a mulher"
-                className="rounded-lg shadow-3d w-full h-64 object-cover border border-gray-700/50"
+                className="rounded-lg shadow-3d w-full object-cover border border-gray-700/50 aspect-video"
               />
             </div>
+            {/* --- FIM DA MODIFICAÇÃO --- */}
 
           </div>
         );
@@ -1541,36 +1534,6 @@
       };
       // --- Fim de: components/Indicators.tsx ---
 
-      // --- NOVO: componente SplashScreen ---
-      const SplashScreen = ({ onFinished }) => {
-        // Este efeito vai rodar apenas uma vez
-        useEffect(() => {
-          const timer = setTimeout(() => {
-            onFinished();
-          }, 4000); // 4 segundos
-          
-          // Limpa o timer se o componente for desmontado
-          return () => clearTimeout(timer);
-        }, [onFinished]);
-
-        return (
-          <div className="flex h-screen w-full flex-col items-center justify-center bg-brand-gray animate-fade-in">
-            <lottie-player
-              src="https://lottie.host/190369e5-9051-4b10-9111-c91f0f0c090d/YlQBqa3Y13.json"
-              background="transparent"
-              speed="1"
-              style={{ width: '300px', height: '300px' }}
-              loop
-              autoplay
-            ></lottie-player>
-            <h1 className="text-2xl font-bold text-white opacity-80">
-              Carregando Sistema de Laudos...
-            </h1>
-          </div>
-        );
-      };
-      // --- FIM: SplashScreen ---
-
       // --- Início de: App.tsx ---
       const App = () => {
         const [currentPage, setCurrentPage] = useState('dashboard');
@@ -1735,31 +1698,19 @@
       };
       // --- Fim de: App.tsx ---
 
-      // --- Início de: index.tsx (Ponto de Entrada MODIFICADO) ---
-      
-      // Componente principal que decide entre Splash e App
-      const Main = () => {
-        const [showSplash, setShowSplash] = useState(true);
-
-        if (showSplash) {
-          return <SplashScreen onFinished={() => setShowSplash(false)} />;
-        }
-
-        return (
-          <React.StrictMode>
-            <App />
-          </React.StrictMode>
-        );
-      };
-
-      // Renderiza o componente Main
+      // --- Início de: index.tsx (Ponto de Entrada) ---
+      // Esta é a versão sem a tela de splash
       const rootElement = document.getElementById('root');
       if (!rootElement) {
         throw new Error("Could not find root element to mount to");
       }
 
       const root = createRoot(rootElement);
-      root.render(<Main />);
+      root.render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
       // --- Fim de: index.tsx ---
 
     </script>
