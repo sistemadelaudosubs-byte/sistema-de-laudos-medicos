@@ -3,66 +3,98 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de Laudos - UBS Santo Afonso</title>
+    <title>Sistema UBS Santo Afonso - Neon Edition</title>
+    
+    <!-- Bibliotecas Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Bibliotecas de PDF (Essenciais) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
+    <!-- Configuração do Tema Neon 3D -->
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#00c3ff',
-              'brand-secondary': '#ff00aa',
-              'brand-accent': '#00ff95',
-              'brand-dark': '#121212',
-              'brand-light-gray': '#282828',
-              'brand-gray': '#181818',
-              'danger': '#e53e3e',
-              'warning': '#dd6b20',
+              brand: {
+                primary: '#39FF14', // Verde Neon Clássico
+                secondary: '#00cc00', // Verde mais escuro para profundidade
+                dark: '#050505', // Preto profundo
+                surface: '#111111', // Quase preto para cartões
+                dim: '#1a1a1a', 
+                danger: '#ff003c', // Vermelho Neon
+                warning: '#f0e130', // Amarelo Neon
+              },
+            },
+            fontFamily: {
+              mono: ['Courier New', 'Courier', 'monospace'], // Sensação Tech/Retro
             },
             boxShadow: {
-              '3d': '0 5px 15px rgba(0, 0, 0, 0.3)',
-              '3d-hover': '0 8px 25px rgba(0, 0, 0, 0.4)',
+              'neon': '0 0 5px #39FF14, 0 0 10px rgba(57, 255, 20, 0.5)',
+              'neon-strong': '0 0 10px #39FF14, 0 0 20px #39FF14',
+              '3d': '5px 5px 0px 0px #005500', // Sombra dura verde para efeito 3D
+              '3d-hover': '2px 2px 0px 0px #005500', // Efeito pressionado
+              'card': '0 0 15px rgba(57, 255, 20, 0.1), inset 0 0 20px rgba(0,0,0,0.8)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'pulse-neon': 'pulseNeon 2s infinite',
             },
             keyframes: {
-              'fade-in': {
+              fadeIn: {
                 '0%': { opacity: '0', transform: 'translateY(10px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
               },
-              'pop-in': {
-                '0%': { opacity: '0', transform: 'scale(0.9)' },
-                '100%': { opacity: '1', transform: 'scale(1)' },
-              },
-              'slide-in-left': {
-                '0%': { opacity: '0', transform: 'translateX(-100px)' },
-                '100%': { opacity: '1', transform: 'translateX(0)' },
-              },
-            },
-            animation: {
-              'fade-in': 'fade-in 0.5s ease-out forwards',
-              'pop-in': 'pop-in 0.3s ease-out forwards',
-              'slide-in-left': 'slide-in-left 0.5s ease-out forwards',
+              pulseNeon: {
+                '0%, 100%': { boxShadow: '0 0 5px #39FF14' },
+                '50%': { boxShadow: '0 0 20px #39FF14' },
+              }
             },
           },
         },
       };
     </script>
     
-    <script type="importmap">
-      {
-        "imports": {
-          "react": "https://esm.sh/react@18.2.0",
-          "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
-          "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-          "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
-        }
+    <style>
+      body {
+        background-color: #050505;
+        color: #e0e0e0;
       }
-    </script>
-  </head>
-  <body class="bg-brand-dark text-white">
+      /* Scrollbar customizada estilo Neon */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #005500; 
+        border: 1px solid #39FF14;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #39FF14; 
+      }
+    </style>
+    
+    <!-- Importmap para React e Supabase -->
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
     <div id="root"></div>
 
     <script type="text/babel" data-type="module">
@@ -70,55 +102,42 @@
       import { createRoot } from 'react-dom/client';
       import { createClient } from '@supabase/supabase-js';
 
-      // --- Início de: types.ts (Enums) ---
-      var TestType;
-      (function (TestType) {
-          TestType["DENGUE"] = "DENGUE - NS1";
-          TestType["COVID"] = "COVID-19 - ANT\u00CDGENO";
-          TestType["HCG"] = "HCG - BETA-HCG";
-      })(TestType || (TestType = {}));
+      // ==========================================
+      // 1. TYPES E ENUMS
+      // ==========================================
+      const TestType = {
+        DENGUE: "DENGUE - NS1",
+        COVID: "COVID-19 - ANTÍGENO",
+        HCG: "HCG - BETA-HCG",
+      };
 
-      var DengueResult;
-      (function (DengueResult) {
-          DengueResult["NEGATIVE"] = "NEGATIVO";
-          DengueResult["IGG_REAGENT"] = "IGG REAGENTE";
-          DengueResult["IGM_REAGENT"] = "IGM REAGENTE";
-          DengueResult["IGG_IGM_REAGENT"] = "IGG E IGM REAGENTES";
-      })(DengueResult || (DengueResult = {}));
+      const DengueResult = {
+        NEGATIVE: "NEGATIVO",
+        IGG_REAGENT: "IGG REAGENTE",
+        IGM_REAGENT: "IGM REAGENTE",
+        IGG_IGM_REAGENT: "IGG E IGM REAGENTES",
+      };
 
-      var CovidResult;
-      (function (CovidResult) {
-          CovidResult["NEGATIVE"] = "NEGATIVO";
-          CovidResult["POSITIVE"] = "POSITIVO";
-      })(CovidResult || (CovidResult = {}));
-      // --- Fim de: types.ts (Enums) ---
+      const CovidResult = {
+        NEGATIVE: "NEGATIVO",
+        POSITIVE: "POSITIVO",
+      };
 
-      // --- Início de: lib/supabaseClient.ts ---
+      const HcgResult = {
+        NEGATIVE: "NEGATIVO",
+        POSITIVE: "POSITIVO",
+      };
+
+      // ==========================================
+      // 2. SUPABASE CLIENT
+      // ==========================================
       const supabaseUrl = 'https://avcpoeouasfeuqsbyuoy.supabase.co';
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2Y3BvZW91YXNmZXVxc2J5dW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0OTkxMjIsImV4cCI6MjA3NzA3NTEyMn0.0eF-yCEBAuHl8B3ORN7VYfJnnEIY0m1bMj8R_FsntNM';
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
-      // --- Fim de: lib/supabaseClient.ts ---
 
-      // --- Início de: contexts/AppContext.ts ---
-      const AppContext = createContext({
-        reports: [],
-        stock: [],
-        indicators: [],
-        isInventoryUnlocked: false,
-        setIsInventoryUnlocked: () => {},
-        addReport: async () => {},
-        updateReport: async () => {},
-        deleteReport: async () => {},
-        addStockItem: async () => {},
-        updateStockItem: async () => {},
-        deleteStockItem: async () => {},
-        addIndicator: async () => {},
-        updateIndicator: async () => {},
-        deleteIndicator: async () => {},
-      });
-      // --- Fim de: contexts/AppContext.ts ---
-
-      // --- Início de: components/icons/Icons.tsx ---
+      // ==========================================
+      // 3. ICONS
+      // ==========================================
       const iconClass = "h-6 w-6";
 
       const HomeIcon = () => (
@@ -180,129 +199,213 @@
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
       );
-      // --- Fim de: components/icons/Icons.tsx ---
 
-      // --- Início de: components/ConfirmationModal.tsx ---
-      const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-        if (!isOpen) return null;
+      // ==========================================
+      // 4. CONTEXT
+      // ==========================================
+      const AppContext = createContext({
+        reports: [],
+        stock: [],
+        indicators: [],
+        isInventoryUnlocked: false,
+        isLoading: true,
+        setIsInventoryUnlocked: () => {},
+        addReport: async () => {},
+        updateReport: async () => {},
+        deleteReport: async () => {},
+        addStockItem: async () => {},
+        updateStockItem: async () => {},
+        deleteStockItem: async () => {},
+        addIndicator: async () => {},
+        updateIndicator: async () => {},
+        deleteIndicator: async () => {},
+      });
+
+      const AppProvider = ({ children }) => {
+        const [reports, setReports] = useState([]);
+        const [stock, setStock] = useState([]);
+        const [indicators, setIndicators] = useState([]);
+        const [isLoading, setIsLoading] = useState(true);
+        const [isInventoryUnlocked, setIsInventoryUnlocked] = useState(false);
+
+        const fetchData = useCallback(async () => {
+          setIsLoading(true);
+          try {
+            const reportsPromise = supabase.from('reports').select('*').order('created_at', { ascending: false });
+            const stockPromise = supabase.from('stock').select('*').order('test_type', { ascending: true });
+            const indicatorsPromise = supabase.from('indicators').select('*').order('date', { ascending: false });
+
+            const [reportsRes, stockRes, indicatorsRes] = await Promise.all([reportsPromise, stockPromise, indicatorsPromise]);
+
+            if (reportsRes.error) throw reportsRes.error;
+            if (stockRes.error) throw stockRes.error;
+            if (indicatorsRes.error) throw indicatorsRes.error;
+
+            setReports(reportsRes.data);
+            setStock(stockRes.data);
+            setIndicators(indicatorsRes.data);
+
+          } catch (error) {
+            console.error("Erro ao buscar dados:", error);
+          } finally {
+            setIsLoading(false);
+          }
+        }, []);
+
+        useEffect(() => {
+          fetchData();
+        }, [fetchData]);
+
+        const addReport = async (reportData) => {
+          const { data: newReport, error: reportError } = await supabase.from('reports').insert([reportData]).select().single();
+          if (reportError) throw reportError;
+
+          const stockItem = stock.find(item => item.lote === reportData.lote && item.test_type === reportData.test_type);
+          if (stockItem && stockItem.quantity > 0) {
+            const { error: stockError } = await supabase.from('stock').update({ quantity: stockItem.quantity - 1 }).eq('id', stockItem.id);
+            if (stockError) console.error("Erro ao atualizar estoque:", stockError);
+          }
+          await fetchData();
+        };
+
+        const updateReport = async (id, data) => {
+          const { error } = await supabase.from('reports').update(data).eq('id', id);
+          if (error) throw error;
+          await fetchData();
+        };
+
+        const deleteReport = async (id) => {
+          const { error } = await supabase.from('reports').delete().eq('id', id);
+          if (error) throw error;
+          setReports(prev => prev.filter(r => r.id !== id));
+        };
+
+        const addStockItem = async (data) => {
+          const { error } = await supabase.from('stock').insert([data]);
+          if (error) throw error;
+          await fetchData();
+        };
+
+        const updateStockItem = async (id, data) => {
+          const { error } = await supabase.from('stock').update(data).eq('id', id);
+          if (error) throw error;
+          await fetchData();
+        };
+
+        const deleteStockItem = async (id) => {
+          const { error } = await supabase.from('stock').delete().eq('id', id);
+          if (error) throw error;
+          setStock(prev => prev.filter(s => s.id !== id));
+        };
+
+        const addIndicator = async (data) => {
+          const { error } = await supabase.from('indicators').insert([data]);
+          if (error) throw error;
+          await fetchData();
+        };
+
+        const updateIndicator = async (id, data) => {
+          const { error } = await supabase.from('indicators').update(data).eq('id', id);
+          if (error) throw error;
+          await fetchData();
+        };
+
+        const deleteIndicator = async (id) => {
+          const { error } = await supabase.from('indicators').delete().eq('id', id);
+          if (error) throw error;
+          setIndicators(prev => prev.filter(i => i.id !== id));
+        };
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
-              <div className="p-5 space-y-4">
-                <h2 className="text-2xl font-bold text-white">{title}</h2>
-                <p className="text-gray-300">{message}</p>
+          <AppContext.Provider value={{
+            reports, stock, indicators, isInventoryUnlocked, isLoading,
+            setIsInventoryUnlocked, addReport, updateReport, deleteReport,
+            addStockItem, updateStockItem, deleteStockItem,
+            addIndicator, updateIndicator, deleteIndicator
+          }}>
+            {children}
+          </AppContext.Provider>
+        );
+      };
+
+      // ==========================================
+      // 5. COMPONENTS
+      // ==========================================
+
+      // --- ConfirmationModal ---
+      const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
+        if (!isOpen) return null;
+        return (
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-[100] animate-fade-in backdrop-blur-sm p-4">
+            <div className="bg-brand-surface border-2 border-brand-danger shadow-neon-strong w-full max-w-md p-1 relative">
+              <div className="absolute top-0 left-0 w-full h-1 bg-brand-danger shadow-[0_0_10px_#ff003c]"></div>
+              <div className="p-6 space-y-6">
+                <h2 className="text-2xl font-bold text-brand-danger uppercase tracking-widest border-b border-brand-danger pb-2">{title}</h2>
+                <p className="text-gray-300 font-mono text-lg">{message}</p>
                 <div className="flex justify-end space-x-4 pt-4">
-                  <button onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">
-                    Cancelar
-                  </button>
-                  <button onClick={onConfirm} className="py-2 px-4 bg-danger hover:bg-opacity-80 text-white font-bold rounded-lg transition">
-                    Confirmar Exclusão
-                  </button>
+                  <button onClick={onClose} className="py-3 px-6 border-2 border-gray-500 text-gray-400 font-bold hover:bg-gray-800 transition shadow-3d active:shadow-none active:translate-y-1 uppercase tracking-wider">Cancelar</button>
+                  <button onClick={onConfirm} className="py-3 px-6 bg-brand-danger border-2 border-brand-danger text-black font-bold shadow-3d hover:shadow-3d-hover active:shadow-none active:translate-y-1 transition uppercase tracking-wider">CONFIRMAR</button>
                 </div>
               </div>
             </div>
           </div>
         );
       };
-      // --- Fim de: components/ConfirmationModal.tsx ---
 
-      // --- Início de: components/PasswordModal.tsx ---
+      // --- PasswordModal ---
       const PasswordModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         const [password, setPassword] = useState('');
-
         if (!isOpen) return null;
-
         const handleSubmit = (e) => {
           e.preventDefault();
           onConfirm(password);
         };
-
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
-              <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                <h2 className="text-2xl font-bold text-white">{title}</h2>
-                <p className="text-gray-300">{message}</p>
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-[100] animate-fade-in p-4 backdrop-blur-sm">
+            <div className="bg-brand-surface border-2 border-brand-primary shadow-neon w-full max-w-md relative">
+              <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                <h2 className="text-2xl font-bold text-brand-primary uppercase tracking-widest text-shadow-neon">{title}</h2>
+                <p className="text-gray-400 font-mono">{message}</p>
                 <div>
                   <label htmlFor="password-input" className="sr-only">Senha</label>
-                  <input
-                    id="password-input"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"
-                    placeholder="Digite a senha"
-                    autoFocus
-                  />
+                  <input id="password-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-black border-2 border-brand-primary text-brand-primary p-3 focus:outline-none focus:shadow-neon placeholder-gray-700 font-mono text-xl text-center tracking-[0.5em]" placeholder="••••••" autoFocus />
                 </div>
                 <div className="flex justify-end space-x-4 pt-4">
-                  <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">
-                    Cancelar
-                  </button>
-                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">
-                    Acessar
-                  </button>
+                  <button type="button" onClick={onClose} className="py-2 px-4 border border-gray-600 text-gray-400 hover:text-white hover:border-white transition uppercase font-bold tracking-wider">Cancelar</button>
+                  <button type="submit" className="py-2 px-6 bg-brand-primary text-black font-bold border-2 border-brand-primary shadow-3d hover:shadow-3d-hover active:shadow-none active:translate-y-1 transition uppercase tracking-wider">Acessar</button>
                 </div>
               </form>
             </div>
           </div>
         );
       };
-      // --- Fim de: components/PasswordModal.tsx ---
 
-      // --- Início de: components/StockFormModal.tsx ---
+      // --- StockFormModal ---
       const StockFormModal = ({ isOpen, onClose, itemToEdit }) => {
         const { addStockItem, updateStockItem } = useContext(AppContext);
-        const [formData, setFormData] = useState({
-          test_type: TestType.DENGUE,
-          lote: '',
-          validade: '',
-          quantity: 0,
-        });
+        const [formData, setFormData] = useState({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 });
 
         useEffect(() => {
           if (itemToEdit) {
-            setFormData({
-              test_type: itemToEdit.test_type,
-              lote: itemToEdit.lote,
-              validade: itemToEdit.validade,
-              quantity: itemToEdit.quantity,
-            });
+            setFormData({ test_type: itemToEdit.test_type, lote: itemToEdit.lote, validade: itemToEdit.validade, quantity: itemToEdit.quantity });
           } else {
-            setFormData({
-              test_type: TestType.DENGUE,
-              lote: '',
-              validade: '',
-              quantity: 0,
-            });
+            setFormData({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 });
           }
         }, [itemToEdit, isOpen]);
 
         const handleChange = (e) => {
           const { name, value } = e.target;
           let finalValue = value;
-
-          if (name === 'quantity') {
-            finalValue = parseInt(value, 10) || 0;
-          } else if (e.target.type === 'text') {
-            finalValue = value.toUpperCase();
-          }
-
-          setFormData(prev => ({
-            ...prev,
-            [name]: finalValue,
-          }));
+          if (name === 'quantity') finalValue = parseInt(value, 10) || 0;
+          else if (e.target.type === 'text') finalValue = value.toUpperCase();
+          setFormData(prev => ({ ...prev, [name]: finalValue }));
         };
 
         const handleSubmit = async (e) => {
           e.preventDefault();
           try {
-            if (itemToEdit) {
-              await updateStockItem(itemToEdit.id, formData);
-            } else {
-              await addStockItem(formData);
-            }
+            if (itemToEdit) await updateStockItem(itemToEdit.id, formData);
+            else await addStockItem(formData);
             onClose();
           } catch(error) {
             console.error("Failed to save stock item:", error);
@@ -311,49 +414,34 @@
         };
 
         if (!isOpen) return null;
+        const inputClass = "mt-1 block w-full bg-brand-dark border border-brand-primary text-brand-primary p-3 focus:outline-none focus:shadow-neon font-mono";
+        const labelClass = "block text-sm font-bold text-brand-primary uppercase tracking-wider mb-1";
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
-              <form onSubmit={handleSubmit} className="p-5 space-y-3">
-                <h2 className="text-2xl font-bold text-white pb-2">{itemToEdit ? 'Editar Item do Estoque' : 'Adicionar ao Estoque'}</h2>
-                
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50 animate-fade-in p-4 backdrop-blur-sm">
+            <div className="bg-brand-surface border-2 border-brand-primary shadow-neon-strong w-full max-w-md relative">
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <h2 className="text-2xl font-bold text-brand-primary border-b border-brand-primary pb-2 uppercase tracking-widest">{itemToEdit ? 'Editar Estoque' : 'Novo Item'}</h2>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300">Tipo de Teste</label>
-                  <select name="test_type" value={formData.test_type} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                    {Object.values(TestType).map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
+                  <label className={labelClass}>Tipo de Teste</label>
+                  <select name="test_type" value={formData.test_type} onChange={handleChange} className={inputClass}>
+                    {Object.values(TestType).map(type => <option key={type} value={type}>{type}</option>)}
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">Lote</label>
-                  <input type="text" name="lote" value={formData.lote} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">Validade</label>
-                  <input type="date" name="validade" value={formData.validade} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">Quantidade</label>
-                  <input type="number" name="quantity" min="0" value={formData.quantity} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                </div>
-
-                <div className="flex justify-end space-x-4 pt-3">
-                  <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar</button>
-                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{itemToEdit ? 'Salvar Alterações' : 'Adicionar Item'}</button>
+                <div><label className={labelClass}>Lote</label><input type="text" name="lote" value={formData.lote} onChange={handleChange} required className={inputClass}/></div>
+                <div><label className={labelClass}>Validade</label><input type="date" name="validade" value={formData.validade} onChange={handleChange} required className={inputClass}/></div>
+                <div><label className={labelClass}>Quantidade</label><input type="number" name="quantity" min="0" value={formData.quantity} onChange={handleChange} required className={inputClass}/></div>
+                <div className="flex justify-end space-x-4 pt-6 border-t border-brand-primary/30">
+                  <button type="button" onClick={onClose} className="py-2 px-4 border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-black transition uppercase font-bold tracking-wider">Cancelar</button>
+                  <button type="submit" className="py-2 px-4 bg-brand-primary text-black font-bold border-2 border-brand-primary shadow-3d hover:shadow-3d-hover active:shadow-none active:translate-y-1 transition uppercase tracking-wider">{itemToEdit ? 'Salvar' : 'Adicionar'}</button>
                 </div>
               </form>
             </div>
           </div>
         );
       };
-      // --- Fim de: components/StockFormModal.tsx ---
 
-      // --- Início de: components/ReportPDF.tsx ---
+      // --- ReportPDF ---
       const renderUnderlinedField = (label, value) => (
         <div className="flex items-baseline">
           <span className="font-semibold mr-2">{label}</span>
@@ -363,37 +451,23 @@
 
       const DengueTemplate = ({ report }) => (
         <div className="p-10 font-sans text-black flex flex-col min-h-full" style={{ fontSize: '10pt' }}>
-          <header className="text-center mb-6">
-            <h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1>
-          </header>
-          <section className="text-center my-8">
-            <h1 className="text-lg font-bold uppercase">Teste de Antígeno para Dengue - NS1</h1>
-            <h2 className="text-md">(Vida Rapid Test - Vida Biotecnologia)</h2>
-          </section>
+          <header className="text-center mb-6"><h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1></header>
+          <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">Teste de Antígeno para Dengue - NS1</h1><h2 className="text-md">(Vida Rapid Test - Vida Biotecnologia)</h2></section>
           <section className="space-y-3 mb-6 text-sm">
             {renderUnderlinedField("Nome do usuário:", report.patient_name)}
             {renderUnderlinedField("Identidade/CPF:", report.patient_id)}
-            <div className="flex space-x-8">
-              <div className="w-1/2">{renderUnderlinedField("Data de Nascimento:", new Date(report.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}</div>
-              <div className="w-1/2">{renderUnderlinedField("Sexo:", report.sex)}</div>
-            </div>
+            <div className="flex space-x-8"><div className="w-1/2">{renderUnderlinedField("Data de Nascimento:", new Date(report.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}</div><div className="w-1/2">{renderUnderlinedField("Sexo:", report.sex)}</div></div>
             {renderUnderlinedField("Unidade de realização do exame:", report.execution_unit)}
-            {renderUnderlinedField("Data do início dos sintomas:", new Date(report.symptom_start_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
+            {renderUnderlinedField("Data do início dos sintomas:", new Date(report.symptom_start_date || '').toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
             {renderUnderlinedField("Data da coleta da amostra:", new Date(report.sample_collection_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }))}
           </section>
           <section className="border-2 border-black text-sm">
             <div className="p-2 border-b-2 border-black"><strong>Amostra:</strong> {report.sample_type}</div>
             <div className="p-2 border-b-2 border-black"><strong>Teste:</strong> Vida Rapid Test - Dengue NS1 (Vida Biotecnologia)</div>
-            <div className="flex border-b-2 border-black">
-              <div className="w-1/2 p-2 border-r-2 border-black"><strong>Lote:</strong> {report.lote}</div>
-              <div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</div>
-            </div>
+            <div className="flex border-b-2 border-black"><div className="w-1/2 p-2 border-r-2 border-black"><strong>Lote:</strong> {report.lote}</div><div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</div></div>
             <div className="p-2"><strong>Método:</strong> {report.method}</div>
           </section>
-          <section className="border border-black mt-6 p-2" style={{ backgroundColor: '#f0f0f0' }}>
-            <div className="text-right font-semibold text-lg">Resultado</div>
-            <div className="text-center text-3xl font-bold my-4 uppercase">{report.result}</div>
-          </section>
+          <section className="border border-black mt-6 p-2" style={{ backgroundColor: '#f0f0f0' }}><div className="text-right font-semibold text-lg">Resultado</div><div className="text-center text-3xl font-bold my-4 uppercase">{report.result}</div></section>
           <section className="mt-6 space-y-3" style={{ fontSize: '8pt', lineHeight: '1.2' }}>
               <p><span className="font-bold">➔ Em caso de resultado NEGATIVO ou INCONCLUSIVO: REALIZAR NOVA COLETA A PARTIR DO 7º DIA DO INÍCIO DOS SINTOMAS, para o exame de análise de anticorpos IgM.</span> Dirigir-se ao Laboratório Público Municipal de Novo Hamburgo, localizado na Rua Pedro Adams Filho, n.º 6520, Bairro Operário, junto ao Hospital Municipal, das 7 às 18h, de segunda à sexta-feira. OBS: Essa coleta deve ser realizada, NO MÁXIMO, até o 30º dia de sintomas.</p>
               <p><span className="font-bold">Nota:</span> O resultado deste teste laboratorial deve ser sempre considerado no contexto da clínica e dos dados epidemiológicos no estabelecimento do diagnóstico. Adverte-se que os testes rápidos (punção digital) deverão ser utilizados apenas como triagem, necessitando a realização de um teste laboratorial para confirmação do caso. Os resultados mostraram que a sensibilidade relativa do Teste Rápido de Dengue NS1 da Vida Biotecnologia/Vida Rapide Test (sangue total/soro/plasma) é de 95,8% e a especificidade relativa é de 96,1%.</p>
@@ -401,28 +475,18 @@
           <div className="flex-grow"></div>
           <footer className="mt-auto pt-12 text-sm">
             <div className="flex justify-between items-end">
-              <div className="text-center">
-                  <div className="w-80 border-t-2 border-black mb-1"></div>
-                  <p className="font-semibold uppercase">{report.technician_name}</p>
-                  <p>Técnico Responsável</p>
-              </div>
-              <div>
-                  <p className="font-semibold">Data do Laudo: {new Date(report.report_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
-              </div>
+              <div className="text-center"><div className="w-80 border-t-2 border-black mb-1"></div><p className="font-semibold uppercase">{report.technician_name}</p><p>Técnico Responsável</p></div>
+              <div><p className="font-semibold">Data do Laudo: {new Date(report.report_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p></div>
             </div>
             <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informações com o profissional de saúde.</p>
-             <div className="text-center mt-8 pt-4 border-t border-black" style={{ fontSize: '8pt' }}>
-              <p className="font-bold">Desenvolvido por: Jaime Eduardo | Whats: 51985502897</p>
-            </div>
+             <div className="text-center mt-8 pt-4 border-t border-black" style={{ fontSize: '8pt' }}><p className="font-bold">Desenvolvido por: Jaime Eduardo | Whats: 51985502897</p></div>
           </footer>
         </div>
       );
 
       const CovidTemplate = ({ report }) => (
         <div className="p-10 font-sans text-black flex flex-col min-h-full" style={{ fontSize: '10pt' }}>
-          <header className="text-center mb-6">
-            <h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1>
-          </header>
+          <header className="text-center mb-6"><h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1></header>
           <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">Teste Rápido de Antígeno - COVID-19</h1><h2 className="text-md">({report.manufacturer || 'Fabricante não informado'})</h2></section>
           <section className="space-y-3 mb-6 text-sm">
             {renderUnderlinedField("Nome do usuário:", report.patient_name)}
@@ -454,9 +518,7 @@
 
       const HcgTemplate = ({ report }) => (
         <div className="p-10 font-sans text-black flex flex-col min-h-full" style={{ fontSize: '10pt' }}>
-          <header className="text-center mb-6">
-            <h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1>
-          </header>
+          <header className="text-center mb-6"><h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1></header>
           <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">Teste Rápido para Detecção de HCG</h1></section>
           <section className="space-y-3 mb-6 text-sm">
             {renderUnderlinedField("Nome do usuário:", report.patient_name)}
@@ -490,26 +552,22 @@
           const timer = setTimeout(() => {
             const reportElement = document.getElementById('printable-report-for-pdf');
             
-            if (!reportElement || !window.html2canvas || !window.jspdf) {
-              console.error("Elemento do laudo ou bibliotecas de PDF não encontrados.");
-              alert("Ocorreu um erro ao preparar a geração do PDF. Tente novamente.");
+            // Verifica bibliotecas globais
+            const html2canvas = window.html2canvas;
+            const jspdf = window.jspdf;
+
+            if (!reportElement || !html2canvas || !jspdf) {
+              console.error("Bibliotecas PDF ausentes");
+              alert("Erro ao preparar PDF. Verifique sua conexão e se as bibliotecas foram carregadas.");
               onDone();
               return;
             }
             
-            const { jsPDF } = window.jspdf;
+            const { jsPDF } = jspdf;
 
-            window.html2canvas(reportElement, {
-              scale: 3, 
-              useCORS: true,
-              logging: false,
-            }).then((canvas) => {
+            html2canvas(reportElement, { scale: 3, useCORS: true, logging: false }).then((canvas) => {
               const imgData = canvas.toDataURL('image/png');
-              const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-              });
+              const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
               
               const pdfWidth = pdf.internal.pageSize.getWidth();
               const imgHeight = (canvas.height * pdfWidth) / canvas.width;
@@ -521,90 +579,59 @@
               
               onDone();
             }).catch((err) => {
-              console.error("Erro durante a geração do PDF:", err);
-              alert("Ocorreu um erro ao gerar o arquivo PDF. Verifique o console para mais detalhes.");
+              console.error("Erro PDF:", err);
+              alert("Erro ao gerar PDF.");
               onDone();
             });
-
           }, 500);
-
           return () => clearTimeout(timer);
         }, [report, onDone]);
 
         const renderReport = () => {
           switch (report.test_type) {
-            case TestType.DENGUE:
-              return <DengueTemplate report={report} />;
-            case TestType.COVID:
-              return <CovidTemplate report={report} />;
-            case TestType.HCG:
-              return <HcgTemplate report={report} />;
-            default:
-              return <div className="p-8">Tipo de laudo não suportado.</div>;
+            case TestType.DENGUE: return <DengueTemplate report={report} />;
+            case TestType.COVID: return <CovidTemplate report={report} />;
+            case TestType.HCG: return <HcgTemplate report={report} />;
+            default: return <div>Erro</div>;
           }
         };
 
         return (
           <>
-            <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-[1000] animate-fade-in">
-              <div className="bg-brand-secondary text-white font-bold py-4 px-6 rounded-xl shadow-3d flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <div className="fixed inset-0 bg-black bg-opacity-95 flex justify-center items-center z-[1000] animate-fade-in backdrop-blur-sm">
+              <div className="bg-brand-surface border-2 border-brand-primary text-brand-primary font-bold py-6 px-10 shadow-neon-strong flex items-center rounded-none transform rotate-1">
+                  <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-brand-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Gerando arquivo PDF, por favor aguarde...
+                  <span className="uppercase tracking-widest">Gerando PDF...</span>
               </div>
             </div>
-            
-            <div className="absolute top-0 -left-[9999px] z-0">
-              <div id="printable-report-for-pdf" className="bg-white w-[210mm] min-h-[297mm] flex flex-col">
-                {renderReport()}
-              </div>
-            </div>
+            <div className="absolute top-0 -left-[9999px] z-0"><div id="printable-report-for-pdf" className="bg-white w-[210mm] min-h-[297mm] flex flex-col">{renderReport()}</div></div>
           </>
         );
       };
-      // --- Fim de: components/ReportPDF.tsx ---
 
-      // --- Início de: components/ReportFormModal.tsx ---
+      // --- ReportFormModal ---
       const ReportFormModal = ({ isOpen, onClose, reportToEdit }) => {
         const { addReport, updateReport, stock } = useContext(AppContext);
         
         const getInitialFormData = useCallback(() => {
           const today = new Date().toISOString().split('T')[0];
-          if (reportToEdit) {
-            return { ...reportToEdit };
-          }
+          if (reportToEdit) return { ...reportToEdit };
           return {
             test_type: TestType.DENGUE,
-            patient_name: '',
-            patient_id: '',
-            birth_date: '',
-            sex: 'Feminino',
-            execution_unit: '',
-            sample_collection_date: today,
-            technician_name: '',
-            report_date: today,
-            lote: '',
-            validade: '',
-            symptom_start_date: today,
-            sample_type: 'punção digital',
-            method: 'IMUNOCROMATOGRAFIA',
-            result: DengueResult.NEGATIVE,
-            city: '',
-            manufacturer: '',
-            prontuario: '',
-            result_value: '',
+            patient_name: '', patient_id: '', birth_date: '', sex: 'Feminino', execution_unit: '',
+            sample_collection_date: today, technician_name: '', report_date: today, lote: '', validade: '',
+            symptom_start_date: today, sample_type: 'punção digital', method: 'IMUNOCROMATOGRAFIA', result: DengueResult.NEGATIVE,
+            city: '', manufacturer: '', prontuario: '', 
+            result_value: HcgResult.NEGATIVE, // Inicializa como NEGATIVO
           };
         }, [reportToEdit]);
 
-
         const [formData, setFormData] = useState(getInitialFormData());
         
-        useEffect(() => {
-          setFormData(getInitialFormData());
-        }, [reportToEdit, isOpen, getInitialFormData]);
-
+        useEffect(() => { setFormData(getInitialFormData()); }, [reportToEdit, isOpen, getInitialFormData]);
 
         const handleChange = (e) => {
           const { name, value } = e.target;
@@ -615,481 +642,162 @@
         const handleTestTypeChange = (e) => {
           const newTestType = e.target.value;
           const today = new Date().toISOString().split('T')[0];
+          const baseData = { ...getInitialFormData(), patient_name: formData.patient_name, patient_id: formData.patient_id, birth_date: formData.birth_date, sex: formData.sex, execution_unit: formData.execution_unit, technician_name: formData.technician_name, test_type: newTestType };
           
-          const baseData = {
-              ...getInitialFormData(),
-              patient_name: formData.patient_name,
-              patient_id: formData.patient_id,
-              birth_date: formData.birth_date,
-              sex: formData.sex,
-              execution_unit: formData.execution_unit,
-              technician_name: formData.technician_name,
-              test_type: newTestType,
-          };
-
           switch(newTestType) {
-              case TestType.DENGUE:
-                  setFormData({
-                      ...baseData,
-                      symptom_start_date: today,
-                      sample_type: 'punção digital',
-                      method: 'IMUNOCROMATOGRAFIA',
-                      result: DengueResult.NEGATIVE,
-                  });
-                  break;
-              case TestType.COVID:
-                  setFormData({
-                      ...baseData,
-                      city: '',
-                      manufacturer: '',
-                      method: 'Imunocromatografia',
-                      sample_type: 'swab nasal',
-                      result: CovidResult.NEGATIVE,
-                  });
-                  break;
-              case TestType.HCG:
-                   setFormData({
-                      ...baseData,
-                      prontuario: '',
-                      sample_type: 'urina',
-                      method: 'Imunocromatografia',
-                      result_value: '',
-                  });
-                  break;
+              case TestType.DENGUE: setFormData({ ...baseData, symptom_start_date: today, sample_type: 'punção digital', method: 'IMUNOCROMATOGRAFIA', result: DengueResult.NEGATIVE }); break;
+              case TestType.COVID: setFormData({ ...baseData, city: '', manufacturer: '', method: 'Imunocromatografia', sample_type: 'swab nasal', result: CovidResult.NEGATIVE }); break;
+              case TestType.HCG: setFormData({ ...baseData, prontuario: '', sample_type: 'urina', method: 'Imunocromatografia', result_value: HcgResult.NEGATIVE }); break;
           }
         };
         
         const handleSubmit = async (e) => {
           e.preventDefault();
-        
-          if (!reportToEdit && (!formData.lote || !formData.validade)) {
-            alert("Por favor, selecione um lote do estoque antes de criar o laudo.");
-            return;
-          }
-        
-          const commonData = {
-            patient_name: formData.patient_name,
-            patient_id: formData.patient_id,
-            birth_date: formData.birth_date,
-            sex: formData.sex,
-            execution_unit: formData.execution_unit,
-            sample_collection_date: formData.sample_collection_date,
-            technician_name: formData.technician_name,
-            report_date: formData.report_date,
-            lote: formData.lote || '',
-            validade: formData.validade || '',
-          };
-        
+          if (!reportToEdit && (!formData.lote || !formData.validade)) { alert("Por favor, selecione um lote do estoque."); return; }
+          const commonData = { patient_name: formData.patient_name, patient_id: formData.patient_id, birth_date: formData.birth_date, sex: formData.sex, execution_unit: formData.execution_unit, sample_collection_date: formData.sample_collection_date, technician_name: formData.technician_name, report_date: formData.report_date, lote: formData.lote || '', validade: formData.validade || '' };
           try {
-            switch (formData.test_type) {
-              case TestType.DENGUE: {
-                const reportData = {
-                  ...commonData,
-                  test_type: TestType.DENGUE,
-                  symptom_start_date: formData.symptom_start_date || '',
-                  sample_type: 'punção digital',
-                  method: 'IMUNOCROMATOGRAFIA',
-                  result: formData.result,
-                };
-                if (reportToEdit) {
-                  await updateReport(reportToEdit.id, { ...reportData, id: reportToEdit.id, created_at: reportToEdit.created_at });
-                } else {
-                  await addReport(reportData);
-                }
-                break;
-              }
-              case TestType.COVID: {
-                const reportData = {
-                  ...commonData,
-                  test_type: TestType.COVID,
-                  city: formData.city || '',
-                  manufacturer: formData.manufacturer || '',
-                  method: 'Imunocromatografia',
-                  sample_type: formData.sample_type,
-                  result: formData.result,
-                };
-                if (reportToEdit) {
-                  await updateReport(reportToEdit.id, { ...reportData, id: reportToEdit.id, created_at: reportToEdit.created_at });
-                } else {
-                  await addReport(reportData);
-                }
-                break;
-              }
-              case TestType.HCG: {
-                const reportData = {
-                  ...commonData,
-                  test_type: TestType.HCG,
-                  prontuario: formData.prontuario || '',
-                  sample_type: 'urina',
-                  method: 'Imunocromatografia',
-                  result_value: formData.result_value || '',
-                };
-                if (reportToEdit) {
-                  await updateReport(reportToEdit.id, { ...reportData, id: reportToEdit.id, created_at: reportToEdit.created_at });
-                } else {
-                  await addReport(reportData);
-                }
-                break;
-              }
-              default:
-                alert("Tipo de teste inválido selecionado.");
-                return;
-            }
+            const reportData = { ...commonData, ...formData }; 
+            if (reportToEdit) await updateReport(reportToEdit.id, { ...reportData, id: reportToEdit.id, created_at: reportToEdit.created_at });
+            else await addReport(reportData);
             onClose();
-          } catch (error) {
-            console.error("Failed to save report:", error);
-            alert(`Falha ao salvar o laudo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-          }
+          } catch (error) { console.error("Failed to save report:", error); alert(`Erro: ${error.message}`); }
         };
 
         if (!isOpen) return null;
+        const inputClass = "mt-1 block w-full bg-brand-dark border border-brand-primary text-brand-primary p-2 focus:outline-none focus:shadow-neon font-mono text-sm";
+        const labelClass = "block text-xs font-bold text-brand-primary uppercase tracking-wider mb-1";
 
         const renderTestSpecificFields = () => {
           switch (formData.test_type) {
             case TestType.DENGUE:
-              const dengueData = formData;
-              return (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">Data de Início dos Sintomas</label>
-                    <input type="date" name="symptom_start_date" value={dengueData.symptom_start_date || ''} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">Resultado</label>
-                    <select name="result" value={dengueData.result} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                      {(Object.values(DengueResult)).map(r => <option key={r} value={r}>{r}</option>)}
-                    </select>
-                  </div>
-                </>
-              );
+              return (<><div><label className={labelClass}>Data Início Sintomas</label><input type="date" name="symptom_start_date" value={formData.symptom_start_date || ''} onChange={handleChange} className={inputClass}/></div><div><label className={labelClass}>Resultado</label><select name="result" value={formData.result} onChange={handleChange} className={inputClass}>{(Object.values(DengueResult)).map(r => <option key={r} value={r}>{r}</option>)}</select></div></>);
             case TestType.COVID:
-              const covidData = formData;
-              return (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">Cidade</label>
-                    <input type="text" name="city" value={covidData.city || ''} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Amostra</label>
-                    <select name="sample_type" value={covidData.sample_type} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                      <option value="swab nasofaríngeo">Swab Nasofaríngeo</option>
-                      <option value="swab nasal">Swab Nasal</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">Fabricante</label>
-                    <input type="text" name="manufacturer" value={covidData.manufacturer || ''} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">Resultado</label>
-                    <select name="result" value={covidData.result} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                      {(Object.values(CovidResult)).map(r => <option key={r} value={r}>{r}</option>)}
-                    </select>
-                  </div>
-                </>
-              );
+              return (<><div><label className={labelClass}>Cidade</label><input type="text" name="city" value={formData.city || ''} onChange={handleChange} className={inputClass}/></div><div><label className={labelClass}>Amostra</label><select name="sample_type" value={formData.sample_type} onChange={handleChange} className={inputClass}><option value="swab nasofaríngeo">Swab Nasofaríngeo</option><option value="swab nasal">Swab Nasal</option></select></div><div><label className={labelClass}>Fabricante</label><input type="text" name="manufacturer" value={formData.manufacturer || ''} onChange={handleChange} className={inputClass}/></div><div><label className={labelClass}>Resultado</label><select name="result" value={formData.result} onChange={handleChange} className={inputClass}>{(Object.values(CovidResult)).map(r => <option key={r} value={r}>{r}</option>)}</select></div></>);
             case TestType.HCG:
-              const hcgData = formData;
               return (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Prontuário</label>
-                    <input type="text" name="prontuario" value={hcgData.prontuario || ''} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
+                    <label className={labelClass}>Prontuário</label>
+                    <input type="text" name="prontuario" value={formData.prontuario || ''} onChange={handleChange} className={inputClass}/>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Valor de Referência</label>
-                    <input type="text" name="result_value" value={hcgData.result_value || ''} placeholder="ex: <25mUI/mL" className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
+                    {/* AQUI ESTÁ A MUDANÇA DO HCG PARA DROPDOWN */}
+                    <label className={labelClass}>Resultado (HCG)</label>
+                    <select name="result_value" value={formData.result_value} onChange={handleChange} className={inputClass}>
+                       {(Object.values(HcgResult)).map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
                   </div>
                 </>
               );
-            default:
-              return null;
+            default: return null;
           }
         };
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-700/50">
-              <form onSubmit={handleSubmit} className="p-5">
-                  <h2 className="text-2xl font-bold text-white mb-4">{reportToEdit ? 'Editar Laudo' : 'Novo Laudo'}</h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                  
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300">Tipo de Teste</label>
-                      <select name="test_type" value={formData.test_type} onChange={handleTestTypeChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                        {(Object.values(TestType)).map(type => <option key={type} value={type}>{type}</option>)}
-                      </select>
-                    </div>
-                  
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300">Nome do Paciente</label>
-                      <input type="text" name="patient_name" value={formData.patient_name} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300">Identidade/CPF</label>
-                      <input type="text" name="patient_id" value={formData.patient_id} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300">Data de Nascimento</label>
-                      <input type="date" name="birth_date" value={formData.birth_date} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300">Sexo</label>
-                      <select name="sex" value={formData.sex} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                        <option value="Feminino">Feminino</option>
-                        <option value="Masculino">Masculino</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300">Unidade de Execução</label>
-                      <input type="text" name="execution_unit" value={formData.execution_unit} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                    </div>
-                    
-                     <div>
-                      <label className="block text-sm font-medium text-gray-300">Técnico Responsável</label>
-                      <input type="text" name="technician_name" value={formData.technician_name} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300">Data da Coleta da Amostra</label>
-                      <input type="date" name="sample_collection_date" value={formData.sample_collection_date} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                    </div>
-                    
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50 animate-fade-in p-4 backdrop-blur-sm">
+            <div className="bg-brand-surface border-2 border-brand-primary shadow-neon w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
+              <form onSubmit={handleSubmit} className="p-6">
+                  <h2 className="text-2xl font-bold text-brand-primary mb-6 border-b-2 border-brand-primary pb-2 uppercase tracking-widest text-shadow-neon">{reportToEdit ? 'Editar Laudo' : 'Novo Laudo'}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                    <div className="md:col-span-2"><label className={labelClass}>Tipo de Teste</label><select name="test_type" value={formData.test_type} onChange={handleTestTypeChange} className={inputClass}>{(Object.values(TestType)).map(type => <option key={type} value={type}>{type}</option>)}</select></div>
+                    <div className="md:col-span-2"><label className={labelClass}>Nome do Paciente</label><input type="text" name="patient_name" value={formData.patient_name} onChange={handleChange} required className={inputClass}/></div>
+                    <div><label className={labelClass}>Identidade/CPF</label><input type="text" name="patient_id" value={formData.patient_id} onChange={handleChange} className={inputClass}/></div>
+                    <div><label className={labelClass}>Data de Nascimento</label><input type="date" name="birth_date" value={formData.birth_date} onChange={handleChange} required className={inputClass}/></div>
+                    <div><label className={labelClass}>Sexo</label><select name="sex" value={formData.sex} onChange={handleChange} className={inputClass}><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select></div>
+                    <div><label className={labelClass}>Unidade de Execução</label><input type="text" name="execution_unit" value={formData.execution_unit} onChange={handleChange} required className={inputClass}/></div>
+                    <div><label className={labelClass}>Técnico Responsável</label><input type="text" name="technician_name" value={formData.technician_name} onChange={handleChange} required className={inputClass}/></div>
+                    <div><label className={labelClass}>Data da Coleta</label><input type="date" name="sample_collection_date" value={formData.sample_collection_date} onChange={handleChange} required className={inputClass}/></div>
                     {renderTestSpecificFields()}
-
-                    {!reportToEdit && (
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-300">Lote do Estoque</label>
-                        <select name="lote" value={formData.lote} onChange={(e) => {
-                          const selectedLote = e.target.value;
-                          const selectedStockItem = stock.find(item => item.lote === selectedLote && item.test_type === formData.test_type);
-                          setFormData(prev => ({
-                            ...prev,
-                            lote: selectedLote,
-                            validade: selectedStockItem ? selectedStockItem.validade : '',
-                          }));
-                        }} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary">
-                          <option value="">Selecione um lote...</option>
-                          {stock.filter(item => item.test_type === formData.test_type && item.quantity > 0).map(item => (
-                            <option key={item.id} value={item.lote}>
-                              {item.lote} (Val: {new Date(item.validade).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}) - Qtd: {item.quantity}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
+                    {!reportToEdit && (<div className="md:col-span-2 border border-brand-primary/50 p-2 mt-2 bg-black/40"><label className={labelClass}>Lote do Estoque (Baixa Automática)</label><select name="lote" value={formData.lote} onChange={(e) => { const selectedLote = e.target.value; const selectedStockItem = stock.find(item => item.lote === selectedLote && item.test_type === formData.test_type); setFormData(prev => ({ ...prev, lote: selectedLote, validade: selectedStockItem ? selectedStockItem.validade : '' })); }} className={inputClass}><option value="">Selecione um lote...</option>{stock.filter(item => item.test_type === formData.test_type && item.quantity > 0).map(item => (<option key={item.id} value={item.lote}>{item.lote} (Val: {new Date(item.validade).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}) - Qtd: {item.quantity}</option>))}</select></div>)}
                   </div>
-                  <div className="flex justify-end space-x-4 pt-4">
-                    <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar</button>
-                    <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{reportToEdit ? 'Salvar Alterações' : 'Criar Laudo'}</button>
+                  <div className="flex justify-end space-x-4 pt-6 mt-4 border-t border-brand-primary/30">
+                    <button type="button" onClick={onClose} className="py-2 px-4 border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-black transition uppercase font-bold tracking-wider">Cancelar</button>
+                    <button type="submit" className="py-2 px-4 bg-brand-primary text-black font-bold border-2 border-brand-primary shadow-3d hover:shadow-3d-hover active:shadow-none active:translate-y-1 transition uppercase tracking-wider">{reportToEdit ? 'Salvar' : 'Criar Laudo'}</button>
                   </div>
               </form>
             </div>
           </div>
         );
       };
-      // --- Fim de: components/ReportFormModal.tsx ---
 
-      // --- Início de: components/Sidebar.tsx ---
+      // --- Sidebar ---
       const Sidebar = ({ currentPage, setPage }) => {
         const { isInventoryUnlocked, setIsInventoryUnlocked } = useContext(AppContext);
         const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-
         const navItems = [
-          { page: 'dashboard', label: 'Dashboard', icon: <HomeIcon /> },
-          { page: 'reports', label: 'Laudos', icon: <DocumentReportIcon /> },
-          { page: 'inventory', label: 'Estoque', icon: <ArchiveIcon /> },
-          { page: 'indicators', label: 'Indicadores', icon: <ChartBarIcon /> },
+          { page: 'dashboard', label: 'DASHBOARD', icon: <HomeIcon /> },
+          { page: 'reports', label: 'LAUDOS', icon: <DocumentReportIcon /> },
+          { page: 'inventory', label: 'ESTOQUE', icon: <ArchiveIcon /> },
+          { page: 'indicators', label: 'INDICADORES', icon: <ChartBarIcon /> },
         ];
-
         const handlePasswordConfirm = (password) => {
-          if (password === '159753') {
-            setIsInventoryUnlocked(true);
-            setPage('inventory');
-            setIsPasswordModalOpen(false);
-          } else {
-            alert('Senha incorreta!');
-          }
+          if (password === '159753') { setIsInventoryUnlocked(true); setPage('inventory'); setIsPasswordModalOpen(false); } 
+          else { alert('Senha incorreta!'); }
         };
-
         const handleNavClick = (page) => {
-          if (page === 'inventory' && !isInventoryUnlocked) {
-            setIsPasswordModalOpen(true);
-          } else {
-            setPage(page);
-          }
+          if (page === 'inventory' && !isInventoryUnlocked) setIsPasswordModalOpen(true);
+          else setPage(page);
         };
-
 
         return (
           <>
-            <aside className="w-16 sm:w-64 bg-black bg-opacity-20 backdrop-blur-lg border-r border-gray-700/50 flex flex-col transition-all duration-300 animate-slide-in-left">
-              <div className="flex items-center justify-center sm:justify-start h-20 border-b border-gray-700/50 px-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                <h1 className="hidden sm:block text-lg font-bold ml-3 text-white">UBS SANTO AFONSO</h1>
+            <aside className="w-20 sm:w-72 bg-brand-surface border-r-2 border-brand-primary flex flex-col transition-all duration-300 shadow-neon z-50">
+              <div className="flex items-center justify-center sm:justify-start h-24 border-b-2 border-brand-primary px-6 bg-brand-dark">
+                <div className="p-2 border-2 border-brand-primary shadow-neon rounded-md"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-primary animate-pulse-neon" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg></div>
+                <h1 className="hidden sm:block text-xl font-bold ml-4 text-brand-primary tracking-widest" style={{ textShadow: '0 0 10px #39FF14' }}>UBS<br/><span className="text-sm text-white">SYSTEM</span></h1>
               </div>
-              <nav className="flex-1 mt-6">
-                <ul>
-                  {navItems.map((item) => (
-                    <li key={item.page} className="px-4 mb-2">
-                      <button
-                        onClick={() => handleNavClick(item.page)}
-                        className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${
-                          currentPage === item.page
-                            ? 'bg-brand-secondary text-white shadow-lg'
-                            : 'text-gray-300 hover:bg-brand-primary hover:text-white'
-                        }`}
-                      >
-                        {item.icon}
-                        <span className="hidden sm:block ml-4 font-medium">{item.label}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              <nav className="flex-1 mt-8 space-y-4 px-4">
+                {navItems.map((item) => (
+                  <button key={item.page} onClick={() => handleNavClick(item.page)} className={`flex items-center w-full p-4 rounded-none border-2 transition-all duration-150 transform active:translate-y-1 ${currentPage === item.page ? 'bg-brand-primary border-brand-primary text-black shadow-none translate-y-1' : 'bg-brand-dark border-brand-primary text-brand-primary shadow-3d hover:shadow-3d-hover hover:-translate-y-0.5'}`}>
+                    <div className={`${currentPage === item.page ? 'text-black' : 'text-brand-primary'}`}>{item.icon}</div>
+                    <span className="hidden sm:block ml-4 font-bold tracking-widest">{item.label}</span>
+                  </button>
+                ))}
               </nav>
             </aside>
-            <PasswordModal 
-              isOpen={isPasswordModalOpen}
-              onClose={() => setIsPasswordModalOpen(false)}
-              onConfirm={handlePasswordConfirm}
-              title="Acesso Restrito"
-              message="Por favor, insira a senha para acessar o estoque."
-            />
+            <PasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} onConfirm={handlePasswordConfirm} title="ACESSO RESTRITO" message="Digite a senha de segurança para acessar o estoque." />
           </>
         );
       };
-      // --- Fim de: components/Sidebar.tsx ---
 
-      // --- Início de: components/Dashboard.tsx ---
-      const DashboardCard = ({ title, value, icon, colorClass }) => (
-          <div className={`bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d hover:shadow-3d-hover transition-all duration-300 flex items-center space-x-4 border border-gray-700/50 transform hover:-translate-y-1`}>
-              <div className={`p-3 rounded-full ${colorClass}`}>
-                  {icon}
-              </div>
-              <div>
-                  <p className="text-gray-400 text-sm">{title}</p>
-                  {value}
-              </div>
-          </div>
-      );
-
-
+      // --- Dashboard ---
       const Dashboard = ({ setPage }) => {
         const { reports, stock } = useContext(AppContext);
-
         const lowStockItems = stock.filter(item => item.quantity <= 5);
         const recentReports = reports.slice(0, 5);
-
-        const stockByType = useMemo(() => {
-          return stock.reduce((acc, item) => {
-            acc[item.test_type] = (acc[item.test_type] || 0) + item.quantity;
-            return acc;
-          }, {});
-        }, [stock]);
-
-        const stockBreakdown = (
-          <div className="mt-1">
-            <div className="text-base font-semibold space-y-1">
-              {(Object.values(TestType)).map((type) => (
-                <div key={type} className="flex justify-between items-center">
-                  <span className="text-gray-300 text-sm font-medium">{type.split(' - ')[0]}:</span>
-                  <span className="text-white text-lg">{stockByType[type] || 0}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
+        const stockByType = useMemo(() => stock.reduce((acc, item) => { acc[item.test_type] = (acc[item.test_type] || 0) + item.quantity; return acc; }, {}), [stock]);
+        const stockBreakdown = (<div className="mt-1"><div className="text-sm font-semibold space-y-1">{(Object.values(TestType)).map((type) => (<div key={type} className="flex justify-between items-center w-40"><span className="text-gray-400 text-xs">{type.split(' - ')[0]}:</span><span className="text-brand-primary font-mono">{stockByType[type] || 0}</span></div>))}</div></div>);
 
         return (
           <div className="animate-fade-in space-y-8">
-            <header className="flex justify-between items-center">
-              <h1 className="text-4xl font-bold text-white tracking-wider">Dashboard</h1>
-              <button onClick={() => setPage('reports')} className="bg-brand-secondary hover:bg-opacity-80 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-transform duration-200 transform hover:scale-105 shadow-lg">
-                  <PlusIcon /> <span className="ml-2">Novo Laudo</span>
-              </button>
+            <header className="flex justify-between items-center border-b border-brand-primary/30 pb-4">
+              <h1 className="text-4xl font-bold text-brand-primary tracking-widest text-shadow-neon uppercase">Dashboard</h1>
+              <button onClick={() => setPage('reports')} className="bg-brand-primary text-black border-2 border-brand-primary font-bold py-2 px-6 flex items-center transition-all shadow-3d hover:shadow-3d-hover active:translate-y-1 active:shadow-none uppercase tracking-wider"><PlusIcon /> <span className="ml-2">Novo Laudo</span></button>
             </header>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <DashboardCard title="Total de Laudos" value={<p className="text-2xl font-bold text-white">{reports.length}</p>} icon={<DocumentTextIcon />} colorClass="bg-brand-primary/30" />
-              <DashboardCard title="Itens em Estoque" value={stockBreakdown} icon={<ArchiveIcon />} colorClass="bg-brand-accent/30" />
-              <DashboardCard title="Estoque Baixo" value={<p className="text-2xl font-bold text-white">{lowStockItems.length}</p>} icon={<AlertIcon />} colorClass={lowStockItems.length > 0 ? "bg-danger/30" : "bg-warning/30"} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="bg-brand-surface p-6 border-2 border-brand-primary shadow-3d hover:shadow-3d-hover hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4"><div className="p-3 border border-brand-primary bg-black shadow-neon"><div className="text-brand-primary"><DocumentTextIcon/></div></div><div><p className="text-gray-400 text-xs uppercase tracking-widest">Total de Laudos</p><div className="font-mono text-3xl text-white">{reports.length}</div></div></div>
+              <div className="bg-brand-surface p-6 border-2 border-brand-secondary shadow-3d hover:shadow-3d-hover hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4"><div className="p-3 border border-brand-secondary bg-black shadow-[0_0_10px_#00cc00]"><div className="text-brand-secondary"><ArchiveIcon/></div></div><div><p className="text-gray-400 text-xs uppercase tracking-widest">Estoque Total</p>{stockBreakdown}</div></div>
+              <div className="bg-brand-surface p-6 border-2 border-brand-danger shadow-3d hover:shadow-3d-hover hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4"><div className={`p-3 border border-brand-danger bg-black ${lowStockItems.length > 0 ? 'animate-pulse' : ''} shadow-[0_0_10px_#ff003c]`}><div className="text-brand-danger"><AlertIcon/></div></div><div><p className="text-gray-400 text-xs uppercase tracking-widest">Alertas Estoque</p><div className="font-mono text-3xl text-brand-danger">{lowStockItems.length}</div></div></div>
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d border border-gray-700/50 lg:col-span-1">
-                <h2 className="text-xl font-semibold mb-4 text-brand-accent">Alerta de Estoque Baixo</h2>
-                {lowStockItems.length > 0 ? (
-                  <ul className="space-y-3">
-                    {lowStockItems.map((item) => (
-                      <li key={item.id} className="flex justify-between items-center bg-gray-700/50 p-3 rounded-lg">
-                        <div>
-                          <p className="font-semibold">{item.test_type.split(' - ')[0]}</p>
-                          <p className="text-sm text-gray-400">Lote: {item.lote}</p>
-                        </div>
-                        <span className="bg-danger text-white text-sm font-bold px-3 py-1 rounded-full">{item.quantity}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-400">Nenhum item com estoque baixo.</p>
-                )}
+              <div className="bg-brand-surface border-2 border-brand-danger/50 p-6 shadow-card lg:col-span-1">
+                <h2 className="text-xl font-bold mb-6 text-brand-danger uppercase tracking-widest border-b border-brand-danger/30 pb-2">Estoque Baixo</h2>
+                {lowStockItems.length > 0 ? (<ul className="space-y-4">{lowStockItems.map((item) => (<li key={item.id} className="flex justify-between items-center bg-black/50 p-3 border-l-4 border-brand-danger"><div><p className="font-bold text-gray-200 text-sm">{item.test_type.split(' - ')[0]}</p><p className="text-xs text-gray-500 font-mono">Lote: {item.lote}</p></div><span className="text-brand-danger font-mono font-bold text-xl">{item.quantity}</span></li>))}</ul>) : (<p className="text-gray-500 italic font-mono text-sm">Nenhum alerta de estoque.</p>)}
               </div>
-
-              <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d border border-gray-700/50 lg:col-span-2">
-                <h2 className="text-xl font-semibold mb-4 text-brand-accent">Laudos Recentes</h2>
-                 {recentReports.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead className="bg-black/20">
-                        <tr className="border-b border-gray-600">
-                          <th className="p-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Paciente</th>
-                          <th className="p-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Tipo de Teste</th>
-                          <th className="p-4 text-sm font-semibold text-gray-300 uppercase tracking-wider">Data</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentReports.map(report => (
-                          <tr key={report.id} className="border-b border-gray-700/50 hover:bg-gray-700/30">
-                            <td className="py-4 px-4 font-semibold text-white">{report.patient_name}</td>
-                            <td className="py-4 px-4 text-gray-300">{report.test_type.split(' - ')[1] || report.test_type}</td>
-                            <td className="py-4 px-4 text-gray-300">{new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className="text-gray-400">Nenhum laudo cadastrado ainda.</p>
-                )}
+              <div className="bg-brand-surface border-2 border-brand-primary/50 p-6 shadow-card lg:col-span-2">
+                <h2 className="text-xl font-bold mb-6 text-brand-primary uppercase tracking-widest border-b border-brand-primary/30 pb-2">Laudos Recentes</h2>
+                 {recentReports.length > 0 ? (<div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="bg-brand-primary/10"><tr><th className="p-3 text-xs font-bold text-brand-primary uppercase tracking-wider border-b border-brand-primary/30">Paciente</th><th className="p-3 text-xs font-bold text-brand-primary uppercase tracking-wider border-b border-brand-primary/30">Teste</th><th className="p-3 text-xs font-bold text-brand-primary uppercase tracking-wider border-b border-brand-primary/30">Data</th></tr></thead><tbody className="font-mono text-sm">{recentReports.map(report => (<tr key={report.id} className="border-b border-brand-primary/10 hover:bg-brand-primary/5 transition-colors"><td className="py-3 px-3 text-white">{report.patient_name}</td><td className="py-3 px-3 text-gray-400">{report.test_type.split(' - ')[1] || report.test_type}</td><td className="py-3 px-3 text-brand-secondary">{new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td></tr>))}</tbody></table></div>) : (<p className="text-gray-500 italic font-mono">Nenhum registro.</p>)}
               </div>
             </div>
-            
-            {/* --- MODIFICAÇÃO DA IMAGEM --- */}
-            <div className="mt-8">
-              <img 
-                src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" 
-                alt="Campanha de conscientização sobre violência contra a mulher"
-                className="rounded-lg shadow-3d w-full object-cover border border-gray-700/50 aspect-video"
-              />
+            <div className="mt-8 relative group">
+              <div className="absolute inset-0 bg-brand-primary blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
+              <img src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" alt="Campanha" className="relative rounded-sm shadow-3d w-full object-cover border-2 border-brand-primary aspect-video grayscale hover:grayscale-0 transition duration-500"/>
             </div>
-            {/* --- FIM DA MODIFICAÇÃO --- */}
-
           </div>
         );
       };
-      // --- Fim de: components/Dashboard.tsx ---
 
-      // --- Início de: components/Reports.tsx ---
+      // --- Reports ---
       const Reports = () => {
         const { reports, deleteReport } = useContext(AppContext);
         const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1098,621 +806,208 @@
         const [reportToGeneratePDF, setReportToGeneratePDF] = useState(null);
         const [searchTerm, setSearchTerm] = useState('');
         
-        const openCreateModal = () => {
-          setReportToEdit(null);
-          setIsModalOpen(true);
-        };
+        const filteredReports = useMemo(() => reports.filter(report => report.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) || report.test_type.toLowerCase().includes(searchTerm.toLowerCase())), [reports, searchTerm]);
 
-        const openEditModal = (report) => {
-          setReportToEdit(report);
-          setIsModalOpen(true);
-        };
-
-        const handleDelete = async () => {
-          if (reportToDelete) {
-            try {
-              await deleteReport(reportToDelete.id);
-            } catch (error) {
-              console.error("Failed to delete report:", error);
-              alert("Falha ao excluir o laudo.");
-            } finally {
-              setReportToDelete(null);
-            }
-          }
-        };
-
-        const filteredReports = useMemo(() => {
-          return reports.filter(report =>
-            report.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            report.test_type.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-        }, [reports, searchTerm]);
+        const openCreateModal = () => { setReportToEdit(null); setIsModalOpen(true); };
+        const openEditModal = (report) => { setReportToEdit(report); setIsModalOpen(true); };
+        const handleDelete = async () => { if (reportToDelete) { try { await deleteReport(reportToDelete.id); } catch (error) { console.error("Error:", error); } finally { setReportToDelete(null); } } };
 
         return (
           <div className="animate-fade-in space-y-6">
-            <header className="flex justify-between items-center">
-              <h1 className="text-4xl font-bold text-white tracking-wider">Laudos</h1>
-              <button onClick={openCreateModal} className="bg-brand-secondary hover:bg-opacity-80 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-transform duration-200 transform hover:scale-105 shadow-lg">
-                <PlusIcon /> <span className="ml-2">Novo Laudo</span>
-              </button>
+            <header className="flex justify-between items-center border-b border-brand-primary/30 pb-4">
+              <h1 className="text-4xl font-bold text-brand-primary tracking-widest text-shadow-neon uppercase">Laudos</h1>
+              <button onClick={openCreateModal} className="bg-brand-primary text-black border-2 border-brand-primary font-bold py-2 px-6 flex items-center transition-all shadow-3d hover:shadow-3d-hover active:translate-y-1 active:shadow-none uppercase tracking-wider"><PlusIcon /> <span className="ml-2">Novo</span></button>
             </header>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d border border-gray-700/50">
-              <input
-                type="text"
-                placeholder="Buscar por paciente ou tipo de teste..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-brand-secondary focus:outline-none transition"
-              />
-            </div>
-            
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-3d border border-gray-700/50 overflow-hidden">
+            <div className="bg-brand-surface p-4 border border-brand-primary/30 shadow-neon"><input type="text" placeholder=">>> BUSCAR PACIENTE OU TESTE..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-black border border-brand-primary text-brand-primary p-3 focus:outline-none focus:shadow-neon font-mono placeholder-gray-700"/></div>
+            <div className="bg-brand-surface border-2 border-brand-primary shadow-3d overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-black/20">
-                    <tr>
-                      <th className="p-4">Paciente</th>
-                      <th className="p-4">Tipo de Teste</th>
-                      <th className="p-4">Data do Laudo</th>
-                      <th className="p-4">Técnico</th>
-                      <th className="p-4 text-center">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                  <thead className="bg-brand-primary text-black"><tr><th className="p-4 uppercase tracking-widest font-bold text-sm">Paciente</th><th className="p-4 uppercase tracking-widest font-bold text-sm">Teste</th><th className="p-4 uppercase tracking-widest font-bold text-sm">Data</th><th className="p-4 uppercase tracking-widest font-bold text-sm">Técnico</th><th className="p-4 text-center uppercase tracking-widest font-bold text-sm">Ações</th></tr></thead>
+                  <tbody className="divide-y divide-brand-primary/20 font-mono text-sm">
                     {filteredReports.map(report => (
-                      <tr key={report.id} className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors">
-                        <td className="p-4">{report.patient_name}</td>
-                        <td className="p-4">{report.test_type}</td>
-                        <td className="p-4">{new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
-                        <td className="p-4">{report.technician_name}</td>
-                        <td className="p-4 flex justify-center items-center space-x-2">
-                          <button onClick={() => setReportToGeneratePDF(report)} className="p-2 rounded-full hover:bg-brand-light/50 transition-colors" title="Gerar PDF">
-                            <DownloadIcon />
-                          </button>
-                          <button onClick={() => openEditModal(report)} className="p-2 rounded-full hover:bg-brand-secondary transition-colors" title="Editar Laudo">
-                            <PencilIcon />
-                          </button>
-                          <button onClick={() => setReportToDelete(report)} className="p-2 rounded-full hover:bg-danger transition-colors" title="Excluir Laudo">
-                            <TrashIcon />
-                          </button>
+                      <tr key={report.id} className="hover:bg-brand-primary/10 transition-colors group">
+                        <td className="p-4 text-white font-bold group-hover:text-brand-primary transition-colors">{report.patient_name}</td>
+                        <td className="p-4 text-gray-400">{report.test_type}</td>
+                        <td className="p-4 text-gray-400">{new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
+                        <td className="p-4 text-gray-400">{report.technician_name}</td>
+                        <td className="p-4 flex justify-center items-center space-x-4">
+                          <button onClick={() => setReportToGeneratePDF(report)} className="text-brand-secondary hover:text-white hover:scale-110 transition" title="PDF"><DownloadIcon /></button>
+                          <button onClick={() => openEditModal(report)} className="text-brand-primary hover:text-white hover:scale-110 transition" title="Editar"><PencilIcon /></button>
+                          <button onClick={() => setReportToDelete(report)} className="text-brand-danger hover:text-white hover:scale-110 transition" title="Excluir"><TrashIcon /></button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                {filteredReports.length === 0 && <p className="text-center p-8 text-gray-400">Nenhum laudo encontrado.</p>}
+                {filteredReports.length === 0 && <p className="text-center p-8 text-gray-500 font-mono">NENHUM DADO ENCONTRADO_</p>}
               </div>
             </div>
-
-            {isModalOpen && (
-              <ReportFormModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                reportToEdit={reportToEdit}
-              />
-            )}
-
-            {reportToDelete && (
-               <ConfirmationModal
-                isOpen={!!reportToDelete}
-                onClose={() => setReportToDelete(null)}
-                onConfirm={handleDelete}
-                title="Confirmar Exclusão"
-                message={`Tem certeza que deseja excluir o laudo do paciente ${reportToDelete.patient_name}? Esta ação não pode ser desfeita.`}
-              />
-            )}
-
-            {reportToGeneratePDF && (
-              <ReportPDF 
-                report={reportToGeneratePDF} 
-                onDone={() => setReportToGeneratePDF(null)} 
-              />
-            )}
+            {isModalOpen && <ReportFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} reportToEdit={reportToEdit} />}
+            {reportToDelete && <ConfirmationModal isOpen={!!reportToDelete} onClose={() => setReportToDelete(null)} onConfirm={handleDelete} title="DELETAR REGISTRO" message={`Confirmar exclusão do laudo de ${reportToDelete.patient_name}? Ação irreversível.`} />}
+            {reportToGeneratePDF && <ReportPDF report={reportToGeneratePDF} onDone={() => setReportToGeneratePDF(null)} />}
           </div>
         );
       };
-      // --- Fim de: components/Reports.tsx ---
 
-      // --- Início de: components/Inventory.tsx ---
+      // --- Inventory ---
       const Inventory = () => {
         const { stock, deleteStockItem } = useContext(AppContext);
         const [isModalOpen, setIsModalOpen] = useState(false);
         const [itemToEdit, setItemToEdit] = useState(null);
         const [itemToDelete, setItemToDelete] = useState(null);
-
-        const openCreateModal = () => {
-          setItemToEdit(null);
-          setIsModalOpen(true);
-        };
-
-        const openEditModal = (item) => {
-          setItemToEdit(item);
-          setIsModalOpen(true);
-        };
-
-        const handleDelete = async () => {
-          if (itemToDelete) {
-            try {
-              await deleteStockItem(itemToDelete.id);
-            } catch (error) {
-              console.error("Failed to delete stock item:", error);
-              alert("Falha ao excluir o item de estoque.");
-            } finally {
-              setItemToDelete(null);
-            }
-          }
-        };
-
-        const sortedStock = useMemo(() => {
-          return [...stock].sort((a, b) => a.test_type.localeCompare(b.test_type));
-        }, [stock]);
+        const openCreateModal = () => { setItemToEdit(null); setIsModalOpen(true); };
+        const openEditModal = (item) => { setItemToEdit(item); setIsModalOpen(true); };
+        const handleDelete = async () => { if (itemToDelete) { try { await deleteStockItem(itemToDelete.id); } catch (error) { console.error("Error:", error); } finally { setItemToDelete(null); } } };
+        const sortedStock = useMemo(() => [...stock].sort((a, b) => a.test_type.localeCompare(b.test_type)), [stock]);
 
         return (
           <div className="animate-fade-in space-y-6">
-            <header className="flex justify-between items-center">
-              <h1 className="text-4xl font-bold text-white tracking-wider">Estoque</h1>
-              <button onClick={openCreateModal} className="bg-brand-secondary hover:bg-opacity-80 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-transform duration-200 transform hover:scale-105 shadow-lg">
-                <PlusIcon /> <span className="ml-2">Adicionar Item</span>
-              </button>
+            <header className="flex justify-between items-center border-b border-brand-primary/30 pb-4">
+              <h1 className="text-4xl font-bold text-brand-primary tracking-widest text-shadow-neon uppercase">Estoque</h1>
+              <button onClick={openCreateModal} className="bg-brand-primary text-black border-2 border-brand-primary font-bold py-2 px-6 flex items-center transition-all shadow-3d hover:shadow-3d-hover active:translate-y-1 active:shadow-none uppercase tracking-wider"><PlusIcon /> <span className="ml-2">Adicionar</span></button>
             </header>
-            
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-3d border border-gray-700/50 overflow-hidden">
+            <div className="bg-brand-surface border-2 border-brand-primary shadow-3d overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-black/20">
-                    <tr>
-                      <th className="p-4">Tipo de Teste</th>
-                      <th className="p-4">Lote</th>
-                      <th className="p-4">Validade</th>
-                      <th className="p-4">Quantidade</th>
-                      <th className="p-4 text-center">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                  <thead className="bg-brand-primary text-black"><tr><th className="p-4 uppercase tracking-widest font-bold text-sm">Tipo</th><th className="p-4 uppercase tracking-widest font-bold text-sm">Lote</th><th className="p-4 uppercase tracking-widest font-bold text-sm">Validade</th><th className="p-4 uppercase tracking-widest font-bold text-sm">Qtd</th><th className="p-4 text-center uppercase tracking-widest font-bold text-sm">Ações</th></tr></thead>
+                  <tbody className="divide-y divide-brand-primary/20 font-mono text-sm">
                     {sortedStock.map(item => (
-                      <tr key={item.id} className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors">
-                        <td className="p-4">{item.test_type}</td>
-                        <td className="p-4">{item.lote}</td>
-                        <td className="p-4">{new Date(item.validade).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
-                        <td className={`p-4 font-bold ${item.quantity <= 5 ? 'text-danger' : ''}`}>{item.quantity}</td>
-                        <td className="p-4 flex justify-center items-center space-x-2">
-                          <button onClick={() => openEditModal(item)} className="p-2 rounded-full hover:bg-brand-secondary transition-colors">
-                            <PencilIcon />
-                          </button>
-                          <button onClick={() => setItemToDelete(item)} className="p-2 rounded-full hover:bg-danger transition-colors">
-                            <TrashIcon />
-                          </button>
+                      <tr key={item.id} className="hover:bg-brand-primary/10 transition-colors">
+                        <td className="p-4 text-white font-bold">{item.test_type}</td>
+                        <td className="p-4 text-gray-400">{item.lote}</td>
+                        <td className="p-4 text-gray-400">{new Date(item.validade).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
+                        <td className={`p-4 font-bold text-lg ${item.quantity <= 5 ? 'text-brand-danger animate-pulse' : 'text-brand-primary'}`}>{item.quantity}</td>
+                        <td className="p-4 flex justify-center items-center space-x-4">
+                          <button onClick={() => openEditModal(item)} className="text-brand-primary hover:text-white hover:scale-110 transition"><PencilIcon /></button>
+                          <button onClick={() => setItemToDelete(item)} className="text-brand-danger hover:text-white hover:scale-110 transition"><TrashIcon /></button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                 {sortedStock.length === 0 && <p className="text-center p-8 text-gray-400">Nenhum item em estoque.</p>}
+                 {sortedStock.length === 0 && <p className="text-center p-8 text-gray-500 font-mono">ESTOQUE VAZIO_</p>}
               </div>
             </div>
-
-            {isModalOpen && (
-              <StockFormModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                itemToEdit={itemToEdit}
-              />
-            )}
-
-            {itemToDelete && (
-               <ConfirmationModal
-                isOpen={!!itemToDelete}
-                onClose={() => setItemToDelete(null)}
-                onConfirm={handleDelete}
-                title="Confirmar Exclusão"
-                message={`Tem certeza que deseja excluir o item de estoque "${itemToDelete.test_type}" (Lote: ${itemToDelete.lote})?`}
-              />
-            )}
+            {isModalOpen && <StockFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} itemToEdit={itemToEdit} />}
+            {itemToDelete && <ConfirmationModal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} onConfirm={handleDelete} title="REMOVER ITEM" message={`Excluir "${itemToDelete.test_type}" (Lote: ${itemToDelete.lote})?`} />}
           </div>
         );
       };
-      // --- Fim de: components/Inventory.tsx ---
 
-      // --- Início de: components/Indicators.tsx ---
+      // --- Indicators ---
       const Indicators = () => {
         const { indicators, addIndicator, updateIndicator, deleteIndicator } = useContext(AppContext);
-
-        const getInitialFormData = () => ({
-          date: new Date().toISOString().split('T')[0],
-          gmus: '',
-          pressure: '',
-          hgt: '',
-          weight: '',
-          height: '',
-          professional: '',
-        });
-
+        const getInitialFormData = () => ({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' });
         const [formData, setFormData] = useState(getInitialFormData());
         const [recordToEdit, setRecordToEdit] = useState(null);
         const [recordToDelete, setRecordToDelete] = useState(null);
 
-        useEffect(() => {
-          if (recordToEdit) {
-            setFormData({
-              date: recordToEdit.date,
-              gmus: recordToEdit.gmus,
-              pressure: recordToEdit.pressure || '',
-              hgt: recordToEdit.hgt || '',
-              weight: recordToEdit.weight || '',
-              height: recordToEdit.height || '',
-              professional: recordToEdit.professional,
-            });
-          } else {
-            setFormData(getInitialFormData());
-          }
-        }, [recordToEdit]);
-        
-        const handleChange = (e) => {
-          const { name, value } = e.target;
-          const finalValue = e.target.type === 'text' ? value.toUpperCase() : value;
-          setFormData(prev => ({ ...prev, [name]: finalValue }));
-        };
-
-        const handleSubmit = async (e) => {
-          e.preventDefault();
-          if (!formData.gmus || !formData.professional) {
-              alert("Os campos G'mus e Profissional são obrigatórios.");
-              return;
-          }
-          
-          try {
-              if (recordToEdit) {
-                await updateIndicator(recordToEdit.id, formData);
-                setRecordToEdit(null);
-              } else {
-                await addIndicator(formData);
-              }
-              setFormData(getInitialFormData());
-          } catch (error) {
-              console.error("Failed to save indicator:", error);
-              alert("Falha ao salvar o registro do indicador.");
-          }
-        };
-        
-        const handleEdit = (record) => {
-          setRecordToEdit(record);
-          window.scrollTo(0, 0);
-        };
-
-        const handleCancelEdit = () => {
-          setRecordToEdit(null);
-          setFormData(getInitialFormData());
-        };
-
-        const handleDelete = async () => {
-          if (recordToDelete) {
-            try {
-              await deleteIndicator(recordToDelete.id);
-            } catch (error) {
-              console.error("Failed to delete indicator:", error);
-              alert("Falha ao excluir o registro do indicador.");
-            } finally {
-              setRecordToDelete(null);
-            }
-          }
-        };
-        
-        const handleExportCSV = () => {
-          const headers = ['Data', 'G\'mus', 'Pressão', 'HGT', 'Peso (Kg)', 'Estatura (Cm)', 'Profissional'];
-          const rows = sortedIndicators.map(rec => 
-              [
-                  new Date(rec.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}),
-                  `"${rec.gmus}"`,
-                  `"${rec.pressure || ''}"`,
-                  `"${rec.hgt || ''}"`,
-                  `"${rec.weight || ''}"`,
-                  `"${rec.height || ''}"`,
-                  `"${rec.professional}"`
-              ].join(',')
-          );
-          const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
-          const encodedUri = encodeURI(csvContent);
-          const link = document.createElement("a");
-          link.setAttribute("href", encodedUri);
-          link.setAttribute("download", "indicadores.csv");
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        };
-
-        const sortedIndicators = useMemo(() => {
-          return [...indicators].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        }, [indicators]);
+        useEffect(() => { if (recordToEdit) setFormData({ ...recordToEdit, pressure: recordToEdit.pressure || '', hgt: recordToEdit.hgt || '', weight: recordToEdit.weight || '', height: recordToEdit.height || '' }); else setFormData(getInitialFormData()); }, [recordToEdit]);
+        const handleChange = (e) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: e.target.type === 'text' ? value.toUpperCase() : value })); };
+        const handleSubmit = async (e) => { e.preventDefault(); if (!formData.gmus || !formData.professional) { alert("Campos obrigatórios faltando."); return; } try { if (recordToEdit) { await updateIndicator(recordToEdit.id, formData); setRecordToEdit(null); } else { await addIndicator(formData); } setFormData(getInitialFormData()); } catch (error) { console.error("Failed:", error); } };
+        const handleEdit = (record) => { setRecordToEdit(record); window.scrollTo(0, 0); };
+        const handleCancelEdit = () => { setRecordToEdit(null); setFormData(getInitialFormData()); };
+        const handleDelete = async () => { if (recordToDelete) { try { await deleteIndicator(recordToDelete.id); } catch (error) { console.error("Failed:", error); } finally { setRecordToDelete(null); } } };
+        const handleExportCSV = () => { const headers = ['Data', 'G\'mus', 'Pressão', 'HGT', 'Peso (Kg)', 'Estatura (Cm)', 'Profissional']; const rows = sortedIndicators.map(rec => [new Date(rec.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}), `"${rec.gmus}"`, `"${rec.pressure || ''}"`, `"${rec.hgt || ''}"`, `"${rec.weight || ''}"`, `"${rec.height || ''}"`, `"${rec.professional}"`].join(',')); const link = document.createElement("a"); link.setAttribute("href", encodeURI("data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n'))); link.setAttribute("download", "indicadores.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); };
+        const sortedIndicators = useMemo(() => [...indicators].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [indicators]);
+        const inputClass = "mt-1 block w-full bg-brand-dark border border-brand-primary text-brand-primary p-2 focus:outline-none focus:shadow-neon font-mono text-sm";
+        const labelClass = "block text-xs font-bold text-brand-primary uppercase tracking-wider mb-1";
 
         return (
-          <div className="animate-fade-in space-y-6">
-            <header>
-              <h1 className="text-4xl font-bold text-white tracking-wider">Indicadores</h1>
-            </header>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d border border-gray-700/50">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <h2 className="text-2xl font-bold text-white">{recordToEdit ? 'Editando Registro' : 'Novo Registro de Indicador'}</h2>
+          <div className="animate-fade-in space-y-8">
+            <header><h1 className="text-4xl font-bold text-brand-primary tracking-widest text-shadow-neon uppercase">Indicadores</h1></header>
+            <div className="bg-brand-surface p-6 border-2 border-brand-primary shadow-3d relative">
+              <div className="absolute top-0 right-0 p-2 text-brand-primary font-mono text-xs opacity-50">ENTRY_FORM_V.2.0</div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <h2 className="text-xl font-bold text-white uppercase tracking-widest border-b border-gray-700 pb-2">{recordToEdit ? '>>> EDITANDO REGISTRO' : '>>> NOVO REGISTRO'}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">Data do Dia</label>
-                    <input type="date" name="date" value={formData.date} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">G'mus <span className="text-danger">*</span></label>
-                    <input type="text" name="gmus" value={formData.gmus} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Pressão</label>
-                    <input type="text" name="pressure" value={formData.pressure} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                   <div>
-                    <label className="block text-sm font-medium text-gray-300">HGT</label>
-                    <input type="text" name="hgt" value={formData.hgt} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                   <div>
-                    <label className="block text-sm font-medium text-gray-300">Peso (Kg)</label>
-                    <input type="text" name="weight" value={formData.weight} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300">Estatura (Cm)</label>
-                    <input type="text" name="height" value={formData.height} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
-                   <div className="md:col-span-2 lg:col-span-2">
-                    <label className="block text-sm font-medium text-gray-300">Profissional <span className="text-danger">*</span></label>
-                    <input type="text" name="professional" value={formData.professional} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-brand-secondary focus:border-brand-secondary"/>
-                  </div>
+                  <div><label className={labelClass}>Data</label><input type="date" name="date" value={formData.date} onChange={handleChange} required className={inputClass}/></div>
+                  <div><label className={labelClass}>G'mus <span className="text-brand-danger">*</span></label><input type="text" name="gmus" value={formData.gmus} onChange={handleChange} required className={inputClass}/></div>
+                   <div><label className={labelClass}>Pressão</label><input type="text" name="pressure" value={formData.pressure} onChange={handleChange} className={inputClass}/></div>
+                   <div><label className={labelClass}>HGT</label><input type="text" name="hgt" value={formData.hgt} onChange={handleChange} className={inputClass}/></div>
+                   <div><label className={labelClass}>Peso (Kg)</label><input type="text" name="weight" value={formData.weight} onChange={handleChange} className={inputClass}/></div>
+                  <div><label className={labelClass}>Estatura (Cm)</label><input type="text" name="height" value={formData.height} onChange={handleChange} className={inputClass}/></div>
+                   <div className="md:col-span-2 lg:col-span-2"><label className={labelClass}>Profissional <span className="text-brand-danger">*</span></label><input type="text" name="professional" value={formData.professional} onChange={handleChange} required className={inputClass}/></div>
                 </div>
-                <div className="flex justify-end space-x-4 pt-2">
-                  {recordToEdit && (
-                      <button type="button" onClick={handleCancelEdit} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar Edição</button>
-                  )}
-                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">{recordToEdit ? 'Salvar Alterações' : 'Salvar Registro'}</button>
+                <div className="flex justify-end space-x-4">
+                  {recordToEdit && (<button type="button" onClick={handleCancelEdit} className="py-2 px-4 border border-brand-primary text-gray-400 font-bold uppercase tracking-wider hover:text-white transition">Cancelar</button>)}
+                  <button type="submit" className="py-2 px-6 bg-brand-primary text-black font-bold uppercase tracking-wider shadow-3d hover:shadow-3d-hover active:translate-y-1 active:shadow-none transition">{recordToEdit ? 'Atualizar' : 'Salvar'}</button>
                 </div>
               </form>
             </div>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-3d border border-gray-700/50">
-              <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-white">Relatórios</h2>
-                  <button onClick={handleExportCSV} className="bg-brand-accent hover:bg-opacity-80 text-black font-bold py-2 px-4 rounded-lg flex items-center transition-transform duration-200 transform hover:scale-105 shadow-lg">
-                      <DownloadIcon /> <span className="ml-2">Exportar para CSV</span>
-                  </button>
-              </div>
+            <div className="bg-brand-surface border-2 border-brand-primary shadow-3d p-6">
+              <div className="flex justify-between items-center mb-6 border-b border-brand-primary/30 pb-4"><h2 className="text-2xl font-bold text-white uppercase tracking-widest">Base de Dados</h2><button onClick={handleExportCSV} className="bg-brand-secondary text-black font-bold py-2 px-4 flex items-center shadow-neon hover:bg-white transition uppercase tracking-wider"><DownloadIcon /> <span className="ml-2">CSV</span></button></div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-black/20">
-                    <tr>
-                      <th className="p-4">Data</th>
-                      <th className="p-4">G'mus</th>
-                      <th className="p-4">Pressão</th>
-                      <th className="p-4">HGT</th>
-                      <th className="p-4">Peso</th>
-                      <th className="p-4">Estatura</th>
-                      <th className="p-4">Profissional</th>
-                      <th className="p-4 text-center">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                  <thead className="bg-brand-primary text-black"><tr><th className="p-3 text-sm font-bold uppercase tracking-widest">Data</th><th className="p-3 text-sm font-bold uppercase tracking-widest">G'mus</th><th className="p-3 text-sm font-bold uppercase tracking-widest">Pressão</th><th className="p-3 text-sm font-bold uppercase tracking-widest">HGT</th><th className="p-3 text-sm font-bold uppercase tracking-widest">Peso</th><th className="p-3 text-sm font-bold uppercase tracking-widest">Estatura</th><th className="p-3 text-sm font-bold uppercase tracking-widest">Profissional</th><th className="p-3 text-sm font-bold uppercase tracking-widest text-center">Ações</th></tr></thead>
+                  <tbody className="divide-y divide-brand-primary/20 font-mono text-sm">
                     {sortedIndicators.map(rec => (
-                      <tr key={rec.id} className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors">
-                        <td className="p-4">{new Date(rec.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
-                        <td className="p-4">{rec.gmus}</td>
-                        <td className="p-4">{rec.pressure}</td>
-                        <td className="p-4">{rec.hgt}</td>
-                        <td className="p-4">{rec.weight}</td>
-                        <td className="p-4">{rec.height}</td>
-                        <td className="p-4">{rec.professional}</td>
-                        <td className="p-4 flex justify-center items-center space-x-2">
-                          <button onClick={() => handleEdit(rec)} className="p-2 rounded-full hover:bg-brand-secondary transition-colors" title="Editar">
-                            <PencilIcon />
-                          </button>
-                          <button onClick={() => setRecordToDelete(rec)} className="p-2 rounded-full hover:bg-danger transition-colors" title="Excluir">
-                            <TrashIcon />
-                          </button>
-                        </td>
+                      <tr key={rec.id} className="hover:bg-brand-primary/10 transition-colors">
+                        <td className="p-3 text-white">{new Date(rec.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td>
+                        <td className="p-3 text-gray-400">{rec.gmus}</td>
+                        <td className="p-3 text-gray-400">{rec.pressure}</td>
+                        <td className="p-3 text-gray-400">{rec.hgt}</td>
+                        <td className="p-3 text-gray-400">{rec.weight}</td>
+                        <td className="p-3 text-gray-400">{rec.height}</td>
+                        <td className="p-3 text-gray-400">{rec.professional}</td>
+                        <td className="p-3 flex justify-center items-center space-x-2"><button onClick={() => handleEdit(rec)} className="text-brand-primary hover:text-white transition p-1"><PencilIcon /></button><button onClick={() => setRecordToDelete(rec)} className="text-brand-danger hover:text-white transition p-1"><TrashIcon /></button></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                {sortedIndicators.length === 0 && <p className="text-center p-8 text-gray-400">Nenhum registro de indicador encontrado.</p>}
+                {sortedIndicators.length === 0 && <p className="text-center p-8 text-gray-500 font-mono">NENHUM REGISTRO_</p>}
               </div>
             </div>
-            
-            {recordToDelete && (
-               <ConfirmationModal
-                isOpen={!!recordToDelete}
-                onClose={() => setRecordToDelete(null)}
-                onConfirm={handleDelete}
-                title="Confirmar Exclusão"
-                message={`Tem certeza que deseja excluir o registro do dia ${new Date(recordToDelete.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}?`}
-              />
-            )}
+            {recordToDelete && <ConfirmationModal isOpen={!!recordToDelete} onClose={() => setRecordToDelete(null)} onConfirm={handleDelete} title="DELETAR REGISTRO" message={`Excluir dados de ${new Date(recordToDelete.date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}?`} />}
           </div>
         );
       };
-      // --- Fim de: components/Indicators.tsx ---
 
-      // --- Início de: App.tsx ---
+      // --- App ---
       const App = () => {
         const [currentPage, setCurrentPage] = useState('dashboard');
-        const [reports, setReports] = useState([]);
-        const [stock, setStock] = useState([]);
-        const [indicators, setIndicators] = useState([]);
-        const [isLoading, setIsLoading] = useState(true);
-        const [isInventoryUnlocked, setIsInventoryUnlocked] = useState(false);
-
-        const fetchData = useCallback(async () => {
-          setIsLoading(true);
-          try {
-            const reportsPromise = supabase.from('reports').select('*').order('created_at', { ascending: false });
-            const stockPromise = supabase.from('stock').select('*').order('test_type', { ascending: true });
-            const indicatorsPromise = supabase.from('indicators').select('*').order('date', { ascending: false });
-
-            const [reportsRes, stockRes, indicatorsRes] = await Promise.all([reportsPromise, stockPromise, indicatorsPromise]);
-
-            if (reportsRes.error) throw reportsRes.error;
-            if (stockRes.error) throw stockRes.error;
-            if (indicatorsRes.error) throw indicatorsRes.error;
-
-            setReports(reportsRes.data);
-            setStock(stockRes.data);
-            setIndicators(indicatorsRes.data);
-
-          } catch (error) {
-            console.error("Erro ao buscar dados:", error);
-            alert("Não foi possível carregar os dados do banco de dados. Verifique sua conexão e as configurações do Supabase.");
-          } finally {
-            setIsLoading(false);
-          }
-        }, []);
-
-        useEffect(() => {
-          fetchData();
-        }, [fetchData]);
-
-        // Funções de Ação (CRUD)
-        const addReport = async (reportData) => {
-          // 1. Adicionar o laudo
-          const { data: newReport, error: reportError } = await supabase
-            .from('reports')
-            .insert([reportData])
-            .select()
-            .single();
-
-          if (reportError) throw reportError;
-
-          // 2. Encontrar o item de estoque correspondente
-          const stockItem = stock.find(item => item.lote === reportData.lote && item.test_type === reportData.test_type);
-          if (stockItem && stockItem.quantity > 0) {
-            // 3. Atualizar a quantidade no estoque
-            const { error: stockError } = await supabase
-              .from('stock')
-              .update({ quantity: stockItem.quantity - 1 })
-              .eq('id', stockItem.id);
-
-            if (stockError) {
-              console.error("Erro ao atualizar o estoque, mas o laudo foi criado:", stockError);
-            }
-          }
-          
-          // 4. Atualizar o estado local
-          await fetchData(); 
-        };
-
-        const updateReport = async (reportId, reportData) => {
-          const { error } = await supabase.from('reports').update(reportData).eq('id', reportId);
-          if (error) throw error;
-          await fetchData();
-        };
-
-        const deleteReport = async (reportId) => {
-          const { error } = await supabase.from('reports').delete().eq('id', reportId);
-          if (error) throw error;
-          setReports(prev => prev.filter(r => r.id !== reportId));
-        };
         
-        const addStockItem = async (itemData) => {
-          const { error } = await supabase.from('stock').insert([itemData]);
-          if (error) throw error;
-          await fetchData();
-        };
+        return (
+          <AppProvider>
+            <AppContent currentPage={currentPage} setCurrentPage={setCurrentPage} />
+          </AppProvider>
+        );
+      };
 
-        const updateStockItem = async (itemId, itemData) => {
-          const { error } = await supabase.from('stock').update(itemData).eq('id', itemId);
-          if (error) throw error;
-          await fetchData();
-        };
-
-        const deleteStockItem = async (itemId) => {
-          const { error } = await supabase.from('stock').delete().eq('id', itemId);
-          if (error) throw error;
-          setStock(prev => prev.filter(s => s.id !== itemId));
-        };
-
-        const addIndicator = async (indicatorData) => {
-           const { error } = await supabase.from('indicators').insert([indicatorData]);
-          if (error) throw error;
-          await fetchData();
-        };
-
-        const updateIndicator = async (indicatorId, indicatorData) => {
-           const { error } = await supabase.from('indicators').update(indicatorData).eq('id', indicatorId);
-          if (error) throw error;
-          await fetchData();
-        };
-
-        const deleteIndicator = async (indicatorId) => {
-           const { error } = await supabase.from('indicators').delete().eq('id', indicatorId);
-          if (error) throw error;
-          setIndicators(prev => prev.filter(i => i.id !== indicatorId));
-        };
+      const AppContent = ({ currentPage, setCurrentPage }) => {
+        const { isLoading } = useContext(AppContext);
 
         const renderCurrentPage = () => {
-          if (isLoading) {
-            return (
-              <div className="flex justify-center items-center h-full">
-                <div className="text-center">
-                  <svg className="animate-spin h-10 w-10 text-brand-primary mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <p className="mt-4 text-lg">Carregando dados...</p>
-                </div>
-              </div>
-            );
-          }
-
+          if (isLoading) return (<div className="flex flex-col justify-center items-center h-full"><div className="relative"><div className="w-24 h-24 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div><div className="absolute inset-0 flex items-center justify-center font-bold text-brand-primary animate-pulse text-xs">LOADING</div></div><p className="mt-8 text-xl text-brand-primary font-mono tracking-widest animate-pulse">CARREGANDO SISTEMA...</p></div>);
           switch (currentPage) {
-            case 'dashboard':
-              return <Dashboard setPage={setCurrentPage} />;
-            case 'reports':
-              return <Reports />;
-            case 'inventory':
-              return <Inventory />;
-            case 'indicators':
-              return <Indicators />;
-            default:
-              return <Dashboard setPage={setCurrentPage} />;
+            case 'dashboard': return <Dashboard setPage={setCurrentPage} />;
+            case 'reports': return <Reports />;
+            case 'inventory': return <Inventory />;
+            case 'indicators': return <Indicators />;
+            default: return <Dashboard setPage={setCurrentPage} />;
           }
-        };
-        
-        const contextValue = {
-            reports, stock, indicators, isInventoryUnlocked, setIsInventoryUnlocked,
-            addReport, updateReport, deleteReport,
-            addStockItem, updateStockItem, deleteStockItem,
-            addIndicator, updateIndicator, deleteIndicator,
         };
 
         return (
-          <AppContext.Provider value={contextValue}>
-            <div className="flex h-screen bg-brand-gray font-sans">
+          <div className="flex h-screen bg-brand-dark font-sans overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-dark via-black to-brand-dark z-0 pointer-events-none"></div>
+            <div className="z-10 flex w-full h-full">
               <Sidebar currentPage={currentPage} setPage={setCurrentPage} />
-              <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
+              <main className="flex-1 p-6 sm:p-10 overflow-y-auto relative scroll-smooth">
+                <div className="absolute inset-0 z-[-1]" style={{ backgroundImage: 'linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
                 {renderCurrentPage()}
               </main>
             </div>
-          </AppContext.Provider>
+          </div>
         );
       };
-      // --- Fim de: App.tsx ---
 
-      // --- Início de: index.tsx (Ponto de Entrada) ---
-      // Esta é a versão sem a tela de splash
+      // --- Render ---
       const rootElement = document.getElementById('root');
-      if (!rootElement) {
-        throw new Error("Could not find root element to mount to");
-      }
-
+      if (!rootElement) throw new Error("Could not find root element to mount to");
       const root = createRoot(rootElement);
-      root.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
-      // --- Fim de: index.tsx ---
-
+      root.render(<React.StrictMode><App /></React.StrictMode>);
     </script>
-    </body>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>
