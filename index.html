@@ -15,6 +15,7 @@
             <div style="color: #39ff14; background: #050505; padding: 20px; font-family: monospace; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
               <h1 style="font-size: 24px; margin-bottom: 10px; text-transform: uppercase;">[Erro no Sistema]</h1>
               <p style="font-size: 16px; opacity: 0.8;">${message}</p>
+              <p style="font-size: 12px; opacity: 0.6;">Linha: ${lineno}</p>
               <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #39ff14; color: black; border: none; font-weight: bold; cursor: pointer;">REINICIAR SISTEMA</button>
             </div>
           `;
@@ -53,7 +54,7 @@
               'neon-hover': '0 0 20px rgba(57, 255, 20, 0.6)',
             },
             fontFamily: {
-              sans: ['Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'], // Fonte mais limpa
+              sans: ['Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
             },
             aspectRatio: {
               'video': '16 / 9',
@@ -74,7 +75,6 @@
     </script>
     
     <style>
-      /* Ajustes de Scrollbar para combinar com o tema */
       ::-webkit-scrollbar { width: 8px; height: 8px; }
       ::-webkit-scrollbar-track { background: #050505; }
       ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 4px; }
@@ -127,6 +127,8 @@
       const commonInputClass = "w-full bg-brand-gray border border-gray-700 text-white rounded p-2 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all";
       const btnClass = "px-4 py-2 rounded font-bold text-black bg-brand-primary hover:bg-brand-secondary transition-all shadow-neon hover:shadow-neon-hover flex items-center justify-center gap-2";
       const cardClass = "bg-brand-surface border border-gray-800 rounded-lg p-6 shadow-lg";
+
+      // --- COMPONENTES (Definidos ANTES do uso) ---
 
       const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         if (!isOpen) return null;
@@ -302,7 +304,6 @@
         );
       };
 
-      // --- PDF Generator ---
       const ReportPDF = ({ report, onDone }) => {
         useEffect(() => {
           const timer = setTimeout(() => {
@@ -368,7 +369,35 @@
         );
       };
 
-      // --- Páginas ---
+      const Sidebar = ({ currentPage, setPage }) => {
+        const { isInventoryUnlocked, setIsInventoryUnlocked } = useContext(AppContext);
+        const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+        const navItems = [
+          { page: 'dashboard', label: 'Dashboard', icon: <HomeIcon /> },
+          { page: 'reports', label: 'Laudos', icon: <DocumentReportIcon /> },
+          { page: 'inventory', label: 'Estoque', icon: <ArchiveIcon /> },
+          { page: 'indicators', label: 'Indicadores', icon: <ChartBarIcon /> },
+        ];
+        return (
+          <>
+            <aside className="w-16 sm:w-64 bg-black bg-opacity-20 backdrop-blur-lg border-r border-gray-700/50 flex flex-col transition-all duration-300 animate-slide-in-left">
+              <div className="h-20 flex items-center px-4"><span className="text-brand-primary font-bold text-xl">UBS</span><span className="hidden sm:block ml-2 font-bold">SANTO AFONSO</span></div>
+              <nav className="flex-1 mt-6">
+                <ul>{navItems.map(item => (
+                  <li key={item.page} className="px-4 mb-2">
+                    <button onClick={() => { if(item.page === 'inventory' && !isInventoryUnlocked) setIsPasswordModalOpen(true); else setPage(item.page); }}
+                      className={`flex items-center w-full p-3 rounded-lg transition-all ${currentPage === item.page ? 'bg-brand-secondary text-black font-bold shadow-neon' : 'text-gray-300 hover:bg-brand-primary hover:text-black'}`}>
+                      {item.icon}<span className="hidden sm:block ml-4">{item.label}</span>
+                    </button>
+                  </li>
+                ))}</ul>
+              </nav>
+            </aside>
+            <PasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} onConfirm={(pwd) => { if(pwd === '159753') { setIsInventoryUnlocked(true); setPage('inventory'); setIsPasswordModalOpen(false); } else alert("Senha incorreta"); }} />
+          </>
+        );
+      };
+
       const Dashboard = ({ setPage }) => {
         const { reports, stock } = useContext(AppContext);
         const low = stock.filter(i => i.quantity <= 5);
@@ -440,8 +469,6 @@
         );
       };
 
-      // --- Componentes Inventory e Indicators simplificados para caber ---
-      // (A lógica é a mesma dos anteriores, apenas ajustando classes para o tema Neon/Full Width)
       const Inventory = () => {
         const { stock, deleteStockItem } = useContext(AppContext);
         const [modal, setModal] = useState(false);
