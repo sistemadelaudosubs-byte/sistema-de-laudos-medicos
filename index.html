@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Sistema de Laudos - UBS Santo Afonso</title>
     
     <script>
@@ -11,11 +12,10 @@
         const root = document.getElementById('root');
         if (root) {
           root.innerHTML = `
-            <div style="color: #ff4444; background: #1a1a1a; padding: 20px; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-              <h1 style="font-size: 24px; margin-bottom: 10px;">Erro ao carregar o sistema</h1>
+            <div style="color: #39ff14; background: #050505; padding: 20px; font-family: monospace; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <h1 style="font-size: 24px; margin-bottom: 10px; text-transform: uppercase;">[Erro no Sistema]</h1>
               <p style="font-size: 16px; opacity: 0.8;">${message}</p>
-              <p style="font-size: 12px; opacity: 0.5; margin-top: 10px;">Linha: ${lineno} | Fonte: ${source}</p>
-              <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #00c3ff; border: none; border-radius: 5px; color: white; cursor: pointer;">Tentar Novamente</button>
+              <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #39ff14; color: black; border: none; font-weight: bold; cursor: pointer;">REINICIAR SISTEMA</button>
             </div>
           `;
         }
@@ -39,144 +39,123 @@
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#00c3ff',
-              'brand-secondary': '#ff00aa',
-              'brand-accent': '#00ff95',
-              'brand-dark': '#121212',
-              'brand-light-gray': '#282828',
-              'brand-gray': '#181818',
-              'danger': '#e53e3e',
-              'warning': '#dd6b20',
+              'brand-primary': '#39ff14',   // Verde Neon Principal
+              'brand-secondary': '#00cc00', // Verde Médio
+              'brand-accent': '#ccff00',    // Lima
+              'brand-dark': '#050505',      // Fundo quase preto
+              'brand-surface': '#111111',   // Fundo de cards
+              'brand-gray': '#1a1a1a',      // Bordas e detalhes
+              'danger': '#ff0033',
+              'warning': '#ffcc00',
             },
             boxShadow: {
-              '3d': '0 5px 15px rgba(0, 0, 0, 0.3)',
-              '3d-hover': '0 8px 25px rgba(0, 0, 0, 0.4)',
+              'neon': '0 0 10px rgba(57, 255, 20, 0.3)',
+              'neon-hover': '0 0 20px rgba(57, 255, 20, 0.6)',
+            },
+            fontFamily: {
+              sans: ['Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'], // Fonte mais limpa
             },
             aspectRatio: {
               'video': '16 / 9',
             },
             keyframes: {
-              'pop-in': { '0%': { opacity: '0', transform: 'scale(0.9)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
-              'slide-in-left': { '0%': { opacity: '0', transform: 'translateX(-100px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
+              'pop-in': { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+              'slide-in-left': { '0%': { opacity: '0', transform: 'translateX(-50px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
               'fade-in': { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
             },
             animation: {
-              'pop-in': 'pop-in 0.3s ease-out forwards',
-              'slide-in-left': 'slide-in-left 0.5s ease-out forwards',
-              'fade-in': 'fade-in 0.5s ease-out forwards',
+              'pop-in': 'pop-in 0.2s ease-out forwards',
+              'slide-in-left': 'slide-in-left 0.4s ease-out forwards',
+              'fade-in': 'fade-in 0.4s ease-out forwards',
             },
           },
         },
       };
     </script>
+    
+    <style>
+      /* Ajustes de Scrollbar para combinar com o tema */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: #050505; }
+      ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #39ff14; }
+      body { background-color: #050505; color: #e0e0e0; }
+      input, select { color-scheme: dark; }
+    </style>
   </head>
-  <body class="bg-brand-dark text-white">
-    <div id="root" class="flex h-screen w-full items-center justify-center">
-      <div class="text-center animate-pulse">
-        <svg class="w-12 h-12 mx-auto mb-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-        <p class="text-xl font-bold">Carregando Sistema...</p>
+  <body class="bg-brand-dark text-white h-screen w-screen overflow-hidden">
+    <div id="root" class="h-full w-full">
+      <div class="flex h-screen w-full items-center justify-center">
+        <div class="text-center animate-pulse">
+          <p class="text-2xl font-bold text-brand-primary tracking-widest uppercase">Carregando Sistema...</p>
+        </div>
       </div>
     </div>
 
     <script type="text/babel">
-      // Acessando as bibliotecas globais carregadas no head
       const { useState, useEffect, useCallback, useContext, useMemo, createContext } = React;
       const { createRoot } = ReactDOM;
       const { createClient } = supabase;
 
-      // --- Enums e Constantes ---
-      const TestType = {
-          DENGUE: "DENGUE - NS1",
-          COVID: "COVID-19 - ANTÍGENO",
-          HCG: "HCG - BETA-HCG"
-      };
+      // --- Enums ---
+      const TestType = { DENGUE: "DENGUE - NS1", COVID: "COVID-19 - ANTÍGENO", HCG: "HCG - BETA-HCG" };
+      const DengueResult = { NEGATIVE: "NEGATIVO", IGG_REAGENT: "IGG REAGENTE", IGM_REAGENT: "IGM REAGENTE", IGG_IGM_REAGENT: "IGG E IGM REAGENTES" };
+      const CovidResult = { NEGATIVE: "NEGATIVO", POSITIVE: "POSITIVO" };
 
-      const DengueResult = {
-          NEGATIVE: "NEGATIVO",
-          IGG_REAGENT: "IGG REAGENTE",
-          IGM_REAGENT: "IGM REAGENTE",
-          IGG_IGM_REAGENT: "IGG E IGM REAGENTES"
-      };
-
-      const CovidResult = {
-          NEGATIVE: "NEGATIVO",
-          POSITIVE: "POSITIVO"
-      };
-
-      // --- Configuração Supabase ---
+      // --- Supabase ---
       const supabaseUrl = 'https://avcpoeouasfeuqsbyuoy.supabase.co';
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2Y3BvZW91YXNmZXVxc2J5dW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0OTkxMjIsImV4cCI6MjA3NzA3NTEyMn0.0eF-yCEBAuHl8B3ORN7VYfJnnEIY0m1bMj8R_FsntNM';
       const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
       // --- Contexto ---
-      const AppContext = createContext({
-        reports: [],
-        stock: [],
-        indicators: [],
-        isInventoryUnlocked: false,
-        setIsInventoryUnlocked: () => {},
-        addReport: async () => {},
-        updateReport: async () => {},
-        deleteReport: async () => {},
-        addStockItem: async () => {},
-        updateStockItem: async () => {},
-        deleteStockItem: async () => {},
-        addIndicator: async () => {},
-        updateIndicator: async () => {},
-        deleteIndicator: async () => {},
-      });
+      const AppContext = createContext({});
 
       // --- Ícones ---
-      const iconClass = "h-6 w-6";
-      const HomeIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>);
-      const DocumentReportIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>);
-      const ArchiveIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>);
-      const ChartBarIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>);
-      const AlertIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>);
-      const DocumentTextIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>);
-      const PlusIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>);
-      const PencilIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>);
-      const TrashIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>);
-      const DownloadIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>);
+      const Icon = ({ p }) => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={p} /></svg>;
+      const HomeIcon = () => <Icon p="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />;
+      const DocumentReportIcon = () => <Icon p="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />;
+      const ArchiveIcon = () => <Icon p="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />;
+      const ChartBarIcon = () => <Icon p="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />;
+      const AlertIcon = () => <Icon p="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />;
+      const DocumentTextIcon = () => <Icon p="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />;
+      const PlusIcon = () => <Icon p="M12 6v6m0 0v6m0-6h6m-6 0H6" />;
+      const PencilIcon = () => <Icon p="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />;
+      const TrashIcon = () => <Icon p="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />;
+      const DownloadIcon = () => <Icon p="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />;
 
-      // --- Componentes ---
+      // --- Helpers ---
+      const commonInputClass = "w-full bg-brand-gray border border-gray-700 text-white rounded p-2 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all";
+      const btnClass = "px-4 py-2 rounded font-bold text-black bg-brand-primary hover:bg-brand-secondary transition-all shadow-neon hover:shadow-neon-hover flex items-center justify-center gap-2";
+      const cardClass = "bg-brand-surface border border-gray-800 rounded-lg p-6 shadow-lg";
 
       const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
         if (!isOpen) return null;
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
-              <div className="p-5 space-y-4">
-                <h2 className="text-2xl font-bold text-white">{title}</h2>
-                <p className="text-gray-300">{message}</p>
-                <div className="flex justify-end space-x-4 pt-4">
-                  <button onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar</button>
-                  <button onClick={onConfirm} className="py-2 px-4 bg-danger hover:bg-opacity-80 text-white font-bold rounded-lg transition">Confirmar Exclusão</button>
-                </div>
+          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in p-4 backdrop-blur-sm">
+            <div className={`${cardClass} w-full max-w-md border-brand-primary`}>
+              <h2 className="text-2xl font-bold text-brand-primary mb-4">{title}</h2>
+              <p className="text-gray-300 mb-6">{message}</p>
+              <div className="flex justify-end gap-4">
+                <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancelar</button>
+                <button onClick={onConfirm} className="px-4 py-2 bg-danger text-white rounded font-bold hover:opacity-90">Confirmar</button>
               </div>
             </div>
           </div>
         );
       };
 
-      const PasswordModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-        const [password, setPassword] = useState('');
+      const PasswordModal = ({ isOpen, onClose, onConfirm }) => {
+        const [pwd, setPwd] = useState('');
         if (!isOpen) return null;
-        const handleSubmit = (e) => { e.preventDefault(); onConfirm(password); };
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
-              <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                <h2 className="text-2xl font-bold text-white">{title}</h2>
-                <p className="text-gray-300">{message}</p>
-                <div>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-brand-secondary" placeholder="Digite a senha" autoFocus />
-                </div>
-                <div className="flex justify-end space-x-4 pt-4">
-                  <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 hover:bg-gray-500 rounded-lg transition">Cancelar</button>
-                  <button type="submit" className="py-2 px-4 bg-brand-secondary hover:bg-opacity-80 text-white font-bold rounded-lg transition">Acessar</button>
+          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in backdrop-blur-sm">
+            <div className={`${cardClass} w-full max-w-md border-brand-primary`}>
+              <h2 className="text-2xl font-bold text-brand-primary mb-4">Acesso Restrito</h2>
+              <form onSubmit={(e) => { e.preventDefault(); onConfirm(pwd); }}>
+                <input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} className={commonInputClass} placeholder="Digite a senha..." autoFocus />
+                <div className="flex justify-end gap-4 mt-4">
+                  <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-700 rounded">Cancelar</button>
+                  <button type="submit" className={btnClass}>Entrar</button>
                 </div>
               </form>
             </div>
@@ -186,224 +165,125 @@
 
       const StockFormModal = ({ isOpen, onClose, itemToEdit }) => {
         const { addStockItem, updateStockItem } = useContext(AppContext);
-        const [formData, setFormData] = useState({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 });
+        const [form, setForm] = useState({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 });
 
-        useEffect(() => {
-          if (itemToEdit) {
-            setFormData({ test_type: itemToEdit.test_type, lote: itemToEdit.lote, validade: itemToEdit.validade, quantity: itemToEdit.quantity });
-          } else {
-            setFormData({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 });
-          }
-        }, [itemToEdit, isOpen]);
-
-        const handleChange = (e) => {
-          const { name, value } = e.target;
-          setFormData(prev => ({ ...prev, [name]: name === 'quantity' ? (parseInt(value, 10) || 0) : (e.target.type === 'text' ? value.toUpperCase() : value) }));
-        };
+        useEffect(() => { if (itemToEdit) setForm(itemToEdit); else setForm({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 }); }, [itemToEdit]);
 
         const handleSubmit = async (e) => {
           e.preventDefault();
-          try {
-            if (itemToEdit) await updateStockItem(itemToEdit.id, formData);
-            else await addStockItem(formData);
-            onClose();
-          } catch(error) { alert("Falha ao salvar o item de estoque."); }
+          try { if (itemToEdit) await updateStockItem(itemToEdit.id, form); else await addStockItem(form); onClose(); } catch (e) { alert("Erro ao salvar"); }
         };
 
         if (!isOpen) return null;
-
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-md border border-gray-700/50">
-              <form onSubmit={handleSubmit} className="p-5 space-y-3">
-                <h2 className="text-2xl font-bold text-white pb-2">{itemToEdit ? 'Editar Item' : 'Adicionar ao Estoque'}</h2>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">Tipo de Teste</label>
-                  <select name="test_type" value={formData.test_type} onChange={handleChange} className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3">{Object.values(TestType).map(type => <option key={type} value={type}>{type}</option>)}</select>
+          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in p-4 backdrop-blur-sm">
+            <div className={`${cardClass} w-full max-w-lg border-brand-primary`}>
+              <h2 className="text-2xl font-bold text-brand-primary mb-4">{itemToEdit ? 'Editar Estoque' : 'Adicionar Item'}</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div><label className="block text-sm text-gray-400">Tipo</label><select value={form.test_type} onChange={e => setForm({...form, test_type: e.target.value})} className={commonInputClass}>{Object.values(TestType).map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div><label className="block text-sm text-gray-400">Lote</label><input value={form.lote} onChange={e => setForm({...form, lote: e.target.value.toUpperCase()})} className={commonInputClass} required /></div>
+                  <div><label className="block text-sm text-gray-400">Validade</label><input type="date" value={form.validade} onChange={e => setForm({...form, validade: e.target.value})} className={commonInputClass} required /></div>
                 </div>
-                <div><label className="block text-sm font-medium text-gray-300">Lote</label><input type="text" name="lote" value={formData.lote} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3"/></div>
-                <div><label className="block text-sm font-medium text-gray-300">Validade</label><input type="date" name="validade" value={formData.validade} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3"/></div>
-                <div><label className="block text-sm font-medium text-gray-300">Quantidade</label><input type="number" name="quantity" min="0" value={formData.quantity} onChange={handleChange} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3"/></div>
-                <div className="flex justify-end space-x-4 pt-3"><button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 rounded-lg">Cancelar</button><button type="submit" className="py-2 px-4 bg-brand-secondary text-white font-bold rounded-lg">Salvar</button></div>
+                <div><label className="block text-sm text-gray-400">Quantidade</label><input type="number" value={form.quantity} onChange={e => setForm({...form, quantity: parseInt(e.target.value) || 0})} className={commonInputClass} required /></div>
+                <div className="flex justify-end gap-4 pt-2">
+                  <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-700 rounded">Cancelar</button>
+                  <button type="submit" className={btnClass}>Salvar</button>
+                </div>
               </form>
             </div>
           </div>
         );
       };
 
-      const ReportPDF = ({ report, onDone }) => {
-        useEffect(() => {
-          const timer = setTimeout(() => {
-            const reportElement = document.getElementById('printable-report-for-pdf');
-            if (!reportElement || !window.html2canvas || !window.jspdf) {
-              alert("Erro ao preparar PDF."); onDone(); return;
-            }
-            const { jsPDF } = window.jspdf;
-            window.html2canvas(reportElement, { scale: 3, useCORS: true, logging: false }).then((canvas) => {
-              const imgData = canvas.toDataURL('image/png');
-              const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-              const pdfWidth = pdf.internal.pageSize.getWidth();
-              const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-              pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-              
-              // Sanitiza nome do arquivo
-              const safeName = report.patient_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
-              const safeDate = new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}).replace(/\//g, '-');
-              pdf.save(`laudo_${safeName}_${safeDate}.pdf`);
-              
-              onDone();
-            }).catch((err) => { console.error(err); alert("Erro ao gerar PDF."); onDone(); });
-          }, 500);
-          return () => clearTimeout(timer);
-        }, [report, onDone]);
-
-        const renderField = (label, value) => (
-          <div className="flex items-baseline"><span className="font-semibold mr-2">{label}</span><span className="flex-1 border-b border-dotted border-black text-left pb-1">{value || ''}</span></div>
-        );
-
-        const CommonHeader = ({ title }) => (
-          <>
-            <header className="text-center mb-6"><h1 className="text-2xl font-bold">UBS SANTO AFONSO</h1></header>
-            <section className="text-center my-8"><h1 className="text-lg font-bold uppercase">{title}</h1></section>
-          </>
-        );
-
-        const CommonPatientInfo = ({ r }) => (
-          <section className="space-y-3 mb-6 text-sm">
-            {renderField("Nome do usuário:", r.patient_name)}
-            {r.test_type === TestType.HCG ? renderField("Prontuário:", r.prontuario) : renderField("Identidade/CPF:", r.patient_id)}
-            <div className="flex space-x-8"><div className="w-1/2">{renderField("Data de Nascimento:", new Date(r.birth_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}))}</div><div className="w-1/2">{renderField("Sexo:", r.sex)}</div></div>
-            {renderField("Unidade de realização do exame:", r.execution_unit)}
-            {r.test_type === TestType.DENGUE && renderField("Data do início dos sintomas:", new Date(r.symptom_start_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}))}
-            {r.test_type === TestType.COVID && renderField("Cidade:", r.city)}
-            {renderField("Data da coleta da amostra:", new Date(r.sample_collection_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'}))}
-          </section>
-        );
-
-        const CommonFooter = ({ r }) => (
-          <footer className="mt-auto pt-12 text-sm">
-            <div className="flex justify-between items-end">
-              <div className="text-center"><div className="w-80 border-t-2 border-black mb-1"></div><p className="font-semibold uppercase">{r.technician_name}</p><p>Técnico Responsável</p></div>
-              <div><p className="font-semibold">Data do Laudo: {new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</p></div>
-            </div>
-            <p className="text-xs text-gray-700 text-center mt-6">Este laudo foi gerado eletronicamente. Confirme as informações com o profissional de saúde.</p>
-            <div className="text-center mt-8 pt-4 border-t border-black" style={{fontSize: '8pt'}}><p className="font-bold">Desenvolvido por: Jaime Eduardo | Whats: 51985502897</p></div>
-          </footer>
-        );
-
-        const ResultBox = ({ result }) => (
-          <section className="border border-black mt-6 p-2" style={{ backgroundColor: '#f0f0f0' }}>
-            <div className="text-right font-semibold text-lg">Resultado</div>
-            <div className="text-center text-3xl font-bold my-4 uppercase">{result}</div>
-          </section>
-        );
-
-        const Template = () => {
-          return (
-            <div className="p-10 text-black flex flex-col min-h-full" style={{ fontSize: '10pt', fontFamily: 'Arial, sans-serif' }}>
-              <CommonHeader title={report.test_type} />
-              <CommonPatientInfo r={report} />
-              <section className="border-2 border-black text-sm">
-                <div className="p-2 border-b-2 border-black"><strong>Amostra:</strong> {report.sample_type}</div>
-                <div className="p-2 border-b-2 border-black"><strong>Teste:</strong> {report.test_type} {report.manufacturer ? `(${report.manufacturer})` : ''}</div>
-                <div className="flex border-b-2 border-black"><div className="w-1/2 p-2 border-r-2 border-black"><strong>Lote:</strong> {report.lote}</div><div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</div></div>
-                <div className="p-2"><strong>Método:</strong> {report.method}</div>
-              </section>
-              <ResultBox result={report.test_type === TestType.HCG ? report.result_value : report.result} />
-              <div className="flex-grow"></div>
-              <CommonFooter r={report} />
-            </div>
-          );
-        };
-
-        return (
-          <>
-            <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-[1000] animate-fade-in"><div className="bg-brand-secondary text-white font-bold py-4 px-6 rounded-xl shadow-3d flex items-center">Gerando arquivo PDF...</div></div>
-            <div className="absolute top-0 -left-[9999px] z-0"><div id="printable-report-for-pdf" className="bg-white w-[210mm] min-h-[297mm] flex flex-col"><Template /></div></div>
-          </>
-        );
-      };
-
       const ReportFormModal = ({ isOpen, onClose, reportToEdit }) => {
         const { addReport, updateReport, stock } = useContext(AppContext);
-        const [formData, setFormData] = useState({});
+        const [form, setForm] = useState({});
 
         useEffect(() => {
           const today = new Date().toISOString().split('T')[0];
-          if (reportToEdit) { setFormData({ ...reportToEdit }); }
-          else {
-            setFormData({
-              test_type: TestType.DENGUE, patient_name: '', patient_id: '', birth_date: '', sex: 'Feminino',
-              execution_unit: '', sample_collection_date: today, technician_name: '', report_date: today,
-              lote: '', validade: '', symptom_start_date: today, sample_type: 'punção digital',
-              method: 'IMUNOCROMATOGRAFIA', result: DengueResult.NEGATIVE, city: '', manufacturer: '',
-              prontuario: '', result_value: '',
-            });
-          }
+          if (reportToEdit) setForm({ ...reportToEdit });
+          else setForm({
+            test_type: TestType.DENGUE, patient_name: '', patient_id: '', birth_date: '', sex: 'Feminino',
+            execution_unit: '', sample_collection_date: today, technician_name: '', report_date: today,
+            lote: '', validade: '', symptom_start_date: today, sample_type: 'punção digital',
+            method: 'IMUNOCROMATOGRAFIA', result: DengueResult.NEGATIVE, city: '', manufacturer: '',
+            prontuario: '', result_value: '',
+          });
         }, [reportToEdit, isOpen]);
 
-        const handleChange = (e) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: (e.target.type === 'text' ? value.toUpperCase() : value) })); };
-
-        const handleTestTypeChange = (e) => {
-          const type = e.target.value;
-          const today = new Date().toISOString().split('T')[0];
-          setFormData(prev => ({ ...prev, test_type: type, result_value: '', result: type === TestType.COVID ? CovidResult.NEGATIVE : DengueResult.NEGATIVE }));
-        };
+        const handleChange = (e) => { const { name, value } = e.target; setForm(prev => ({ ...prev, [name]: (e.target.type === 'text' ? value.toUpperCase() : value) })); };
 
         const handleSubmit = async (e) => {
           e.preventDefault();
-          if (!reportToEdit && (!formData.lote || !formData.validade)) { alert("Selecione um lote."); return; }
+          if (!reportToEdit && (!form.lote || !form.validade)) { alert("Selecione um lote!"); return; }
           try {
-            const dataToSave = { ...formData };
-            // Limpa campos vazios baseados no tipo
-            if (dataToSave.test_type !== TestType.DENGUE) delete dataToSave.symptom_start_date;
-            
-            if (reportToEdit) await updateReport(reportToEdit.id, dataToSave);
-            else await addReport(dataToSave);
+            const data = { ...form };
+            if (data.test_type !== TestType.DENGUE) delete data.symptom_start_date;
+            if (reportToEdit) await updateReport(reportToEdit.id, data); else await addReport(data);
             onClose();
-          } catch (error) { alert("Erro ao salvar."); }
+          } catch (e) { alert("Erro ao salvar."); }
         };
 
         if (!isOpen) return null;
 
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 animate-pop-in p-4">
-            <div className="bg-gray-800 rounded-2xl shadow-3d w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-700/50">
-              <form onSubmit={handleSubmit} className="p-5">
-                <h2 className="text-2xl font-bold text-white mb-4">{reportToEdit ? 'Editar Laudo' : 'Novo Laudo'}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in p-4 backdrop-blur-sm">
+            <div className={`${cardClass} w-full max-w-6xl border-brand-primary max-h-[95vh] overflow-y-auto`}>
+              <h2 className="text-2xl font-bold text-brand-primary mb-4 border-b border-gray-700 pb-2">{reportToEdit ? 'Editar Laudo' : 'Novo Laudo'}</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {/* Linha 1 */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm text-gray-300">Tipo de Teste</label>
-                    <select name="test_type" value={formData.test_type} onChange={handleTestTypeChange} className="mt-1 w-full bg-gray-700 border-gray-600 rounded p-2">{Object.values(TestType).map(t => <option key={t} value={t}>{t}</option>)}</select>
+                    <label className="block text-sm text-gray-400">Tipo de Teste</label>
+                    <select name="test_type" value={form.test_type} onChange={e => {
+                       setForm(p => ({ ...p, test_type: e.target.value, result: e.target.value === TestType.COVID ? CovidResult.NEGATIVE : DengueResult.NEGATIVE, result_value: '' }));
+                    }} className={commonInputClass}>{Object.values(TestType).map(t => <option key={t} value={t}>{t}</option>)}</select>
                   </div>
-                  <div className="md:col-span-2"><label className="block text-sm text-gray-300">Nome do Paciente</label><input name="patient_name" value={formData.patient_name || ''} onChange={handleChange} required className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                  <div><label className="block text-sm text-gray-300">Identidade/CPF</label><input name="patient_id" value={formData.patient_id || ''} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                  <div><label className="block text-sm text-gray-300">Nascimento</label><input type="date" name="birth_date" value={formData.birth_date || ''} onChange={handleChange} required className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                  <div><label className="block text-sm text-gray-300">Sexo</label><select name="sex" value={formData.sex || 'Feminino'} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2"><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select></div>
-                  <div><label className="block text-sm text-gray-300">Unidade</label><input name="execution_unit" value={formData.execution_unit || ''} onChange={handleChange} required className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                  <div><label className="block text-sm text-gray-300">Técnico</label><input name="technician_name" value={formData.technician_name || ''} onChange={handleChange} required className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                  <div><label className="block text-sm text-gray-300">Data Coleta</label><input type="date" name="sample_collection_date" value={formData.sample_collection_date || ''} onChange={handleChange} required className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
+                  {!reportToEdit && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm text-gray-400">Lote (Estoque)</label>
+                      <select name="lote" value={form.lote} onChange={(e) => {
+                        const sItem = stock.find(i => i.lote === e.target.value && i.test_type === form.test_type);
+                        setForm(p => ({ ...p, lote: e.target.value, validade: sItem ? sItem.validade : '' }));
+                      }} className={commonInputClass}>
+                        <option value="">Selecione...</option>
+                        {stock.filter(i => i.test_type === form.test_type && i.quantity > 0).map(i => <option key={i.id} value={i.lote}>{i.lote} (Qtd: {i.quantity})</option>)}
+                      </select>
+                    </div>
+                  )}
 
-                  {/* Campos Específicos */}
-                  {formData.test_type === TestType.DENGUE && (
+                  {/* Linha 2 - Paciente */}
+                  <div className="md:col-span-2"><label className="block text-sm text-gray-400">Nome Paciente</label><input name="patient_name" value={form.patient_name || ''} onChange={handleChange} required className={commonInputClass}/></div>
+                  <div><label className="block text-sm text-gray-400">CPF/RG</label><input name="patient_id" value={form.patient_id || ''} onChange={handleChange} className={commonInputClass}/></div>
+                  <div><label className="block text-sm text-gray-400">Nascimento</label><input type="date" name="birth_date" value={form.birth_date || ''} onChange={handleChange} required className={commonInputClass}/></div>
+
+                  {/* Linha 3 - Dados Técnicos */}
+                  <div><label className="block text-sm text-gray-400">Sexo</label><select name="sex" value={form.sex} onChange={handleChange} className={commonInputClass}><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select></div>
+                  <div><label className="block text-sm text-gray-400">Data Coleta</label><input type="date" name="sample_collection_date" value={form.sample_collection_date || ''} onChange={handleChange} required className={commonInputClass}/></div>
+                  <div><label className="block text-sm text-gray-400">Unidade</label><input name="execution_unit" value={form.execution_unit || ''} onChange={handleChange} required className={commonInputClass}/></div>
+                  <div><label className="block text-sm text-gray-400">Técnico</label><input name="technician_name" value={form.technician_name || ''} onChange={handleChange} required className={commonInputClass}/></div>
+
+                  {/* Linha 4 - Específicos e Resultado */}
+                  {form.test_type === TestType.DENGUE && (
                     <>
-                      <div><label className="block text-sm text-gray-300">Início Sintomas</label><input type="date" name="symptom_start_date" value={formData.symptom_start_date || ''} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                      <div><label className="block text-sm text-gray-300">Resultado</label><select name="result" value={formData.result} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2">{Object.values(DengueResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                      <div><label className="block text-sm text-gray-400">Início Sintomas</label><input type="date" name="symptom_start_date" value={form.symptom_start_date || ''} onChange={handleChange} className={commonInputClass}/></div>
+                      <div className="md:col-span-3"><label className="block text-sm text-gray-400 font-bold text-brand-primary">RESULTADO</label><select name="result" value={form.result} onChange={handleChange} className={`${commonInputClass} border-brand-primary`}>{Object.values(DengueResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                     </>
                   )}
-                  {formData.test_type === TestType.COVID && (
+                  {form.test_type === TestType.COVID && (
                     <>
-                      <div><label className="block text-sm text-gray-300">Cidade</label><input name="city" value={formData.city || ''} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                      <div><label className="block text-sm text-gray-300">Fabricante</label><input name="manufacturer" value={formData.manufacturer || ''} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                      <div><label className="block text-sm text-gray-300">Resultado</label><select name="result" value={formData.result} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2">{Object.values(CovidResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                      <div><label className="block text-sm text-gray-400">Cidade</label><input name="city" value={form.city || ''} onChange={handleChange} className={commonInputClass}/></div>
+                      <div><label className="block text-sm text-gray-400">Fabricante</label><input name="manufacturer" value={form.manufacturer || ''} onChange={handleChange} className={commonInputClass}/></div>
+                      <div className="md:col-span-2"><label className="block text-sm text-gray-400 font-bold text-brand-primary">RESULTADO</label><select name="result" value={form.result} onChange={handleChange} className={`${commonInputClass} border-brand-primary`}>{Object.values(CovidResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
                     </>
                   )}
-                  {formData.test_type === TestType.HCG && (
+                  {form.test_type === TestType.HCG && (
                     <>
-                      <div><label className="block text-sm text-gray-300">Prontuário</label><input name="prontuario" value={formData.prontuario || ''} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2"/></div>
-                      <div>
-                        <label className="block text-sm text-gray-300">Resultado / Valor</label>
-                        <select name="result_value" value={formData.result_value || ''} onChange={handleChange} className="w-full bg-gray-700 border-gray-600 rounded p-2">
+                      <div><label className="block text-sm text-gray-400">Prontuário</label><input name="prontuario" value={form.prontuario || ''} onChange={handleChange} className={commonInputClass}/></div>
+                      <div className="md:col-span-3">
+                        <label className="block text-sm text-gray-400 font-bold text-brand-primary">RESULTADO (Valor de Referência)</label>
+                        <select name="result_value" value={form.result_value || ''} onChange={handleChange} className={`${commonInputClass} border-brand-primary`}>
                           <option value="">Selecione...</option>
                           <option value="POSITIVO">POSITIVO</option>
                           <option value="NEGATIVO">NEGATIVO</option>
@@ -411,23 +291,10 @@
                       </div>
                     </>
                   )}
-
-                  {!reportToEdit && (
-                    <div className="md:col-span-2">
-                      <label className="block text-sm text-gray-300">Lote do Estoque</label>
-                      <select name="lote" value={formData.lote} onChange={(e) => {
-                        const sItem = stock.find(item => item.lote === e.target.value && item.test_type === formData.test_type);
-                        setFormData(prev => ({ ...prev, lote: e.target.value, validade: sItem ? sItem.validade : '' }));
-                      }} className="w-full bg-gray-700 border-gray-600 rounded p-2">
-                        <option value="">Selecione...</option>
-                        {stock.filter(i => i.test_type === formData.test_type && i.quantity > 0).map(i => <option key={i.id} value={i.lote}>{i.lote} (Qtd: {i.quantity})</option>)}
-                      </select>
-                    </div>
-                  )}
                 </div>
-                <div className="flex justify-end space-x-4 pt-4">
-                  <button type="button" onClick={onClose} className="py-2 px-4 bg-gray-600 rounded">Cancelar</button>
-                  <button type="submit" className="py-2 px-4 bg-brand-secondary rounded font-bold">Salvar</button>
+                <div className="flex justify-end gap-4 mt-6">
+                  <button type="button" onClick={onClose} className="px-6 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancelar</button>
+                  <button type="submit" className={btnClass}>Salvar Laudo</button>
                 </div>
               </form>
             </div>
@@ -435,179 +302,199 @@
         );
       };
 
-      const Sidebar = ({ currentPage, setPage }) => {
-        const { isInventoryUnlocked, setIsInventoryUnlocked } = useContext(AppContext);
-        const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-        const navItems = [
-          { page: 'dashboard', label: 'Dashboard', icon: <HomeIcon /> },
-          { page: 'reports', label: 'Laudos', icon: <DocumentReportIcon /> },
-          { page: 'inventory', label: 'Estoque', icon: <ArchiveIcon /> },
-          { page: 'indicators', label: 'Indicadores', icon: <ChartBarIcon /> },
-        ];
+      // --- PDF Generator ---
+      const ReportPDF = ({ report, onDone }) => {
+        useEffect(() => {
+          const timer = setTimeout(() => {
+            const el = document.getElementById('printable-report');
+            if (!el) return;
+            const { jsPDF } = window.jspdf;
+            window.html2canvas(el, { scale: 2 }).then(cv => {
+              const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+              pdf.addImage(cv.toDataURL('image/png'), 'PNG', 0, 0, 210, (cv.height * 210) / cv.width);
+              const safeName = report.patient_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
+              pdf.save(`laudo_${safeName}.pdf`);
+              onDone();
+            });
+          }, 1000);
+          return () => clearTimeout(timer);
+        }, [report]);
+
+        const Field = ({ l, v }) => (<div className="flex border-b border-dotted border-black mb-1"><span className="font-bold mr-2 whitespace-nowrap">{l}</span><span className="flex-1">{v}</span></div>);
+        const Result = ({ v }) => (<div className="border border-black p-4 mt-4 bg-gray-100"><div className="text-right font-bold">Resultado</div><div className="text-center text-4xl font-bold uppercase my-2">{v}</div></div>);
+
         return (
           <>
-            <aside className="w-16 sm:w-64 bg-black bg-opacity-20 backdrop-blur-lg border-r border-gray-700/50 flex flex-col transition-all duration-300 animate-slide-in-left">
-              <div className="h-20 flex items-center px-4"><span className="text-brand-secondary font-bold text-xl">UBS</span><span className="hidden sm:block ml-2 font-bold">SANTO AFONSO</span></div>
-              <nav className="flex-1 mt-6">
-                <ul>{navItems.map(item => (
-                  <li key={item.page} className="px-4 mb-2">
-                    <button onClick={() => { if(item.page === 'inventory' && !isInventoryUnlocked) setIsPasswordModalOpen(true); else setPage(item.page); }}
-                      className={`flex items-center w-full p-3 rounded-lg transition-all ${currentPage === item.page ? 'bg-brand-secondary text-white' : 'text-gray-300 hover:bg-brand-primary hover:text-white'}`}>
-                      {item.icon}<span className="hidden sm:block ml-4">{item.label}</span>
-                    </button>
-                  </li>
-                ))}</ul>
-              </nav>
-            </aside>
-            <PasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} onConfirm={(pwd) => { if(pwd === '159753') { setIsInventoryUnlocked(true); setPage('inventory'); setIsPasswordModalOpen(false); } else alert("Senha incorreta"); }} title="Acesso Restrito" message="Senha para o estoque:" />
+            <div className="fixed inset-0 bg-black/90 z-[9999] flex flex-col items-center justify-center text-brand-primary animate-pulse">
+              <DocumentTextIcon /><span className="mt-2 text-xl font-bold">Gerando PDF...</span>
+            </div>
+            <div className="absolute top-0 -left-[9999px]">
+              <div id="printable-report" className="bg-white text-black p-12 w-[210mm] min-h-[297mm] flex flex-col font-sans">
+                <h1 className="text-3xl font-bold text-center mb-8">UBS SANTO AFONSO</h1>
+                <h2 className="text-xl font-bold text-center uppercase mb-8 border-b-2 border-black pb-2">{report.test_type}</h2>
+                
+                <div className="grid grid-cols-1 gap-2 mb-6">
+                  <Field l="Nome:" v={report.patient_name} />
+                  <div className="flex gap-4">
+                    <div className="w-1/2"><Field l={report.test_type === TestType.HCG ? "Prontuário:" : "Doc:"} v={report.test_type === TestType.HCG ? report.prontuario : report.patient_id} /></div>
+                    <div className="w-1/2"><Field l="Nascimento:" v={new Date(report.birth_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} /></div>
+                  </div>
+                  <Field l="Unidade:" v={report.execution_unit} />
+                  <Field l="Data Coleta:" v={new Date(report.sample_collection_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} />
+                </div>
+
+                <div className="border-2 border-black p-4 mb-4">
+                  <p><strong>Método:</strong> {report.method}</p>
+                  <p><strong>Amostra:</strong> {report.sample_type}</p>
+                  <div className="flex justify-between mt-2">
+                    <span><strong>Lote:</strong> {report.lote}</span>
+                    <span><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</span>
+                  </div>
+                </div>
+
+                <Result v={report.test_type === TestType.HCG ? report.result_value : report.result} />
+
+                <div className="mt-auto pt-12">
+                  <div className="flex justify-between items-end">
+                    <div className="text-center"><div className="w-64 border-t-2 border-black mb-1"></div><p className="font-bold">{report.technician_name}</p><p>Técnico Responsável</p></div>
+                    <div>Data do Laudo: {new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</div>
+                  </div>
+                  <p className="text-center text-xs mt-8">Documento gerado eletronicamente. Confirme a autenticidade com a unidade.</p>
+                  <div className="text-center text-[8pt] mt-2 border-t border-gray-400 pt-1">Dev: Jaime Eduardo | Whats: 51985502897</div>
+                </div>
+              </div>
+            </div>
           </>
         );
       };
 
+      // --- Páginas ---
       const Dashboard = ({ setPage }) => {
         const { reports, stock } = useContext(AppContext);
-        const lowStock = stock.filter(i => i.quantity <= 5);
-        const recent = reports.slice(0, 5);
+        const low = stock.filter(i => i.quantity <= 5);
         return (
-          <div className="animate-fade-in space-y-8">
-            <header className="flex justify-between items-center"><h1 className="text-4xl font-bold">Dashboard</h1><button onClick={() => setPage('reports')} className="bg-brand-secondary px-4 py-2 rounded flex items-center gap-2"><PlusIcon /> Novo Laudo</button></header>
+          <div className="animate-fade-in p-6 space-y-6 w-full">
+            <header className="flex justify-between items-center"><h1 className="text-4xl font-bold text-brand-primary">DASHBOARD</h1><button onClick={() => setPage('reports')} className={btnClass}><PlusIcon /> NOVO LAUDO</button></header>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gray-800/50 p-6 rounded shadow-3d flex items-center gap-4 border border-gray-700"><div className="p-3 rounded-full bg-brand-primary/30"><DocumentTextIcon /></div><div><p className="text-gray-400">Total Laudos</p><p className="text-2xl font-bold">{reports.length}</p></div></div>
-              <div className="bg-gray-800/50 p-6 rounded shadow-3d flex items-center gap-4 border border-gray-700"><div className="p-3 rounded-full bg-brand-accent/30"><ArchiveIcon /></div><div><p className="text-gray-400">Itens Estoque</p><p className="text-2xl font-bold">{stock.reduce((a,b)=>a+b.quantity,0)}</p></div></div>
-              <div className="bg-gray-800/50 p-6 rounded shadow-3d flex items-center gap-4 border border-gray-700"><div className="p-3 rounded-full bg-warning/30"><AlertIcon /></div><div><p className="text-gray-400">Estoque Baixo</p><p className="text-2xl font-bold">{lowStock.length}</p></div></div>
+              <div className={cardClass}><div className="flex items-center gap-4"><div className="p-3 bg-blue-900/30 text-blue-400 rounded-full"><DocumentTextIcon /></div><div><p className="text-gray-400">Total Laudos</p><p className="text-3xl font-bold text-white">{reports.length}</p></div></div></div>
+              <div className={cardClass}><div className="flex items-center gap-4"><div className="p-3 bg-green-900/30 text-brand-primary rounded-full"><ArchiveIcon /></div><div><p className="text-gray-400">Estoque Total</p><p className="text-3xl font-bold text-white">{stock.reduce((a,b)=>a+b.quantity,0)}</p></div></div></div>
+              <div className={cardClass}><div className="flex items-center gap-4"><div className="p-3 bg-red-900/30 text-danger rounded-full"><AlertIcon /></div><div><p className="text-gray-400">Estoque Baixo</p><p className="text-3xl font-bold text-white">{low.length}</p></div></div></div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="bg-gray-800/50 p-6 rounded shadow-3d border border-gray-700">
-                <h2 className="text-xl font-bold mb-4 text-brand-accent">Alerta de Estoque</h2>
-                <ul className="space-y-3">{lowStock.map(i => <li key={i.id} className="flex justify-between bg-gray-700/50 p-3 rounded"><span>{i.test_type.split(' - ')[0]}</span><span className="bg-danger px-2 rounded font-bold">{i.quantity}</span></li>)}</ul>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className={cardClass}>
+                <h3 className="text-xl font-bold text-brand-secondary mb-4">⚠️ Alerta de Estoque</h3>
+                <ul className="space-y-2">{low.map(i => <li key={i.id} className="flex justify-between bg-gray-900 p-2 rounded border border-gray-800"><span>{i.test_type.split('-')[0]}</span><span className="text-danger font-bold">{i.quantity} un</span></li>)}</ul>
               </div>
-              <div className="lg:col-span-2 bg-gray-800/50 p-6 rounded shadow-3d border border-gray-700">
-                <h2 className="text-xl font-bold mb-4 text-brand-accent">Recentes</h2>
-                <table className="w-full text-left">
-                  <thead><tr className="border-b border-gray-600"><th>Paciente</th><th>Teste</th><th>Data</th></tr></thead>
-                  <tbody>{recent.map(r => <tr key={r.id} className="border-b border-gray-700"><td className="p-2">{r.patient_name}</td><td>{r.test_type}</td><td>{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</td></tr>)}</tbody>
-                </table>
+              <div className={`${cardClass} lg:col-span-2`}>
+                <h3 className="text-xl font-bold text-brand-secondary mb-4">📋 Últimos Laudos</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead><tr className="border-b border-gray-700 text-gray-400"><th className="p-2">Paciente</th><th>Teste</th><th>Data</th></tr></thead>
+                    <tbody>{reports.slice(0,5).map(r => <tr key={r.id} className="border-b border-gray-800"><td className="p-2 text-white">{r.patient_name}</td><td className="text-brand-primary">{r.test_type.split('-')[0]}</td><td className="text-gray-400">{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td></tr>)}</tbody>
+                  </table>
+                </div>
               </div>
             </div>
-            <div className="mt-8"><img src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" className="rounded-lg shadow-3d w-full object-cover border border-gray-700/50 aspect-video" /></div>
+            
+            <div className="w-full aspect-video rounded-lg overflow-hidden border border-brand-gray shadow-neon">
+              <img src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" className="w-full h-full object-cover" />
+            </div>
           </div>
         );
       };
 
       const Reports = () => {
         const { reports, deleteReport } = useContext(AppContext);
-        const [isModalOpen, setIsModalOpen] = useState(false);
-        const [editing, setEditing] = useState(null);
-        const [deleting, setDeleting] = useState(null);
-        const [printing, setPrinting] = useState(null);
-        const [search, setSearch] = useState('');
-
-        const filtered = reports.filter(r => r.patient_name.toLowerCase().includes(search.toLowerCase()) || r.test_type.toLowerCase().includes(search.toLowerCase()));
+        const [modal, setModal] = useState(false);
+        const [edit, setEdit] = useState(null);
+        const [del, setDel] = useState(null);
+        const [pdf, setPdf] = useState(null);
+        const [q, setQ] = useState('');
+        const list = reports.filter(r => r.patient_name.toLowerCase().includes(q.toLowerCase()));
 
         return (
-          <div className="animate-fade-in space-y-6">
-            <header className="flex justify-between"><h1 className="text-4xl font-bold">Laudos</h1><button onClick={() => { setEditing(null); setIsModalOpen(true); }} className="bg-brand-secondary px-4 py-2 rounded flex gap-2"><PlusIcon /> Novo</button></header>
-            <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} className="w-full bg-gray-800 border-gray-700 rounded p-3" />
-            <div className="bg-gray-800/50 rounded shadow-3d overflow-x-auto">
+          <div className="animate-fade-in p-6 space-y-6 w-full h-full flex flex-col">
+            <header className="flex justify-between"><h1 className="text-4xl font-bold text-brand-primary">LAUDOS</h1><button onClick={() => { setEdit(null); setModal(true); }} className={btnClass}><PlusIcon /> NOVO</button></header>
+            <input placeholder="Buscar paciente..." value={q} onChange={e => setQ(e.target.value)} className={commonInputClass} />
+            <div className={`${cardClass} flex-1 overflow-auto`}>
               <table className="w-full text-left">
-                <thead><tr className="bg-black/20"><th className="p-4">Paciente</th><th className="p-4">Teste</th><th className="p-4">Data</th><th className="p-4">Ações</th></tr></thead>
-                <tbody>{filtered.map(r => (
-                  <tr key={r.id} className="border-b border-gray-700 hover:bg-gray-700/30">
-                    <td className="p-4">{r.patient_name}</td><td className="p-4">{r.test_type}</td><td className="p-4">{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td>
-                    <td className="p-4 flex gap-2">
-                      <button onClick={() => setPrinting(r)} className="p-2 hover:text-brand-primary"><DownloadIcon /></button>
-                      <button onClick={() => { setEditing(r); setIsModalOpen(true); }} className="p-2 hover:text-brand-secondary"><PencilIcon /></button>
-                      <button onClick={() => setDeleting(r)} className="p-2 hover:text-danger"><TrashIcon /></button>
+                <thead className="sticky top-0 bg-brand-surface"><tr className="text-brand-secondary border-b border-gray-700"><th className="p-4">Paciente</th><th>Teste</th><th>Data</th><th>Ações</th></tr></thead>
+                <tbody>{list.map(r => (
+                  <tr key={r.id} className="border-b border-gray-800 hover:bg-gray-800/50">
+                    <td className="p-4 font-bold">{r.patient_name}</td><td>{r.test_type}</td><td>{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td>
+                    <td className="flex gap-2 p-4">
+                      <button onClick={() => setPdf(r)} className="text-brand-primary hover:scale-110 transition"><DownloadIcon /></button>
+                      <button onClick={() => { setEdit(r); setModal(true); }} className="text-warning hover:scale-110 transition"><PencilIcon /></button>
+                      <button onClick={() => setDel(r)} className="text-danger hover:scale-110 transition"><TrashIcon /></button>
                     </td>
                   </tr>
                 ))}</tbody>
               </table>
             </div>
-            {isModalOpen && <ReportFormModal isOpen={true} onClose={() => setIsModalOpen(false)} reportToEdit={editing} />}
-            {deleting && <ConfirmationModal isOpen={true} onClose={() => setDeleting(null)} onConfirm={async () => { await deleteReport(deleting.id); setDeleting(null); }} title="Excluir" message="Tem certeza?" />}
-            {printing && <ReportPDF report={printing} onDone={() => setPrinting(null)} />}
+            {modal && <ReportFormModal isOpen={true} onClose={() => setModal(false)} reportToEdit={edit} />}
+            {del && <ConfirmationModal isOpen={true} onClose={() => setDel(null)} onConfirm={async () => { await deleteReport(del.id); setDel(null); }} title="Excluir" message="Confirma?" />}
+            {pdf && <ReportPDF report={pdf} onDone={() => setPdf(null)} />}
           </div>
         );
       };
 
+      // --- Componentes Inventory e Indicators simplificados para caber ---
+      // (A lógica é a mesma dos anteriores, apenas ajustando classes para o tema Neon/Full Width)
       const Inventory = () => {
         const { stock, deleteStockItem } = useContext(AppContext);
-        const [isModalOpen, setIsModalOpen] = useState(false);
-        const [editing, setEditing] = useState(null);
-        const [deleting, setDeleting] = useState(null);
-        
+        const [modal, setModal] = useState(false);
+        const [edit, setEdit] = useState(null);
+        const [del, setDel] = useState(null);
         return (
-          <div className="animate-fade-in space-y-6">
-            <header className="flex justify-between"><h1 className="text-4xl font-bold">Estoque</h1><button onClick={() => { setEditing(null); setIsModalOpen(true); }} className="bg-brand-secondary px-4 py-2 rounded flex gap-2"><PlusIcon /> Adicionar</button></header>
-            <div className="bg-gray-800/50 rounded shadow-3d overflow-x-auto">
-              <table className="w-full text-left">
-                <thead><tr className="bg-black/20"><th className="p-4">Teste</th><th className="p-4">Lote</th><th className="p-4">Validade</th><th className="p-4">Qtd</th><th className="p-4">Ações</th></tr></thead>
-                <tbody>{stock.map(i => (
-                  <tr key={i.id} className="border-b border-gray-700 hover:bg-gray-700/30">
-                    <td className="p-4">{i.test_type}</td><td className="p-4">{i.lote}</td><td className="p-4">{new Date(i.validade).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td><td className="p-4 font-bold">{i.quantity}</td>
-                    <td className="p-4 flex gap-2">
-                      <button onClick={() => { setEditing(i); setIsModalOpen(true); }} className="p-2 hover:text-brand-secondary"><PencilIcon /></button>
-                      <button onClick={() => setDeleting(i)} className="p-2 hover:text-danger"><TrashIcon /></button>
-                    </td>
-                  </tr>
-                ))}</tbody>
-              </table>
+          <div className="animate-fade-in p-6 space-y-6 w-full">
+            <header className="flex justify-between"><h1 className="text-4xl font-bold text-brand-primary">ESTOQUE</h1><button onClick={() => { setEdit(null); setModal(true); }} className={btnClass}><PlusIcon /> ADICIONAR</button></header>
+            <div className={`${cardClass} overflow-auto`}>
+              <table className="w-full text-left"><thead className="text-brand-secondary border-b border-gray-700"><tr><th className="p-4">Teste</th><th>Lote</th><th>Validade</th><th>Qtd</th><th>Ações</th></tr></thead>
+              <tbody>{stock.map(i => <tr key={i.id} className="border-b border-gray-800"><td className="p-4">{i.test_type}</td><td>{i.lote}</td><td>{new Date(i.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td className="font-bold text-white">{i.quantity}</td><td className="flex gap-2 p-4"><button onClick={()=>{setEdit(i);setModal(true)}} className="text-warning"><PencilIcon/></button><button onClick={()=>setDel(i)} className="text-danger"><TrashIcon/></button></td></tr>)}</tbody></table>
             </div>
-            {isModalOpen && <StockFormModal isOpen={true} onClose={() => setIsModalOpen(false)} itemToEdit={editing} />}
-            {deleting && <ConfirmationModal isOpen={true} onClose={() => setDeleting(null)} onConfirm={async () => { await deleteStockItem(deleting.id); setDeleting(null); }} title="Excluir" message="Confirma exclusão?" />}
+            {modal && <StockFormModal isOpen={true} onClose={() => setModal(false)} itemToEdit={edit} />}
+            {del && <ConfirmationModal isOpen={true} onClose={() => setDel(null)} onConfirm={async () => { await deleteStockItem(del.id); setDel(null); }} title="Excluir" message="Confirma?" />}
           </div>
         );
       };
 
       const Indicators = () => {
         const { indicators, addIndicator, updateIndicator, deleteIndicator } = useContext(AppContext);
-        const [formData, setFormData] = useState({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' });
-        const [editing, setEditing] = useState(null);
-        const [deleting, setDeleting] = useState(null);
-
-        useEffect(() => { if(editing) setFormData(editing); else setFormData({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' }); }, [editing]);
-
-        const handleSubmit = async (e) => {
-          e.preventDefault();
-          if(editing) { await updateIndicator(editing.id, formData); setEditing(null); } else { await addIndicator(formData); }
-          setFormData({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' });
-        };
-
-        const exportCSV = () => {
-          const csv = "Data,G'mus,Pressao,HGT,Peso,Altura,Profissional\n" + indicators.map(i => `${i.date},${i.gmus},${i.pressure},${i.hgt},${i.weight},${i.height},${i.professional}`).join('\n');
-          const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8," + csv); link.download = "indicadores.csv"; link.click();
-        };
-
+        const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' });
+        const [edit, setEdit] = useState(null);
+        const [del, setDel] = useState(null);
+        useEffect(() => { if (edit) setForm(edit); else setForm({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' }); }, [edit]);
+        const handleSubmit = async (e) => { e.preventDefault(); if (edit) { await updateIndicator(edit.id, form); setEdit(null); } else await addIndicator(form); setForm({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' }); };
+        const exportCSV = () => { const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8,Data,Gmus,Pressao,HGT,Peso,Altura,Profissional\n" + indicators.map(i => `${i.date},${i.gmus},${i.pressure},${i.hgt},${i.weight},${i.height},${i.professional}`).join('\n')); link.download = "indicadores.csv"; link.click(); };
+        
         return (
-          <div className="animate-fade-in space-y-6">
-            <h1 className="text-4xl font-bold">Indicadores</h1>
-            <div className="bg-gray-800/50 p-6 rounded shadow-3d border border-gray-700">
+          <div className="animate-fade-in p-6 space-y-6 w-full">
+            <h1 className="text-4xl font-bold text-brand-primary">INDICADORES</h1>
+            <div className={cardClass}>
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="bg-gray-700 rounded p-2" required />
-                <input placeholder="G'mus" value={formData.gmus} onChange={e => setFormData({...formData, gmus: e.target.value})} className="bg-gray-700 rounded p-2" required />
-                <input placeholder="Pressão" value={formData.pressure} onChange={e => setFormData({...formData, pressure: e.target.value})} className="bg-gray-700 rounded p-2" />
-                <input placeholder="HGT" value={formData.hgt} onChange={e => setFormData({...formData, hgt: e.target.value})} className="bg-gray-700 rounded p-2" />
-                <input placeholder="Peso" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} className="bg-gray-700 rounded p-2" />
-                <input placeholder="Altura" value={formData.height} onChange={e => setFormData({...formData, height: e.target.value})} className="bg-gray-700 rounded p-2" />
-                <input placeholder="Profissional" value={formData.professional} onChange={e => setFormData({...formData, professional: e.target.value})} className="bg-gray-700 rounded p-2 md:col-span-2" required />
-                <button type="submit" className="bg-brand-secondary rounded p-2 font-bold md:col-span-4">{editing ? 'Atualizar' : 'Salvar'}</button>
-                {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gray-600 rounded p-2 md:col-span-4">Cancelar Edição</button>}
+                <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className={commonInputClass} required />
+                <input placeholder="G'mus" value={form.gmus} onChange={e => setForm({...form, gmus: e.target.value})} className={commonInputClass} required />
+                <input placeholder="Pressão" value={form.pressure} onChange={e => setForm({...form, pressure: e.target.value})} className={commonInputClass} />
+                <input placeholder="HGT" value={form.hgt} onChange={e => setForm({...form, hgt: e.target.value})} className={commonInputClass} />
+                <input placeholder="Peso" value={form.weight} onChange={e => setForm({...form, weight: e.target.value})} className={commonInputClass} />
+                <input placeholder="Altura" value={form.height} onChange={e => setForm({...form, height: e.target.value})} className={commonInputClass} />
+                <input placeholder="Profissional" value={form.professional} onChange={e => setForm({...form, professional: e.target.value})} className={`${commonInputClass} md:col-span-2`} required />
+                <button type="submit" className={`${btnClass} md:col-span-4`}>{edit ? 'ATUALIZAR' : 'REGISTRAR'}</button>
+                {edit && <button type="button" onClick={() => setEdit(null)} className="md:col-span-4 bg-gray-700 text-white rounded p-2">Cancelar</button>}
               </form>
             </div>
-            <div className="bg-gray-800/50 p-6 rounded shadow-3d">
-              <button onClick={exportCSV} className="mb-4 bg-brand-accent text-black px-4 py-2 rounded flex gap-2"><DownloadIcon /> CSV</button>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead><tr className="bg-black/20"><th>Data</th><th>G'mus</th><th>Pressão</th><th>HGT</th><th>Profissional</th><th>Ações</th></tr></thead>
-                  <tbody>{indicators.map(i => <tr key={i.id} className="border-b border-gray-700"><td className="p-2">{new Date(i.date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td><td>{i.gmus}</td><td>{i.pressure}</td><td>{i.hgt}</td><td>{i.professional}</td><td className="flex gap-2"><button onClick={() => setEditing(i)}><PencilIcon /></button><button onClick={() => setDeleting(i)} className="text-danger"><TrashIcon /></button></td></tr>)}</tbody>
-                </table>
-              </div>
+            <div className={cardClass}>
+              <button onClick={exportCSV} className="mb-4 bg-brand-accent text-black px-4 py-2 rounded font-bold flex gap-2"><DownloadIcon /> CSV</button>
+              <div className="overflow-auto"><table className="w-full text-left text-sm"><thead className="text-brand-secondary border-b border-gray-700"><tr><th>Data</th><th>G'mus</th><th>Pressão</th><th>HGT</th><th>Profissional</th><th>Ações</th></tr></thead><tbody>{indicators.map(i => <tr key={i.id} className="border-b border-gray-800"><td className="p-2">{new Date(i.date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td>{i.gmus}</td><td>{i.pressure}</td><td>{i.hgt}</td><td>{i.professional}</td><td className="flex gap-2"><button onClick={() => setEdit(i)} className="text-warning"><PencilIcon /></button><button onClick={() => setDel(i)} className="text-danger"><TrashIcon /></button></td></tr>)}</tbody></table></div>
             </div>
-            {deleting && <ConfirmationModal isOpen={true} onClose={() => setDeleting(null)} onConfirm={async () => { await deleteIndicator(deleting.id); setDeleting(null); }} title="Excluir" message="Confirma?" />}
+            {del && <ConfirmationModal isOpen={true} onClose={() => setDel(null)} onConfirm={async () => { await deleteIndicator(del.id); setDel(null); }} title="Excluir" message="Confirma?" />}
           </div>
         );
       };
 
+      // --- App Principal ---
       const App = () => {
         const [page, setPage] = useState('dashboard');
         const [data, setData] = useState({ reports: [], stock: [], indicators: [] });
@@ -622,10 +509,8 @@
               supabaseClient.from('stock').select('*').order('test_type', { ascending: true }),
               supabaseClient.from('indicators').select('*').order('date', { ascending: false })
             ]);
-            if (r.error || s.error || i.error) throw new Error("Erro DB");
-            setData({ reports: r.data, stock: s.data, indicators: i.data });
-          } catch (e) { console.error(e); alert("Erro de conexão"); }
-          finally { setLoading(false); }
+            setData({ reports: r.data || [], stock: s.data || [], indicators: i.data || [] });
+          } catch (e) { console.error(e); } finally { setLoading(false); }
         }, []);
 
         useEffect(() => { fetchData(); }, [fetchData]);
@@ -643,7 +528,7 @@
         }), [fetchData]);
 
         const renderPage = () => {
-          if (loading) return <div className="flex h-full items-center justify-center"><p>Carregando...</p></div>;
+          if (loading) return null; // Loading handled by initial HTML
           switch (page) {
             case 'reports': return <Reports />;
             case 'inventory': return <Inventory />;
@@ -654,9 +539,9 @@
 
         return (
           <AppContext.Provider value={{ ...data, isInventoryUnlocked: unlocked, setIsInventoryUnlocked: setUnlocked, ...crud }}>
-            <div className="flex h-screen bg-brand-gray font-sans">
+            <div className="flex h-screen w-full bg-brand-dark font-sans text-white overflow-hidden">
               <Sidebar currentPage={page} setPage={setPage} />
-              <main className="flex-1 p-4 sm:p-8 overflow-y-auto">{renderPage()}</main>
+              <main className="flex-1 h-full overflow-y-auto relative">{renderPage()}</main>
             </div>
           </AppContext.Provider>
         );
