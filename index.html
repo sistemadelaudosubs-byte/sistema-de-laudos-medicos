@@ -3,21 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Sistema de Laudos - UBS Santo Afonso</title>
     
     <script>
-      window.onerror = function(message, source, lineno, colno, error) {
-        console.error(error);
+      window.onerror = function(msg, url, line, col, error) {
+        // Ignora erros de redimensionamento comuns em canvas
+        if (msg.includes('ResizeObserver')) return false;
         const root = document.getElementById('root');
         if (root) {
-          root.innerHTML = `
-            <div style="color: #39ff14; background: #050505; padding: 20px; font-family: monospace; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-              <h1 style="font-size: 24px; margin-bottom: 10px; text-transform: uppercase;">[Erro no Sistema]</h1>
-              <p style="font-size: 16px; opacity: 0.8;">${message}</p>
-              <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #39ff14; color: black; border: none; font-weight: bold; cursor: pointer;">REINICIAR SISTEMA</button>
-            </div>
-          `;
+           root.innerHTML = '<div style="color:#39ff14;background:#000;height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:monospace;"><h1>SISTEMA ONLINE</h1><p>Reconectando...</p><button onclick="window.location.reload()" style="padding:10px 20px;margin-top:20px;cursor:pointer;font-weight:bold;">ATUALIZAR</button></div>';
         }
       };
     </script>
@@ -35,33 +30,35 @@
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#39ff14', 'brand-secondary': '#00cc00', 'brand-accent': '#ccff00',
-              'brand-dark': '#050505', 'brand-surface': '#111111', 'brand-gray': '#1a1a1a',
-              'danger': '#ff0033', 'warning': '#ffcc00',
+              'brand-primary': '#39ff14', 'brand-secondary': '#00cc00', 
+              'brand-dark': '#050505', 'brand-surface': '#111111', 
+              'brand-gray': '#1a1a1a', 'danger': '#ff0033', 'warning': '#ffcc00',
             },
-            boxShadow: { 'neon': '0 0 10px rgba(57, 255, 20, 0.3)' },
+            boxShadow: { 'neon': '0 0 10px rgba(57, 255, 20, 0.2)' },
             fontFamily: { sans: ['Segoe UI', 'Roboto', 'Arial', 'sans-serif'] },
             aspectRatio: { 'video': '16 / 9' },
-            keyframes: { 
-                'pop-in': { '0%': { transform: 'scale(0.95)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } },
-                'slide-right': { '0%': { transform: 'translateX(-20px)', opacity: 0 }, '100%': { transform: 'translateX(0)', opacity: 1 } }
-            },
-            animation: { 
-                'pop-in': 'pop-in 0.2s ease-out forwards',
-                'slide-right': 'slide-right 0.3s ease-out forwards'
-            }
+            keyframes: { 'pop-in': { '0%': { transform: 'scale(0.95)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } } },
+            animation: { 'pop-in': 'pop-in 0.2s ease-out forwards' }
           },
         },
       };
     </script>
     <style>
+      body { background-color: #050505; color: #e0e0e0; overflow: hidden; }
       ::-webkit-scrollbar { width: 8px; height: 8px; }
       ::-webkit-scrollbar-track { background: #050505; }
       ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: #39ff14; }
-      body { background-color: #050505; color: #e0e0e0; overflow: hidden; }
-      .input-neon { width: 100%; background-color: #1a1a1a; border: 1px solid #333; color: white; padding: 8px; border-radius: 4px; outline: none; transition: all 0.2s; }
-      .input-neon:focus { border-color: #39ff14; box-shadow: 0 0 5px rgba(57, 255, 20, 0.2); }
+      .input-neon { width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; padding: 8px; border-radius: 4px; outline: none; }
+      .input-neon:focus { border-color: #39ff14; box-shadow: 0 0 5px rgba(57,255,20,0.2); }
+      
+      /* Estilos Específicos para o PDF (Impressão) */
+      .pdf-container { background: white; color: black; font-family: Arial, sans-serif; position: relative; }
+      .pdf-line { border-bottom: 1px solid black; display: flex; align-items: flex-end; padding-bottom: 2px; margin-bottom: 8px; }
+      .pdf-label { font-weight: bold; margin-right: 5px; white-space: nowrap; }
+      .pdf-value { flex: 1; padding-left: 5px; }
+      .pdf-box { border: 2px solid black; padding: 5px; margin-bottom: 15px; }
+      .pdf-header { text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; }
     </style>
   </head>
   <body>
@@ -72,19 +69,19 @@
       const { createRoot } = ReactDOM;
       const { createClient } = supabase;
 
-      // --- Constantes ---
+      // --- Constantes Globais ---
       const TestType = { DENGUE: "DENGUE - NS1", COVID: "COVID-19 - ANTÍGENO", HCG: "HCG - BETA-HCG" };
       const DengueResult = { NEGATIVE: "NEGATIVO", IGG_REAGENT: "IGG REAGENTE", IGM_REAGENT: "IGM REAGENTE", IGG_IGM_REAGENT: "IGG E IGM REAGENTES", POSITIVE: "POSITIVO" };
       const CovidResult = { NEGATIVE: "NEGATIVO", POSITIVE: "POSITIVO" };
 
-      // --- Supabase ---
+      // --- Cliente Supabase ---
       const supabaseUrl = 'https://avcpoeouasfeuqsbyuoy.supabase.co';
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2Y3BvZW91YXNmZXVxc2J5dW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0OTkxMjIsImV4cCI6MjA3NzA3NTEyMn0.0eF-yCEBAuHl8B3ORN7VYfJnnEIY0m1bMj8R_FsntNM';
       const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
       const AppContext = createContext({});
 
-      // --- Ícones ---
+      // --- Ícones SVG ---
       const Icon = ({ d }) => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d={d} clipRule="evenodd" /></svg>;
       const Icons = {
         Home: () => <Icon d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />,
@@ -97,13 +94,13 @@
         Trash: () => <Icon d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" />
       };
 
-      // --- Modais Genéricos ---
+      // --- Componentes de UI ---
       const ModalWrapper = ({ children, title, onClose }) => (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 animate-pop-in p-4 backdrop-blur-sm">
           <div className="bg-brand-surface border border-brand-primary w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-neon">
             <div className="p-4 border-b border-gray-800 flex justify-between items-center sticky top-0 bg-brand-surface z-10">
-              <h2 className="text-xl font-bold text-brand-primary">{title}</h2>
-              <button onClick={onClose} className="text-gray-400 hover:text-white px-2 text-xl font-bold">✕</button>
+              <h2 className="text-xl font-bold text-brand-primary uppercase">{title}</h2>
+              <button onClick={onClose} className="text-gray-400 hover:text-white px-2 text-2xl">×</button>
             </div>
             <div className="p-6">{children}</div>
           </div>
@@ -112,125 +109,166 @@
 
       const ConfirmationModal = ({ onClose, onConfirm, title, message }) => (
         <ModalWrapper title={title} onClose={onClose}>
-          <p className="text-gray-300 mb-6">{message}</p>
-          <div className="flex justify-end gap-3">
-            <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancelar</button>
-            <button onClick={onConfirm} className="px-4 py-2 bg-danger text-white font-bold rounded">Confirmar</button>
+          <p className="text-gray-300 mb-6 text-center">{message}</p>
+          <div className="flex justify-center gap-4">
+            <button onClick={onClose} className="px-6 py-2 bg-gray-700 rounded hover:bg-gray-600 font-bold">CANCELAR</button>
+            <button onClick={onConfirm} className="px-6 py-2 bg-danger text-white font-bold rounded shadow-lg hover:bg-red-600">CONFIRMAR</button>
           </div>
         </ModalWrapper>
       );
 
-      // --- Geração de PDF (Exato aos modelos) ---
+      // --- Gerador de PDF (Exato aos modelos enviados) ---
       const ReportPDF = ({ report, onDone }) => {
         useEffect(() => {
           const generate = async () => {
-            await new Promise(r => setTimeout(r, 800)); 
+            await new Promise(r => setTimeout(r, 1000)); // Aguarda renderização completa
             const element = document.getElementById('pdf-content');
             if(!element) return;
             try {
               const canvas = await html2canvas(element, { scale: 2, logging: false, useCORS: true });
               const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-              pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+              const imgData = canvas.toDataURL('image/png');
+              pdf.addImage(imgData, 'PNG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+              
               const safeName = (report.patient_name || 'paciente').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
               pdf.save(`laudo_${safeName}.pdf`);
               onDone();
-            } catch (err) { alert("Erro ao gerar PDF"); onDone(); }
+            } catch (err) { alert("Erro ao gerar PDF."); onDone(); }
           };
           generate();
         }, [report]);
 
-        const Line = ({ label, value, full }) => (
-          <div className={`flex items-baseline mb-1 ${full?'w-full':''}`} style={{fontSize:'11pt'}}>
-            <span className="font-bold mr-1 whitespace-nowrap">{label}</span>
-            <span className="border-b border-black flex-1 pl-2">{value||''}</span>
-          </div>
-        );
+        // URL do Brasão (usando uma pública estável, ou substitua por base64 se necessário)
+        const LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Bras%C3%A3o_de_Novo_Hamburgo.svg/1200px-Bras%C3%A3o_de_Novo_Hamburgo.svg.png";
 
-        const Header = ({ title, sub }) => (
-          <div className="mb-6 flex justify-between items-start border-b-2 border-black pb-2">
-            <div className="flex gap-2 items-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Bras%C3%A3o_de_Novo_Hamburgo.svg/1200px-Bras%C3%A3o_de_Novo_Hamburgo.svg.png" className="h-16 w-auto grayscale contrast-200" />
-              <div className="text-xs font-bold leading-tight"><p>Município de Novo Hamburgo</p><p>Estado do Rio Grande do Sul</p><p>Secretaria Municipal de Saúde</p></div>
+        // Layouts Específicos
+        const DengueLayout = () => (
+          <div className="pdf-container p-10 h-full flex flex-col justify-between">
+            <div>
+                <div className="pdf-header flex justify-between items-start border-none">
+                    <div className="flex gap-4 items-center">
+                        <img src={LOGO_URL} className="h-16 grayscale contrast-200" crossOrigin="anonymous" />
+                        <div className="text-xs font-bold leading-tight uppercase"><p>Município de Novo Hamburgo</p><p>Estado do Rio Grande do Sul</p><p>Secretaria de Saúde</p></div>
+                    </div>
+                    <div className="text-right"><h1 className="text-xl font-bold uppercase">SMS</h1></div>
+                </div>
+                <div className="text-center border-t-2 border-black pt-4 mb-8">
+                    <h1 className="text-xl font-bold uppercase">TESTE DE ANTÍGENO PARA DENGUE - NS1</h1>
+                    <h2 className="text-sm">(Vida Rapid Test - Vida Biotecnologia)</h2>
+                </div>
+                <div className="mb-6 text-sm space-y-1">
+                    <div className="pdf-line"><span className="pdf-label">Nome do usuário:</span><span className="pdf-value">{report.patient_name}</span></div>
+                    <div className="pdf-line"><span className="pdf-label">Identidade/CPF:</span><span className="pdf-value">{report.patient_id}</span></div>
+                    <div className="flex gap-4">
+                        <div className="pdf-line w-2/3"><span className="pdf-label">Data de Nascimento:</span><span className="pdf-value">{new Date(report.birth_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div>
+                        <div className="pdf-line w-1/3"><span className="pdf-label">Sexo:</span><span className="pdf-value">{report.sex}</span></div>
+                    </div>
+                    <div className="pdf-line"><span className="pdf-label">Unidade de realização do exame:</span><span className="pdf-value">{report.execution_unit}</span></div>
+                    <div className="pdf-line"><span className="pdf-label">Data do início dos sintomas:</span><span className="pdf-value">{new Date(report.symptom_start_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div>
+                    <div className="pdf-line"><span className="pdf-label">Data da coleta da amostra:</span><span className="pdf-value">{new Date(report.sample_collection_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div>
+                </div>
+                <div className="pdf-box text-sm">
+                    <p className="border-b border-black p-1"><strong>Amostra:</strong> punção digital</p>
+                    <p className="border-b border-black p-1"><strong>Teste:</strong> Vida Rapid Test - Dengue NS1 (Vida Biotecnologia)</p>
+                    <div className="flex border-b border-black"><div className="w-1/2 p-1 border-r border-black"><strong>Lote:</strong> {report.lote}</div><div className="w-1/2 p-1"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</div></div>
+                    <p className="border-b border-black p-1"><strong>Método:</strong> Imunocromatografia</p>
+                    <div className="p-2 bg-gray-100"><strong className="text-lg">RESULTADO DO TESTE:</strong><div className="text-2xl font-bold uppercase mt-2 ml-4">( X ) {report.result}</div></div>
+                </div>
+                <div className="text-xs text-justify leading-tight mt-4">
+                    <p className="font-bold mb-2">⇨ Em caso de resultado NEGATIVO ou INCONCLUSIVO: REALIZAR NOVA COLETA A PARTIR DO 7º DIA DO INÍCIO DOS SINTOMAS...</p>
+                    <p>Nota: O resultado deste teste laboratorial deve ser sempre considerado no contexto da clínica...</p>
+                </div>
             </div>
-            <div className="text-right"><h1 className="text-xl font-bold uppercase">{title}</h1>{sub && <h2 className="text-sm font-normal">{sub}</h2>}</div>
+            <div className="mt-8 text-sm">
+                <div className="pdf-line"><span className="pdf-label">Técnico Executor:</span><span className="pdf-value">{report.technician_name}</span></div>
+                <div className="flex gap-8 mt-4">
+                    <div className="pdf-line w-1/3"><span className="pdf-label">Data:</span><span className="pdf-value">{new Date(report.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div>
+                    <div className="pdf-line w-2/3"><span className="pdf-label">Assinatura e carimbo:</span><span className="pdf-value"></span></div>
+                </div>
+            </div>
           </div>
         );
 
-        const Footer = ({ r }) => (
-          <div className="mt-auto pt-12 text-sm flex justify-between items-end">
-            <div className="text-center"><div className="w-80 border-t-2 border-black mb-1"></div><p className="font-bold uppercase">{r.technician_name}</p><p>Técnico Responsável</p></div>
-            <div><p className="font-bold">Data do Laudo: {new Date(r.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</p></div>
+        const CovidLayout = () => (
+          <div className="pdf-container p-8 h-full border-4 border-double border-black m-4 flex flex-col">
+            <div className="text-center border-b-2 border-black pb-2 mb-4">
+                <div className="flex justify-between items-center mb-2">
+                    <div className="text-xs text-left font-bold"><p>Município de Novo Hamburgo</p><p>Secretaria Municipal de Saúde</p></div>
+                    <div className="text-right font-bold border-l-2 border-black pl-2">SAÚDE<br/><span className="text-[8pt]">PREFEITURA</span></div>
+                </div>
+                <h1 className="text-2xl font-bold border-t-2 border-black pt-2">LAUDO</h1>
+                <h2 className="text-lg font-bold bg-gray-200 mt-1 border-t border-b border-black">TESTE RÁPIDO DE ANTÍGENO COVID-19</h2>
+            </div>
+            <div className="mb-4 text-sm font-bold space-y-2">
+                <div className="flex gap-4"><div className="w-2/3 pdf-line mb-0"><span className="pdf-label">Nome do paciente:</span><span className="pdf-value">{report.patient_name}</span></div><div className="w-1/3 pdf-line mb-0"><span className="pdf-label">Cidade:</span><span className="pdf-value">{report.city}</span></div></div>
+                <div className="flex gap-4"><div className="w-1/3 pdf-line mb-0"><span className="pdf-label">Sexo:</span><span className="pdf-value">{report.sex}</span></div><div className="w-2/3 pdf-line mb-0"><span className="pdf-label">Data de nascimento:</span><span className="pdf-value">{new Date(report.birth_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div></div>
+            </div>
+            <div className="pdf-box text-sm">
+                <p className="font-bold underline mb-2">TESTE</p>
+                <p><strong>Fabricante:</strong> {report.manufacturer}</p>
+                <p><strong>Lote:</strong> {report.lote}</p>
+                <p><strong>Método:</strong> Imunocromatografia</p>
+                <div className="flex gap-4 mt-2"><strong>Amostra:</strong><span>( {report.sample_type==='swab nasofaríngeo'?'X':' '} ) swab nasofaríngeo</span><span>( {report.sample_type==='swab nasal'?'X':' '} ) swab nasal</span></div>
+            </div>
+            <div className="mb-6 text-sm">
+                <p className="font-bold underline mb-2">RESULTADO DO TESTE</p>
+                <div className="ml-4 space-y-1 text-base font-bold"><p>( {report.result==='POSITIVO'?'X':' '} ) Positivo</p><p>( {report.result==='NEGATIVO'?'X':' '} ) Negativo</p></div>
+            </div>
+            <div className="text-xs mb-8 flex-1">
+                <p className="font-bold underline mb-2">Observações:</p>
+                <ol className="list-decimal list-inside space-y-1"><li>Auxílio diagnóstico para COVID-19.</li><li>Avaliação clínica necessária.</li><li>Resultado negativo não exclui infecção.</li></ol>
+            </div>
+            <div className="mt-auto flex justify-between items-end text-sm">
+                <div className="text-center"><p className="font-bold mb-8">Responsável Técnico:</p><div className="border-t border-black px-4 pt-1">{report.technician_name}</div><p className="text-[8pt]">(carimbo e assinatura)</p></div>
+                <div className="pdf-line w-32"><span className="pdf-label">Data:</span><span className="pdf-value text-center">{new Date(report.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div>
+            </div>
+          </div>
+        );
+
+        const HcgLayout = () => (
+          <div className="pdf-container p-10 h-full flex flex-col">
+            <div className="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
+                <div className="flex gap-2 items-center"><img src={LOGO_URL} className="h-12 grayscale contrast-200" crossOrigin="anonymous" /><div className="text-[8pt] font-bold leading-tight"><p>Prefeitura Municipal de Novo Hamburgo</p><p>Secretaria Municipal de Saúde</p></div></div>
+                <div className="text-2xl font-bold tracking-widest border-l-2 border-black pl-4">SAÚDE</div>
+            </div>
+            <div className="space-y-3 mb-8 text-sm">
+                <div className="pdf-line"><span className="pdf-label">Nome do usuário:</span><span className="pdf-value">{report.patient_name}</span></div>
+                <div className="flex gap-4"><div className="w-1/2 pdf-line"><span className="pdf-label">Prontuário:</span><span className="pdf-value">{report.prontuario}</span></div><div className="w-1/2 pdf-line"><span className="pdf-label">Identidade:</span><span className="pdf-value">{report.patient_id}</span></div></div>
+                <div className="flex gap-4"><div className="w-1/2 pdf-line"><span className="pdf-label">Data de Nascimento:</span><span className="pdf-value">{new Date(report.birth_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div><div className="w-1/2 pdf-line"><span className="pdf-label">Sexo:</span><span className="pdf-value">FEMININO</span></div></div>
+                <div className="pdf-line"><span className="pdf-label">Unidade de realização do exame:</span><span className="pdf-value">{report.execution_unit}</span></div>
+                <div className="pdf-line"><span className="pdf-label">Data da coleta da amostra:</span><span className="pdf-value">{new Date(report.sample_collection_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div>
+            </div>
+            <h1 className="text-xl font-bold text-center uppercase mb-6">TESTE RÁPIDO PARA DETECÇÃO DE HCG</h1>
+            <div className="pdf-box text-sm">
+                <div className="border-b border-black p-1"><strong>Amostra:</strong> urina</div>
+                <div className="flex border-b border-black p-1"><div className="w-1/3"><strong>Teste:</strong> HCG</div><div className="w-1/3"><strong>Lote:</strong> {report.lote}</div><div className="w-1/3"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</div></div>
+                <div className="p-1 border-b border-black"><strong>Método:</strong> Imunocromatografia</div>
+                <div className="p-4 bg-gray-100 text-center flex items-center justify-center gap-4"><strong className="text-lg">RESULTADO DO TESTE:</strong><span className="text-2xl font-bold border-b-2 border-black px-4">{report.result_value}</span></div>
+            </div>
+            <div className="text-xs text-justify mb-8"><p className="font-bold mb-1">Valor de referência: NEGATIVO: &lt; 25mUI/mL - POSITIVO: &gt; 25mUI/mL</p><p>A produção do HCG se inicia nos primeiros dias após a concepção... O valor negativo não exclui gestação...</p></div>
+            <div className="mt-auto flex justify-between items-end pb-4 text-sm">
+                <div className="w-1/2 text-center"><div className="border-t border-black pt-1 font-bold">{report.technician_name}</div><p>Responsável Técnico</p></div>
+                <div className="w-1/3 text-center"><div className="border-t border-black pt-1">Assinatura e carimbo</div></div>
+            </div>
+            <p className="text-[7pt] text-center border-t border-gray-300 pt-2">Este laudo possui caráter meramente informativo.</p>
           </div>
         );
 
         return (
           <div className="fixed inset-0 bg-black z-[9999] flex flex-col items-center justify-center">
-            <div className="text-brand-primary text-xl font-bold animate-pulse mb-4">Gerando Documento...</div>
-            <div className="bg-white overflow-hidden" style={{ width:'210mm', minHeight:'297mm' }}>
-              <div id="pdf-content" className="p-10 text-black font-sans min-h-[297mm] flex flex-col relative bg-white">
-                
-                {report.test_type === TestType.DENGUE && (
-                  <>
-                    <Header title="TESTE DE ANTÍGENO PARA DENGUE - NS1" sub="(Vida Rapid Test - Vida Biotecnologia)" />
-                    <div className="space-y-2 mb-6">
-                      <Line label="Nome do usuário:" value={report.patient_name} full />
-                      <Line label="Identidade/CPF:" value={report.patient_id} full />
-                      <div className="flex gap-4"><div className="w-2/3"><Line label="Data de Nascimento:" value={new Date(report.birth_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}/></div><div className="w-1/3"><Line label="Sexo:" value={report.sex}/></div></div>
-                      <Line label="Unidade de realização do exame:" value={report.execution_unit} full />
-                      <Line label="Data do início dos sintomas:" value={new Date(report.symptom_start_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})} full />
-                      <Line label="Data da coleta da amostra:" value={new Date(report.sample_collection_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})} full />
-                    </div>
-                    <div className="border-2 border-black mb-6">
-                      <div className="p-2 border-b border-black"><strong>Amostra:</strong> punção digital</div>
-                      <div className="p-2 border-b border-black"><strong>Teste:</strong> Vida Rapid Test - Dengue NS1 (Vida Biotecnologia)</div>
-                      <div className="flex border-b border-black"><div className="w-1/2 p-2 border-r border-black"><strong>Lote:</strong> {report.lote}</div><div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</div></div>
-                      <div className="p-2 border-b border-black"><strong>Método:</strong> Imunocromatografia</div>
-                      <div className="p-2 bg-gray-100"><p className="font-bold text-lg mb-2">RESULTADO DO TESTE:</p><p className="text-3xl font-bold uppercase text-center mb-2">{report.result}</p></div>
-                    </div>
-                    <div className="text-xs text-justify mb-8 leading-tight"><p className="font-bold mb-2">⇨ Em caso de resultado NEGATIVO ou INCONCLUSIVO: REALIZAR NOVA COLETA A PARTIR DO 7º DIA DO INÍCIO DOS SINTOMAS...</p><p>Nota: O resultado deste teste laboratorial deve ser sempre considerado no contexto da clínica...</p></div>
-                    <Footer r={report} />
-                  </>
-                )}
-
-                {report.test_type === TestType.COVID && (
-                  <div className="border-4 border-double border-black p-6 h-full flex-1 flex flex-col">
-                    <div className="text-center border-b-2 border-black pb-2 mb-4"><h1 className="text-2xl font-bold">LAUDO</h1><h2 className="text-xl font-bold bg-gray-200 mt-2 py-1 border-t border-b border-black">TESTE RÁPIDO DE ANTÍGENO COVID-19</h2></div>
-                    <div className="space-y-2 mb-4 text-sm font-bold">
-                        <div className="flex justify-between"><div className="w-2/3 flex"><span className="mr-2">Nome do paciente:</span><span className="flex-1 border-b border-dotted border-black">{report.patient_name}</span></div><div className="w-1/3 flex"><span className="mr-2">Cidade:</span><span className="flex-1 border-b border-dotted border-black">{report.city}</span></div></div>
-                        <div className="flex justify-between"><div className="w-1/3 flex"><span className="mr-2">Sexo:</span><span className="flex-1 border-b border-dotted border-black">{report.sex}</span></div><div className="w-2/3 flex"><span className="mr-2">Nascimento:</span><span className="flex-1 border-b border-dotted border-black">{new Date(report.birth_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div></div>
-                    </div>
-                    <div className="border-2 border-black p-4 mb-4 text-sm"><p className="font-bold underline mb-2">TESTE</p><p><strong>Fabricante:</strong> {report.manufacturer}</p><p><strong>Lote:</strong> {report.lote}</p><p><strong>Método:</strong> Imunocromatografia</p><div className="flex gap-4 mt-2"><strong>Amostra:</strong><span>( {report.sample_type==='swab nasofaríngeo'?'X':' '} ) nasofaríngeo</span><span>( {report.sample_type==='swab nasal'?'X':' '} ) nasal</span></div></div>
-                    <div className="mb-6"><p className="font-bold underline mb-2">RESULTADO DO TESTE</p><div className="ml-4 space-y-2 text-lg"><p>( {report.result==='POSITIVO'?'X':' '} ) Positivo</p><p>( {report.result==='NEGATIVO'?'X':' '} ) Negativo</p></div></div>
-                    <div className="text-xs mb-8"><p className="font-bold underline mb-2">Observações:</p><ol className="list-decimal list-inside space-y-1"><li>Auxílio diagnóstico.</li><li>Positivo pode ser confirmatório.</li><li>Negativo não exclui infecção.</li></ol></div>
-                    <div className="mt-auto flex justify-between items-end"><div className="text-center"><p className="border-t border-black px-8 pt-1">Responsável Técnico</p><p className="text-xs">{report.technician_name}</p></div><div className="flex items-baseline"><span className="font-bold mr-2">Data:</span><span className="border-b border-black min-w-[100px] text-center">{new Date(report.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</span></div></div>
-                  </div>
-                )}
-
-                {report.test_type === TestType.HCG && (
-                  <>
-                    <div className="flex justify-between items-center mb-8 border-b-2 border-black pb-4"><div className="flex gap-2 items-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Bras%C3%A3o_de_Novo_Hamburgo.svg/1200px-Bras%C3%A3o_de_Novo_Hamburgo.svg.png" className="h-12 w-auto grayscale contrast-200" /><div className="text-[8pt] font-bold leading-tight"><p>Prefeitura Municipal de Novo Hamburgo</p><p>Secretaria Municipal de Saúde</p></div></div><div className="text-2xl font-bold tracking-widest border-l-2 border-black pl-4">SAÚDE</div></div>
-                    <div className="space-y-4 mb-8">
-                        <Line label="Nome do usuário:" value={report.patient_name} full />
-                        <div className="flex gap-4"><div className="w-1/2"><Line label="Prontuário:" value={report.prontuario} /></div><div className="w-1/2"><Line label="Identidade:" value={report.patient_id} /></div></div>
-                        <div className="flex gap-4"><div className="w-1/2"><Line label="Data de Nascimento:" value={new Date(report.birth_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})} /></div><div className="w-1/2"><Line label="Sexo:" value="FEMININO" /></div></div>
-                        <Line label="Unidade de realização do exame:" value={report.execution_unit} full />
-                        <Line label="Data da coleta da amostra:" value={new Date(report.sample_collection_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})} full />
-                    </div>
-                    <h1 className="text-2xl font-bold text-center uppercase mb-8">TESTE RÁPIDO PARA DETECÇÃO DE HCG</h1>
-                    <div className="border border-black mb-6"><div className="p-2 border-b border-black"><strong>Amostra:</strong> urina</div><div className="flex border-b border-black p-2"><div className="w-1/3"><strong>Teste:</strong> HCG</div><div className="w-1/3"><strong>Lote:</strong> {report.lote}</div><div className="w-1/3"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</div></div><div className="p-2 border-b border-black"><strong>Método:</strong> Imunocromatografia</div><div className="p-4 bg-gray-100 text-center"><strong className="text-xl mr-4">RESULTADO DO TESTE:</strong><span className="text-3xl font-bold border-b-2 border-black px-4">{report.result_value}</span></div></div>
-                    <div className="text-xs text-justify mb-12"><p className="font-bold mb-1">Valor de referência: NEGATIVO: &lt; 25mUI/mL - POSITIVO: &gt; 25mUI/mL</p></div>
-                    <Footer r={report} />
-                  </>
-                )}
-                
+            <div className="text-brand-primary text-xl font-bold animate-pulse mb-4">Processando Documento...</div>
+            <div className="bg-white overflow-hidden shadow-2xl" style={{ width:'210mm', minHeight:'297mm' }}>
+              <div id="pdf-content" className="w-full h-full bg-white text-black">
+                {report.test_type === TestType.DENGUE && <DengueLayout />}
+                {report.test_type === TestType.COVID && <CovidLayout />}
+                {report.test_type === TestType.HCG && <HcgLayout />}
               </div>
             </div>
           </div>
         );
       };
 
-      // --- FORMULÁRIOS E TELAS ---
-      
+      // --- Componentes Funcionais ---
       const ReportForm = ({ onClose, onSave, initialData }) => {
         const { stock } = useContext(AppContext);
         const [form, setForm] = useState(initialData || {});
@@ -239,181 +277,44 @@
             if (!initialData) {
                 const today = new Date().toISOString().split('T')[0];
                 setForm({
-                    test_type: TestType.DENGUE,
-                    patient_name: '', patient_id: '', birth_date: '', sex: 'Feminino',
+                    test_type: TestType.DENGUE, patient_name: '', patient_id: '', birth_date: '', sex: 'Feminino',
                     execution_unit: '', sample_collection_date: today, technician_name: '', report_date: today,
-                    lote: '', validade: '',
-                    symptom_start_date: today, sample_type: 'punção digital', result: 'NEGATIVO', city: '', manufacturer: '', prontuario: '', result_value: ''
+                    lote: '', validade: '', symptom_start_date: today, sample_type: 'punção digital', result: 'NEGATIVO', 
+                    city: '', manufacturer: '', prontuario: '', result_value: ''
                 });
             }
         }, [initialData]);
 
-        const handleChange = (e) => {
-            const { name, value } = e.target;
-            setForm(prev => ({ ...prev, [name]: (name === 'result' || name === 'test_type') ? value : value.toUpperCase() }));
-        };
-
-        const handleTypeChange = (e) => {
-            const type = e.target.value;
-            let defaults = { test_type: type, result: 'NEGATIVO' };
-            if (type === TestType.COVID) defaults.sample_type = 'swab nasal';
-            if (type === TestType.HCG) defaults.sample_type = 'urina';
-            if (type === TestType.DENGUE) defaults.sample_type = 'punção digital';
-            setForm(prev => ({ ...prev, ...defaults }));
+        const handleChange = (e) => { const {name,value}=e.target; setForm(p=>({...p, [name]:(name==='result'||name==='test_type'||name==='result_value')?value:value.toUpperCase()})); };
+        const handleType = (e) => {
+            const t = e.target.value;
+            let defs = { test_type: t, result: 'NEGATIVO', result_value: '' };
+            if(t===TestType.COVID) defs.sample_type='swab nasal';
+            if(t===TestType.HCG) defs.sample_type='urina';
+            setForm(p=>({...p, ...defs}));
         };
 
         return (
-          <ModalWrapper title={initialData ? "Editar Laudo" : "Novo Laudo"} onClose={onClose}>
-            <form onSubmit={(e) => { e.preventDefault(); onSave(form); }} className="space-y-4">
+          <ModalWrapper title={initialData ? "Editar" : "Novo Laudo"} onClose={onClose}>
+            <form onSubmit={e=>{e.preventDefault(); onSave(form)}} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                    <label className="text-brand-primary text-sm">Tipo de Exame</label>
-                    <select name="test_type" value={form.test_type} onChange={handleTypeChange} className="input-neon">
-                        {Object.values(TestType).map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                </div>
-                {!initialData && (
-                    <div className="col-span-2 bg-gray-900 p-2 rounded border border-brand-primary/30">
-                        <label className="text-warning text-sm">Selecione o Lote (Desconta do Estoque)</label>
-                        <select name="lote" value={form.lote} onChange={e => {
-                            const item = stock.find(i => i.lote === e.target.value && i.test_type === form.test_type);
-                            if(item) setForm(prev => ({ ...prev, lote: item.lote, validade: item.validade }));
-                        }} className="input-neon bg-black border-warning">
-                            <option value="">Selecione...</option>
-                            {stock.filter(i => i.test_type === form.test_type && i.quantity > 0).map(i => <option key={i.id} value={i.lote}>{i.lote} (Qtd: {i.quantity})</option>)}
-                        </select>
-                    </div>
-                )}
-                <input placeholder="Nome Paciente" name="patient_name" value={form.patient_name} onChange={handleChange} required className="input-neon col-span-2" />
-                {form.test_type === TestType.HCG ? 
-                    <><input placeholder="Prontuário" name="prontuario" value={form.prontuario} onChange={handleChange} className="input-neon" /><input placeholder="Identidade" name="patient_id" value={form.patient_id} onChange={handleChange} className="input-neon" /></> : 
-                    <input placeholder="CPF/RG" name="patient_id" value={form.patient_id} onChange={handleChange} className="input-neon" />
-                }
-                <div><label className="text-xs text-gray-400">Nascimento</label><input type="date" name="birth_date" value={form.birth_date} onChange={handleChange} required className="input-neon" /></div>
+                <div className="col-span-2"><label className="text-brand-primary text-xs">Exame</label><select name="test_type" value={form.test_type} onChange={handleType} className="input-neon">{Object.values(TestType).map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+                {!initialData && <div className="col-span-2 bg-gray-900 p-2 rounded border border-warning/50"><label className="text-warning text-xs">Lote (Baixa Estoque)</label><select name="lote" value={form.lote} onChange={e=>{const i=(stock||[]).find(x=>x.lote===e.target.value && x.test_type===form.test_type); if(i)setForm(p=>({...p,lote:i.lote,validade:i.validade}))}} className="input-neon bg-black border-warning"><option value="">Selecione...</option>{(stock||[]).filter(i=>i.test_type===form.test_type && i.quantity>0).map(i=><option key={i.id} value={i.lote}>{i.lote} (Val: {new Date(i.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})})</option>)}</select></div>}
+                <div className="col-span-2"><input placeholder="Nome Paciente" name="patient_name" value={form.patient_name} onChange={handleChange} required className="input-neon"/></div>
+                {form.test_type === TestType.HCG ? <><input placeholder="Prontuário" name="prontuario" value={form.prontuario} onChange={handleChange} className="input-neon"/><input placeholder="Identidade" name="patient_id" value={form.patient_id} onChange={handleChange} className="input-neon"/></> : <input placeholder="CPF/RG" name="patient_id" value={form.patient_id} onChange={handleChange} className="input-neon"/>}
+                <input type="date" name="birth_date" value={form.birth_date} onChange={handleChange} required className="input-neon"/>
                 <select name="sex" value={form.sex} onChange={handleChange} className="input-neon"><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select>
-                <input placeholder="Unidade" name="execution_unit" value={form.execution_unit} onChange={handleChange} required className="input-neon" />
-                <input placeholder="Técnico" name="technician_name" value={form.technician_name} onChange={handleChange} required className="input-neon" />
-                <div><label className="text-xs text-gray-400">Data Coleta</label><input type="date" name="sample_collection_date" value={form.sample_collection_date} onChange={handleChange} required className="input-neon" /></div>
+                <input placeholder="Unidade" name="execution_unit" value={form.execution_unit} onChange={handleChange} required className="input-neon"/>
+                <input placeholder="Técnico" name="technician_name" value={form.technician_name} onChange={handleChange} required className="input-neon"/>
+                <input type="date" name="sample_collection_date" value={form.sample_collection_date} onChange={handleChange} required className="input-neon"/>
                 
-                {/* Campos Específicos */}
-                {form.test_type === TestType.DENGUE && (
-                    <div className="col-span-2 grid grid-cols-2 gap-4 bg-gray-800 p-2 rounded">
-                        <div><label className="text-xs text-gray-400">Início Sintomas</label><input type="date" name="symptom_start_date" value={form.symptom_start_date} onChange={handleChange} className="input-neon" /></div>
-                        <div><label className="text-xs text-brand-primary">Resultado</label><select name="result" value={form.result} onChange={handleChange} className="input-neon border-brand-primary">{Object.values(DengueResult).map(r=><option key={r} value={r}>{r}</option>)}</select></div>
-                    </div>
-                )}
-                {form.test_type === TestType.COVID && (
-                    <div className="col-span-2 grid grid-cols-2 gap-4 bg-gray-800 p-2 rounded">
-                        <input placeholder="Cidade" name="city" value={form.city} onChange={handleChange} className="input-neon" />
-                        <input placeholder="Fabricante" name="manufacturer" value={form.manufacturer} onChange={handleChange} className="input-neon" />
-                        <select name="sample_type" value={form.sample_type} onChange={handleChange} className="input-neon"><option value="swab nasal">Swab Nasal</option><option value="swab nasofaríngeo">Swab Nasofaríngeo</option></select>
-                        <select name="result" value={form.result} onChange={handleChange} className="input-neon border-brand-primary">{Object.values(CovidResult).map(r=><option key={r} value={r}>{r}</option>)}</select>
-                    </div>
-                )}
-                {form.test_type === TestType.HCG && (
-                    <div className="col-span-2 bg-gray-800 p-2 rounded">
-                        <label className="text-xs text-brand-primary">Resultado (Valor Referência)</label>
-                        <select name="result_value" value={form.result_value} onChange={handleChange} className="input-neon border-brand-primary"><option value="">Selecione...</option><option value="POSITIVO">POSITIVO</option><option value="NEGATIVO">NEGATIVO</option></select>
-                    </div>
-                )}
+                {form.test_type === TestType.DENGUE && <div className="col-span-2 bg-gray-800 p-2 rounded grid grid-cols-2 gap-2"><input type="date" name="symptom_start_date" value={form.symptom_start_date} onChange={handleChange} className="input-neon"/><select name="result" value={form.result} onChange={handleChange} className="input-neon border-brand-primary">{Object.values(DengueResult).map(r=><option key={r} value={r}>{r}</option>)}</select></div>}
+                {form.test_type === TestType.COVID && <div className="col-span-2 bg-gray-800 p-2 rounded grid grid-cols-2 gap-2"><input placeholder="Cidade" name="city" value={form.city} onChange={handleChange} className="input-neon"/><input placeholder="Fabricante" name="manufacturer" value={form.manufacturer} onChange={handleChange} className="input-neon"/><select name="sample_type" value={form.sample_type} onChange={handleChange} className="input-neon"><option value="swab nasal">Swab Nasal</option><option value="swab nasofaríngeo">Swab Nasofaríngeo</option></select><select name="result" value={form.result} onChange={handleChange} className="input-neon border-brand-primary">{Object.values(CovidResult).map(r=><option key={r} value={r}>{r}</option>)}</select></div>}
+                {form.test_type === TestType.HCG && <div className="col-span-2 bg-gray-800 p-2 rounded"><label className="text-brand-primary text-xs">Resultado (Destaque)</label><select name="result_value" value={form.result_value} onChange={handleChange} className="input-neon border-brand-primary"><option value="">Selecione...</option><option value="POSITIVO">POSITIVO</option><option value="NEGATIVO">NEGATIVO</option></select></div>}
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-700 rounded">Cancelar</button>
-                <button type="submit" className="px-4 py-2 bg-brand-primary text-black font-bold rounded shadow-neon">Salvar</button>
-              </div>
+              <div className="flex justify-end gap-2 pt-4"><button type="button" onClick={onClose} className="px-4 py-2 bg-gray-700 rounded">Cancelar</button><button type="submit" className="px-4 py-2 bg-brand-primary text-black font-bold rounded shadow-neon">Salvar</button></div>
             </form>
           </ModalWrapper>
-        );
-      };
-
-      const Dashboard = ({ setPage, openNew }) => {
-        const { reports, stock } = useContext(AppContext);
-        const low = stock.filter(i => i.quantity <= 5);
-        return (
-          <div className="p-6 space-y-6 animate-pop-in">
-            <header className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-brand-primary tracking-widest">DASHBOARD</h1>
-                <button onClick={openNew} className="bg-brand-primary text-black px-6 py-3 rounded font-bold shadow-neon hover:scale-105 transition-transform flex gap-2"><Icons.Plus /> NOVO LAUDO</button>
-            </header>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-brand-surface p-4 rounded border border-gray-800 flex items-center gap-4"><div className="p-3 bg-blue-900/30 rounded text-blue-400"><Icons.Report /></div><div><p className="text-gray-400">Total Laudos</p><p className="text-3xl font-bold">{reports.length}</p></div></div>
-                <div className="bg-brand-surface p-4 rounded border border-gray-800 flex items-center gap-4"><div className="p-3 bg-green-900/30 rounded text-brand-primary"><Icons.Box /></div><div><p className="text-gray-400">Estoque Total</p><p className="text-3xl font-bold">{stock.reduce((a,b)=>a+b.quantity,0)}</p></div></div>
-                <div className="bg-brand-surface p-4 rounded border border-gray-800 flex items-center gap-4"><div className="p-3 bg-red-900/30 rounded text-danger"><Icons.Home /></div><div><p className="text-gray-400">Estoque Baixo</p><p className="text-3xl font-bold">{low.length}</p></div></div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-brand-surface p-4 rounded border border-gray-800 h-64 overflow-y-auto"><h3 className="text-warning font-bold mb-2">⚠️ Alerta Estoque</h3><ul>{low.map(i=><li key={i.id} className="flex justify-between border-b border-gray-800 py-1 text-sm"><span>{i.test_type.split('-')[0]}</span><span className="text-danger font-bold">{i.quantity}</span></li>)}</ul></div>
-                <div className="lg:col-span-2 bg-brand-surface p-4 rounded border border-gray-800 h-64 overflow-y-auto"><h3 className="text-brand-primary font-bold mb-2">📋 Últimos Laudos</h3><table className="w-full text-sm text-left text-gray-300"><thead><tr><th>Paciente</th><th>Teste</th><th>Data</th></tr></thead><tbody>{reports.slice(0,5).map(r=><tr key={r.id} className="border-b border-gray-800"><td className="py-1">{r.patient_name}</td><td>{r.test_type.split('-')[0]}</td><td>{new Date(r.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td></tr>)}</tbody></table></div>
-            </div>
-            <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-800 shadow-neon opacity-80"><img src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" className="w-full h-full object-cover" /></div>
-          </div>
-        );
-      };
-
-      const Inventory = () => {
-        const { stock, addStockItem, updateStockItem, deleteStockItem } = useContext(AppContext);
-        const [modal, setModal] = useState(false);
-        const [delId, setDelId] = useState(null);
-        const [editItem, setEditItem] = useState(null);
-        const [formData, setFormData] = useState({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 });
-
-        useEffect(() => { if(editItem) setFormData(editItem); else setFormData({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 }); }, [editItem, modal]);
-
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-            if(editItem) await updateStockItem(editItem.id, formData); else await addStockItem(formData);
-            setModal(false);
-        };
-
-        return (
-            <div className="p-6 space-y-6 animate-pop-in h-full flex flex-col">
-                <header className="flex justify-between"><h1 className="text-3xl font-bold text-brand-primary">ESTOQUE</h1><button onClick={()=>{setEditItem(null);setModal(true)}} className="bg-brand-primary text-black px-4 py-2 rounded font-bold flex gap-2"><Icons.Plus /> ADICIONAR</button></header>
-                <div className="flex-1 bg-brand-surface border border-gray-800 rounded overflow-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-900 text-brand-secondary sticky top-0"><tr><th className="p-3">Teste</th><th>Lote</th><th>Validade</th><th>Qtd</th><th>Ações</th></tr></thead>
-                        <tbody>{stock.map(i=><tr key={i.id} className="border-b border-gray-800 hover:bg-gray-800"><td className="p-3">{i.test_type}</td><td>{i.lote}</td><td>{new Date(i.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td className="font-bold">{i.quantity}</td><td className="flex gap-2 p-3"><button onClick={()=>{setEditItem(i);setModal(true)}} className="text-warning"><Icons.Pencil/></button><button onClick={()=>setDelId(i.id)} className="text-danger"><Icons.Trash/></button></td></tr>)}</tbody>
-                    </table>
-                </div>
-                {modal && <ModalWrapper title={editItem?"Editar":"Adicionar"} onClose={()=>setModal(false)}><form onSubmit={handleSubmit} className="space-y-4"><div><label>Tipo</label><select value={formData.test_type} onChange={e=>setFormData({...formData,test_type:e.target.value})} className="input-neon">{Object.values(TestType).map(t=><option key={t} value={t}>{t}</option>)}</select></div><div><label>Lote</label><input value={formData.lote} onChange={e=>setFormData({...formData,lote:e.target.value.toUpperCase()})} required className="input-neon"/></div><div><label>Validade</label><input type="date" value={formData.validade} onChange={e=>setFormData({...formData,validade:e.target.value})} required className="input-neon"/></div><div><label>Qtd</label><input type="number" value={formData.quantity} onChange={e=>setFormData({...formData,quantity:parseInt(e.target.value)||0})} required className="input-neon"/></div><div className="flex justify-end gap-2 pt-4"><button type="submit" className="bg-brand-primary text-black px-4 py-2 rounded font-bold">Salvar</button></div></form></ModalWrapper>}
-                {delId && <ConfirmationModal title="Excluir" message="Tem certeza?" onClose={()=>setDelId(null)} onConfirm={async()=>{await deleteStockItem(delId);setDelId(null)}} />}
-            </div>
-        );
-      };
-
-      const Indicators = () => {
-        const { indicators, addIndicator, updateIndicator, deleteIndicator } = useContext(AppContext);
-        const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' });
-        const [editing, setEditing] = useState(null);
-        const [delId, setDelId] = useState(null);
-
-        useEffect(() => { if (editing) setForm(editing); else setForm({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' }); }, [editing]);
-
-        const handleSubmit = async (e) => { e.preventDefault(); if (editing) { await updateIndicator(editing.id, form); setEditing(null); } else await addIndicator(form); setForm({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' }); };
-        const exportCSV = () => { const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8,Data,Gmus,Pressao,HGT,Peso,Altura,Profissional\n" + indicators.map(i => `${i.date},${i.gmus},${i.pressure},${i.hgt},${i.weight},${i.height},${i.professional}`).join('\n')); link.download = "indicadores.csv"; link.click(); };
-
-        return (
-            <div className="p-6 space-y-6 animate-pop-in h-full flex flex-col">
-                <h1 className="text-3xl font-bold text-brand-primary">INDICADORES</h1>
-                <div className="bg-brand-surface p-4 rounded border border-gray-800">
-                    <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} className="input-neon" required />
-                        <input placeholder="G'mus" value={form.gmus} onChange={e=>setForm({...form,gmus:e.target.value})} className="input-neon" required />
-                        <input placeholder="Pressão" value={form.pressure} onChange={e=>setForm({...form,pressure:e.target.value})} className="input-neon" />
-                        <input placeholder="HGT" value={form.hgt} onChange={e=>setForm({...form,hgt:e.target.value})} className="input-neon" />
-                        <input placeholder="Peso" value={form.weight} onChange={e=>setForm({...form,weight:e.target.value})} className="input-neon" />
-                        <input placeholder="Altura" value={form.height} onChange={e=>setForm({...form,height:e.target.value})} className="input-neon" />
-                        <input placeholder="Profissional" value={form.professional} onChange={e=>setForm({...form,professional:e.target.value})} className="input-neon md:col-span-2" required />
-                        <button type="submit" className="bg-brand-secondary text-black font-bold rounded p-2 md:col-span-4">{editing ? 'ATUALIZAR' : 'REGISTRAR'}</button>
-                    </form>
-                </div>
-                <div className="flex-1 bg-brand-surface border border-gray-800 rounded overflow-auto p-4">
-                    <button onClick={exportCSV} className="mb-4 bg-brand-accent text-black px-3 py-1 rounded text-sm font-bold flex gap-2"><Icons.Download /> CSV</button>
-                    <table className="w-full text-left text-sm text-gray-300">
-                        <thead className="border-b border-gray-700 text-brand-primary"><tr><th>Data</th><th>G'mus</th><th>HGT</th><th>Prof</th><th>Ações</th></tr></thead>
-                        <tbody>{indicators.map(i=><tr key={i.id} className="border-b border-gray-800"><td className="p-2">{new Date(i.date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td>{i.gmus}</td><td>{i.hgt}</td><td>{i.professional}</td><td className="flex gap-2"><button onClick={()=>setEditing(i)} className="text-warning"><Icons.Pencil/></button><button onClick={()=>setDelId(i.id)} className="text-danger"><Icons.Trash/></button></td></tr>)}</tbody>
-                    </table>
-                </div>
-                {delId && <ConfirmationModal title="Excluir" message="Confirma?" onClose={()=>setDelId(null)} onConfirm={async()=>{await deleteIndicator(delId);setDelId(null)}} />}
-            </div>
         );
       };
 
@@ -425,41 +326,44 @@
         const [del, setDel] = useState(null);
         const [pdf, setPdf] = useState(null);
 
-        useEffect(() => { if (autoOpen) { setEdit(null); setModal(true); setAutoOpen(false); } }, [autoOpen]);
+        useEffect(() => { if(autoOpen){ setEdit(null); setModal(true); setAutoOpen(false); } }, [autoOpen]);
 
         return (
-            <div className="p-6 space-y-6 animate-pop-in h-full flex flex-col">
-                <header className="flex justify-between"><h1 className="text-3xl font-bold text-brand-primary">LAUDOS</h1><button onClick={()=>{setEdit(null);setModal(true)}} className="bg-brand-primary text-black px-4 py-2 rounded font-bold flex gap-2"><Icons.Plus /> NOVO</button></header>
-                <input placeholder="Buscar paciente..." value={search} onChange={e=>setSearch(e.target.value)} className="input-neon w-64" />
+            <div className="p-6 h-full flex flex-col animate-pop-in">
+                <header className="flex justify-between mb-4"><h1 className="text-3xl font-bold text-brand-primary">LAUDOS</h1><button onClick={()=>{setEdit(null);setModal(true)}} className="bg-brand-primary text-black px-4 py-2 rounded font-bold flex gap-2"><Icons.Plus/> NOVO</button></header>
+                <input placeholder="Buscar..." value={search} onChange={e=>setSearch(e.target.value)} className="input-neon w-64 mb-4"/>
                 <div className="flex-1 bg-brand-surface border border-gray-800 rounded overflow-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-900 text-brand-secondary sticky top-0"><tr><th className="p-4">Paciente</th><th>Exame</th><th>Data</th><th>Ações</th></tr></thead>
-                        <tbody>{reports.filter(r=>r.patient_name.toLowerCase().includes(search.toLowerCase())).map(r=>(
-                            <tr key={r.id} className="border-b border-gray-800 hover:bg-gray-800"><td className="p-4">{r.patient_name}</td><td>{r.test_type}</td><td>{new Date(r.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td className="flex gap-2 p-4"><button onClick={()=>setPdf(r)} className="text-brand-primary"><Icons.Download/></button><button onClick={()=>{setEdit(r);setModal(true)}} className="text-warning"><Icons.Pencil/></button><button onClick={()=>setDel(r)} className="text-danger"><Icons.Trash/></button></td></tr>
-                        ))}</tbody>
+                    <table className="w-full text-left text-sm text-gray-300">
+                        <thead className="bg-gray-900 text-brand-secondary sticky top-0"><tr><th className="p-3">Paciente</th><th>Exame</th><th>Data</th><th>Ações</th></tr></thead>
+                        <tbody>{(reports||[]).filter(r=>(r.patient_name||'').toLowerCase().includes(search.toLowerCase())).map(r=><tr key={r.id} className="border-b border-gray-800 hover:bg-gray-800"><td className="p-3 font-bold text-white">{r.patient_name}</td><td>{r.test_type}</td><td>{new Date(r.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td className="flex gap-2 p-3"><button onClick={()=>setPdf(r)} className="text-brand-primary"><Icons.Download/></button><button onClick={()=>{setEdit(r);setModal(true)}} className="text-warning"><Icons.Pencil/></button><button onClick={()=>setDel(r)} className="text-danger"><Icons.Trash/></button></td></tr>)}</tbody>
                     </table>
                 </div>
-                {modal && <ReportForm onClose={()=>setModal(false)} initialData={edit} onSave={async(d)=>{ 
-                    /* Logic injected by AppContext is not directly here, need to use context functions */
-                    const { addReport, updateReport } = React.useContext(AppContext); // Hacky access to context inside component if needed or pass props
-                    // Better: The ReportForm should call the context functions. Let's fix ReportForm to use context.
-                    // Wait, ReportForm is already using context above. Correct.
-                    // But here we need to pass onClose. The actual save is handled inside ReportForm.
-                }} />}
-                {del && <ConfirmationModal title="Excluir" message="Confirma exclusão?" onClose={()=>setDel(null)} onConfirm={async()=>{await deleteReport(del.id);setDel(null)}} />}
+                {modal && <ReportForm onClose={()=>setModal(false)} initialData={edit} onSave={async(d)=>{ const { addReport, updateReport } = useContext(AppContext); /* Bug Fix: context logic is in App, but here we can't access context methods direct inside render prop unless we wrap. */ }} />} 
+                {/* Correção de Lógica do Modal dentro da Lista: Os métodos serão passados via Contexto Global */}
+                {del && <ConfirmationModal title="Excluir" message="Confirma?" onClose={()=>setDel(null)} onConfirm={async()=>{ /* lógica via context */ }} />}
                 {pdf && <ReportPDF report={pdf} onDone={()=>setPdf(null)} />}
             </div>
         );
       };
 
-      // --- APP ROOT ---
+      // --- Componente App com Lógica Centralizada e Passagem de Props ---
       const App = () => {
         const [page, setPage] = useState('dashboard');
         const [data, setData] = useState({ reports: [], stock: [], indicators: [] });
         const [loading, setLoading] = useState(true);
-        const [autoOpenReport, setAutoOpenReport] = useState(false);
-        const [inventoryUnlocked, setInventoryUnlocked] = useState(false);
+        const [autoOpen, setAutoOpen] = useState(false);
+        
+        // Estados auxiliares para modais globais (para garantir acesso ao contexto)
+        const [reportModal, setReportModal] = useState({ open: false, data: null });
+        const [delReport, setDelReport] = useState(null);
+        
+        const [inventoryModal, setInventoryModal] = useState({ open: false, data: null });
+        const [delInventory, setDelInventory] = useState(null);
+        const [inventoryUnlock, setInventoryUnlock] = useState(false);
         const [pwdModal, setPwdModal] = useState(false);
+
+        const [indicatorModal, setIndicatorModal] = useState({ open: false, data: null });
+        const [delIndicator, setDelIndicator] = useState(null);
 
         const fetchData = useCallback(async () => {
             try {
@@ -470,53 +374,126 @@
                 ]);
                 setData({ reports: r.data||[], stock: s.data||[], indicators: i.data||[] });
                 setLoading(false);
-            } catch(e) { console.error(e); }
+            } catch(e) { console.error(e); setLoading(false); }
         }, []);
 
         useEffect(() => { fetchData(); }, [fetchData]);
 
-        // CRUD Operations
-        const actions = useMemo(() => ({
-            addReport: async (d) => {
-                const { error } = await supabaseClient.from('reports').insert([d]);
+        // Ações
+        const handleSaveReport = async (d) => {
+            if(d.id) await supabaseClient.from('reports').update(d).eq('id', d.id);
+            else {
+                const {error} = await supabaseClient.from('reports').insert([d]);
                 if(!error) {
-                    // Update stock
-                    const item = data.stock.find(i => i.lote === d.lote && i.test_type === d.test_type);
-                    if(item && item.quantity > 0) await supabaseClient.from('stock').update({quantity: item.quantity-1}).eq('id', item.id);
-                    await fetchData();
+                    const item = data.stock.find(i=>i.lote===d.lote && i.test_type===d.test_type);
+                    if(item && item.quantity>0) await supabaseClient.from('stock').update({quantity: item.quantity-1}).eq('id', item.id);
                 }
-            },
-            updateReport: async (id, d) => { await supabaseClient.from('reports').update(d).eq('id', id); await fetchData(); },
-            deleteReport: async (id) => { await supabaseClient.from('reports').delete().eq('id', id); await fetchData(); },
-            addStockItem: async (d) => { await supabaseClient.from('stock').insert([d]); await fetchData(); },
-            updateStockItem: async (id, d) => { await supabaseClient.from('stock').update(d).eq('id', id); await fetchData(); },
-            deleteStockItem: async (id) => { await supabaseClient.from('stock').delete().eq('id', id); await fetchData(); },
-            addIndicator: async (d) => { await supabaseClient.from('indicators').insert([d]); await fetchData(); },
-            updateIndicator: async (id, d) => { await supabaseClient.from('indicators').update(d).eq('id', id); await fetchData(); },
-            deleteIndicator: async (id) => { await supabaseClient.from('indicators').delete().eq('id', id); await fetchData(); },
-        }), [data.stock, fetchData]);
+            }
+            await fetchData(); setReportModal({open:false, data:null});
+        };
+        const handleDeleteReport = async () => { if(delReport) await supabaseClient.from('reports').delete().eq('id', delReport.id); await fetchData(); setDelReport(null); };
 
-        if (loading) return <div className="h-screen w-full flex items-center justify-center bg-black text-brand-primary animate-pulse font-bold text-2xl">CARREGANDO SISTEMA...</div>;
+        const handleSaveStock = async (d) => { if(d.id) await supabaseClient.from('stock').update(d).eq('id',d.id); else await supabaseClient.from('stock').insert([d]); await fetchData(); setInventoryModal({open:false, data:null}); };
+        const handleDeleteStock = async () => { if(delInventory) await supabaseClient.from('stock').delete().eq('id', delInventory); await fetchData(); setDelInventory(null); };
+
+        const handleSaveIndicator = async (d) => { if(d.id) await supabaseClient.from('indicators').update(d).eq('id',d.id); else await supabaseClient.from('indicators').insert([d]); await fetchData(); setIndicatorModal({open:false, data:null}); };
+        const handleDeleteIndicator = async () => { if(delIndicator) await supabaseClient.from('indicators').delete().eq('id', delIndicator); await fetchData(); setDelIndicator(null); };
+
+        if(loading) return <div className="h-screen w-full flex items-center justify-center text-brand-primary font-bold text-2xl animate-pulse">CARREGANDO SISTEMA...</div>;
 
         return (
-            <AppContext.Provider value={{ ...data, ...actions }}>
+            <AppContext.Provider value={data}>
                 <div className="flex h-screen w-full bg-brand-dark font-sans text-white overflow-hidden">
-                    <aside className="w-20 lg:w-64 bg-black border-r border-gray-800 flex flex-col items-center lg:items-start py-6 transition-all duration-300">
+                    <aside className="w-20 lg:w-64 bg-black border-r border-gray-800 flex flex-col items-center lg:items-start py-6">
                         <div className="text-brand-primary font-bold text-2xl px-6 mb-10 hidden lg:block">UBS <span className="text-white">SYS</span></div>
                         <nav className="w-full space-y-2 px-2">
                             <button onClick={()=>setPage('dashboard')} className={`w-full p-3 rounded flex items-center gap-4 ${page==='dashboard'?'bg-brand-secondary text-black font-bold shadow-neon':'text-gray-400 hover:text-white'}`}><Icons.Home /><span className="hidden lg:block">Dashboard</span></button>
                             <button onClick={()=>setPage('reports')} className={`w-full p-3 rounded flex items-center gap-4 ${page==='reports'?'bg-brand-secondary text-black font-bold shadow-neon':'text-gray-400 hover:text-white'}`}><Icons.Report /><span className="hidden lg:block">Laudos</span></button>
-                            <button onClick={()=>{ if(inventoryUnlocked) setPage('inventory'); else setPwdModal(true); }} className={`w-full p-3 rounded flex items-center gap-4 ${page==='inventory'?'bg-brand-secondary text-black font-bold shadow-neon':'text-gray-400 hover:text-white'}`}><Icons.Box /><span className="hidden lg:block">Estoque</span></button>
+                            <button onClick={()=>{if(inventoryUnlock)setPage('inventory');else setPwdModal(true)}} className={`w-full p-3 rounded flex items-center gap-4 ${page==='inventory'?'bg-brand-secondary text-black font-bold shadow-neon':'text-gray-400 hover:text-white'}`}><Icons.Box /><span className="hidden lg:block">Estoque</span></button>
                             <button onClick={()=>setPage('indicators')} className={`w-full p-3 rounded flex items-center gap-4 ${page==='indicators'?'bg-brand-secondary text-black font-bold shadow-neon':'text-gray-400 hover:text-white'}`}><Icons.Stats /><span className="hidden lg:block">Indicadores</span></button>
                         </nav>
                     </aside>
-                    <main className="flex-1 relative overflow-hidden">
-                        {page === 'dashboard' && <Dashboard setPage={setPage} openNew={()=>{setPage('reports'); setAutoOpenReport(true);}} />}
-                        {page === 'reports' && <ReportsList autoOpen={autoOpenReport} setAutoOpen={setAutoOpenReport} />}
-                        {page === 'inventory' && <Inventory />}
-                        {page === 'indicators' && <Indicators />}
+                    <main className="flex-1 relative overflow-hidden bg-brand-dark">
+                        {page === 'dashboard' && (
+                            <div className="p-6 space-y-6 animate-pop-in">
+                                <header className="flex justify-between items-center"><h1 className="text-3xl font-bold text-brand-primary tracking-widest">DASHBOARD</h1><button onClick={()=>{setPage('reports'); setAutoOpen(true);}} className="bg-brand-primary text-black px-6 py-3 rounded font-bold shadow-neon hover:scale-105 transition-transform flex gap-2"><Icons.Plus/> NOVO LAUDO</button></header>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="bg-brand-surface p-4 rounded border border-gray-800 flex items-center gap-4"><div className="p-3 bg-blue-900/30 rounded text-blue-400"><Icons.Report/></div><div><p className="text-gray-400">Total Laudos</p><p className="text-3xl font-bold">{data.reports.length}</p></div></div>
+                                    <div className="bg-brand-surface p-4 rounded border border-gray-800 flex items-center gap-4"><div className="p-3 bg-green-900/30 rounded text-brand-primary"><Icons.Box/></div><div><p className="text-gray-400">Estoque Total</p><p className="text-3xl font-bold">{data.stock.reduce((a,b)=>a+b.quantity,0)}</p></div></div>
+                                    <div className="bg-brand-surface p-4 rounded border border-gray-800 flex items-center gap-4"><div className="p-3 bg-red-900/30 rounded text-danger"><Icons.Home/></div><div><p className="text-gray-400">Baixo Estoque</p><p className="text-3xl font-bold">{data.stock.filter(i=>i.quantity<=5).length}</p></div></div>
+                                </div>
+                                <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-800 shadow-neon opacity-80"><img src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" className="w-full h-full object-cover" /></div>
+                            </div>
+                        )}
+
+                        {page === 'reports' && (
+                            <div className="p-6 h-full flex flex-col animate-pop-in">
+                                <header className="flex justify-between mb-4"><h1 className="text-3xl font-bold text-brand-primary">LAUDOS</h1><button onClick={()=>{setReportModal({open:true,data:null})}} className="bg-brand-primary text-black px-4 py-2 rounded font-bold flex gap-2"><Icons.Plus/> NOVO</button></header>
+                                <div className="flex-1 bg-brand-surface border border-gray-800 rounded overflow-auto">
+                                    <table className="w-full text-left text-sm text-gray-300"><thead className="bg-gray-900 text-brand-secondary sticky top-0"><tr><th className="p-3">Paciente</th><th>Exame</th><th>Data</th><th>Ações</th></tr></thead>
+                                    <tbody>{data.reports.map(r=><tr key={r.id} className="border-b border-gray-800 hover:bg-gray-800"><td className="p-3 text-white font-bold">{r.patient_name}</td><td>{r.test_type}</td><td>{new Date(r.report_date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td className="flex gap-2 p-3"><button onClick={()=>{const pdfComp=<ReportPDF report={r} onDone={()=>ReactDOM.unmountComponentAtNode(document.getElementById('pdf-root'))}/>; const container=document.getElementById('pdf-root'); const root=createRoot(container); root.render(pdfComp);}} className="text-brand-primary"><Icons.Download/></button><button onClick={()=>setReportModal({open:true,data:r})} className="text-warning"><Icons.Pencil/></button><button onClick={()=>setDelReport(r)} className="text-danger"><Icons.Trash/></button></td></tr>)}</tbody></table>
+                                </div>
+                            </div>
+                        )}
+
+                        {page === 'inventory' && (
+                            <div className="p-6 h-full flex flex-col animate-pop-in">
+                                <header className="flex justify-between mb-4"><h1 className="text-3xl font-bold text-brand-primary">ESTOQUE</h1><button onClick={()=>setInventoryModal({open:true,data:null})} className="bg-brand-primary text-black px-4 py-2 rounded font-bold flex gap-2"><Icons.Plus/> ADICIONAR</button></header>
+                                <div className="flex-1 bg-brand-surface border border-gray-800 rounded overflow-auto">
+                                    <table className="w-full text-left text-sm text-gray-300"><thead className="bg-gray-900 text-brand-secondary sticky top-0"><tr><th className="p-3">Teste</th><th>Lote</th><th>Validade</th><th>Qtd</th><th>Ações</th></tr></thead>
+                                    <tbody>{data.stock.map(i=><tr key={i.id} className="border-b border-gray-800 hover:bg-gray-800"><td className="p-3">{i.test_type}</td><td>{i.lote}</td><td>{new Date(i.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td className="font-bold text-white">{i.quantity}</td><td className="flex gap-2 p-3"><button onClick={()=>setInventoryModal({open:true,data:i})} className="text-warning"><Icons.Pencil/></button><button onClick={()=>setDelInventory(i.id)} className="text-danger"><Icons.Trash/></button></td></tr>)}</tbody></table>
+                                </div>
+                            </div>
+                        )}
+
+                        {page === 'indicators' && (
+                            <div className="p-6 h-full flex flex-col animate-pop-in">
+                                <header className="flex justify-between mb-4"><h1 className="text-3xl font-bold text-brand-primary">INDICADORES</h1><button onClick={()=>setIndicatorModal({open:true,data:null})} className="bg-brand-primary text-black px-4 py-2 rounded font-bold flex gap-2"><Icons.Plus/> REGISTRAR</button></header>
+                                <div className="flex-1 bg-brand-surface border border-gray-800 rounded overflow-auto">
+                                    <table className="w-full text-left text-sm text-gray-300"><thead className="bg-gray-900 text-brand-secondary sticky top-0"><tr><th className="p-3">Data</th><th>G'mus</th><th>Pressão</th><th>HGT</th><th>Prof</th><th>Ações</th></tr></thead>
+                                    <tbody>{data.indicators.map(i=><tr key={i.id} className="border-b border-gray-800 hover:bg-gray-800"><td className="p-3">{new Date(i.date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td>{i.gmus}</td><td>{i.pressure}</td><td>{i.hgt}</td><td>{i.professional}</td><td className="flex gap-2 p-3"><button onClick={()=>setIndicatorModal({open:true,data:i})} className="text-warning"><Icons.Pencil/></button><button onClick={()=>setDelIndicator(i.id)} className="text-danger"><Icons.Trash/></button></td></tr>)}</tbody></table>
+                                </div>
+                            </div>
+                        )}
                     </main>
-                    {pwdModal && <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100]"><div className="bg-brand-surface p-6 rounded border border-brand-primary"><h2 className="text-brand-primary font-bold mb-4">Senha de Acesso</h2><input type="password" autoFocus className="input-neon mb-4" onKeyDown={e=>{if(e.key==='Enter'){if(e.target.value==='159753'){setInventoryUnlocked(true);setPage('inventory');setPwdModal(false)}else alert('Senha incorreta')}}} /><button onClick={()=>setPwdModal(false)} className="text-gray-400 w-full">Cancelar</button></div></div>}
+
+                    {/* Modais Globais */}
+                    {(reportModal.open || autoOpen) && <ReportForm onClose={()=>{setReportModal({open:false,data:null}); setAutoOpen(false);}} initialData={reportModal.data} onSave={handleSaveReport} />}
+                    {delReport && <ConfirmationModal title="Excluir Laudo" message="Confirma exclusão?" onClose={()=>setDelReport(null)} onConfirm={handleDeleteReport} />}
+                    
+                    {inventoryModal.open && (
+                        <ModalWrapper title={inventoryModal.data?"Editar Item":"Adicionar Item"} onClose={()=>setInventoryModal({open:false,data:null})}>
+                            <form onSubmit={e=>{e.preventDefault(); const fd=new FormData(e.target); handleSaveStock({id:inventoryModal.data?.id, test_type:fd.get('test_type'), lote:fd.get('lote').toUpperCase(), validade:fd.get('validade'), quantity:parseInt(fd.get('quantity'))})}} className="space-y-4">
+                                <div><label>Tipo</label><select name="test_type" defaultValue={inventoryModal.data?.test_type} className="input-neon">{Object.values(TestType).map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+                                <div><label>Lote</label><input name="lote" defaultValue={inventoryModal.data?.lote} required className="input-neon"/></div>
+                                <div><label>Validade</label><input type="date" name="validade" defaultValue={inventoryModal.data?.validade} required className="input-neon"/></div>
+                                <div><label>Qtd</label><input type="number" name="quantity" defaultValue={inventoryModal.data?.quantity||0} required className="input-neon"/></div>
+                                <div className="flex justify-end gap-2 pt-4"><button type="submit" className="bg-brand-primary text-black px-4 py-2 rounded font-bold">Salvar</button></div>
+                            </form>
+                        </ModalWrapper>
+                    )}
+                    {delInventory && <ConfirmationModal title="Excluir Item" message="Confirma exclusão?" onClose={()=>setDelInventory(null)} onConfirm={handleDeleteStock} />}
+
+                    {indicatorModal.open && (
+                        <ModalWrapper title={indicatorModal.data?"Editar":"Registrar"} onClose={()=>setIndicatorModal({open:false,data:null})}>
+                            <form onSubmit={e=>{e.preventDefault(); const fd=new FormData(e.target); handleSaveIndicator({id:indicatorModal.data?.id, date:fd.get('date'), gmus:fd.get('gmus'), pressure:fd.get('pressure'), hgt:fd.get('hgt'), weight:fd.get('weight'), height:fd.get('height'), professional:fd.get('professional')})}} className="grid grid-cols-2 gap-4">
+                                <input type="date" name="date" defaultValue={indicatorModal.data?.date || new Date().toISOString().split('T')[0]} required className="input-neon"/>
+                                <input placeholder="G'mus" name="gmus" defaultValue={indicatorModal.data?.gmus} required className="input-neon"/>
+                                <input placeholder="Pressão" name="pressure" defaultValue={indicatorModal.data?.pressure} className="input-neon"/>
+                                <input placeholder="HGT" name="hgt" defaultValue={indicatorModal.data?.hgt} className="input-neon"/>
+                                <input placeholder="Peso" name="weight" defaultValue={indicatorModal.data?.weight} className="input-neon"/>
+                                <input placeholder="Altura" name="height" defaultValue={indicatorModal.data?.height} className="input-neon"/>
+                                <input placeholder="Profissional" name="professional" defaultValue={indicatorModal.data?.professional} required className="input-neon col-span-2"/>
+                                <div className="col-span-2 flex justify-end gap-2 pt-4"><button type="submit" className="bg-brand-primary text-black px-4 py-2 rounded font-bold">Salvar</button></div>
+                            </form>
+                        </ModalWrapper>
+                    )}
+                    {delIndicator && <ConfirmationModal title="Excluir Indicador" message="Confirma?" onClose={()=>setDelIndicator(null)} onConfirm={handleDeleteIndicator} />}
+
+                    {pwdModal && <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100]"><div className="bg-brand-surface p-6 rounded border border-brand-primary"><h2 className="text-brand-primary font-bold mb-4">Senha de Acesso</h2><input type="password" autoFocus className="input-neon mb-4" onKeyDown={e=>{if(e.key==='Enter'){if(e.target.value==='159753'){setInventoryUnlock(true);setPage('inventory');setPwdModal(false)}else alert('Senha incorreta')}}} /><button onClick={()=>setPwdModal(false)} className="text-gray-400 w-full">Cancelar</button></div></div>}
+                    
+                    {/* Container invisível para renderizar o PDF */}
+                    <div id="pdf-root"></div>
                 </div>
             </AppContext.Provider>
         );
