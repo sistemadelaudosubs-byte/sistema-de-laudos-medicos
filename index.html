@@ -23,15 +23,11 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
     <script crossorigin src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script>
@@ -39,66 +35,41 @@
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#39ff14',   // Verde Neon Principal
-              'brand-secondary': '#00cc00', // Verde Médio
-              'brand-accent': '#ccff00',    // Lima
-              'brand-dark': '#050505',      // Fundo quase preto
-              'brand-surface': '#111111',   // Fundo de cards
-              'brand-gray': '#1a1a1a',      // Bordas e detalhes
-              'danger': '#ff0033',
-              'warning': '#ffcc00',
+              'brand-primary': '#39ff14', 'brand-secondary': '#00cc00', 'brand-accent': '#ccff00',
+              'brand-dark': '#050505', 'brand-surface': '#111111', 'brand-gray': '#1a1a1a',
+              'danger': '#ff0033', 'warning': '#ffcc00',
             },
-            boxShadow: {
-              'neon': '0 0 10px rgba(57, 255, 20, 0.3)',
-              'neon-hover': '0 0 20px rgba(57, 255, 20, 0.6)',
-            },
-            fontFamily: {
-              sans: ['Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-            },
-            aspectRatio: {
-              'video': '16 / 9',
-            },
-            keyframes: {
-              'pop-in': { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
-              'slide-in-left': { '0%': { opacity: '0', transform: 'translateX(-50px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
-              'fade-in': { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-            },
-            animation: {
-              'pop-in': 'pop-in 0.2s ease-out forwards',
-              'slide-in-left': 'slide-in-left 0.4s ease-out forwards',
-              'fade-in': 'fade-in 0.4s ease-out forwards',
-            },
+            boxShadow: { 'neon': '0 0 10px rgba(57, 255, 20, 0.3)' },
+            fontFamily: { sans: ['Segoe UI', 'Roboto', 'Arial', 'sans-serif'] },
+            aspectRatio: { 'video': '16 / 9' },
+            keyframes: { 'pop-in': { '0%': { transform: 'scale(0.95)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } } },
+            animation: { 'pop-in': 'pop-in 0.2s ease-out forwards' }
           },
         },
       };
     </script>
-    
     <style>
       ::-webkit-scrollbar { width: 8px; height: 8px; }
       ::-webkit-scrollbar-track { background: #050505; }
       ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: #39ff14; }
-      body { background-color: #050505; color: #e0e0e0; }
-      input, select { color-scheme: dark; }
+      body { background-color: #050505; color: #e0e0e0; overflow: hidden; }
+      /* Classes para impressão exata */
+      .print-line { border-bottom: 1px solid black; min-width: 20px; display: inline-block; padding-left: 5px; }
+      .print-box { border: 1px solid black; padding: 4px; }
     </style>
   </head>
-  <body class="bg-brand-dark text-white h-screen w-screen overflow-hidden">
-    <div id="root" class="h-full w-full">
-      <div class="flex h-screen w-full items-center justify-center">
-        <div class="text-center animate-pulse">
-          <p class="text-2xl font-bold text-brand-primary tracking-widest uppercase">Carregando Sistema...</p>
-        </div>
-      </div>
-    </div>
+  <body>
+    <div id="root" class="h-full w-full"></div>
 
     <script type="text/babel">
       const { useState, useEffect, useCallback, useContext, useMemo, createContext } = React;
       const { createRoot } = ReactDOM;
       const { createClient } = supabase;
 
-      // --- Enums ---
+      // --- Constantes ---
       const TestType = { DENGUE: "DENGUE - NS1", COVID: "COVID-19 - ANTÍGENO", HCG: "HCG - BETA-HCG" };
-      const DengueResult = { NEGATIVE: "NEGATIVO", IGG_REAGENT: "IGG REAGENTE", IGM_REAGENT: "IGM REAGENTE", IGG_IGM_REAGENT: "IGG E IGM REAGENTES" };
+      const DengueResult = { NEGATIVE: "NEGATIVO", IGG_REAGENT: "IGG REAGENTE", IGM_REAGENT: "IGM REAGENTE", IGG_IGM_REAGENT: "IGG E IGM REAGENTES", POSITIVE: "POSITIVO" };
       const CovidResult = { NEGATIVE: "NEGATIVO", POSITIVE: "POSITIVO" };
 
       // --- Supabase ---
@@ -106,483 +77,535 @@
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2Y3BvZW91YXNmZXVxc2J5dW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0OTkxMjIsImV4cCI6MjA3NzA3NTEyMn0.0eF-yCEBAuHl8B3ORN7VYfJnnEIY0m1bMj8R_FsntNM';
       const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
-      // --- Contexto ---
       const AppContext = createContext({});
 
-      // --- Ícones ---
-      const Icon = ({ p }) => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={p} /></svg>;
-      const HomeIcon = () => <Icon p="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />;
-      const DocumentReportIcon = () => <Icon p="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />;
-      const ArchiveIcon = () => <Icon p="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />;
-      const ChartBarIcon = () => <Icon p="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />;
-      const AlertIcon = () => <Icon p="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />;
-      const DocumentTextIcon = () => <Icon p="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />;
-      const PlusIcon = () => <Icon p="M12 6v6m0 0v6m0-6h6m-6 0H6" />;
-      const PencilIcon = () => <Icon p="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />;
-      const TrashIcon = () => <Icon p="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />;
-      const DownloadIcon = () => <Icon p="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />;
-
-      // --- Helpers ---
-      const commonInputClass = "w-full bg-brand-gray border border-gray-700 text-white rounded p-2 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all";
-      const btnClass = "px-4 py-2 rounded font-bold text-black bg-brand-primary hover:bg-brand-secondary transition-all shadow-neon hover:shadow-neon-hover flex items-center justify-center gap-2";
-      const cardClass = "bg-brand-surface border border-gray-800 rounded-lg p-6 shadow-lg";
-
-      // --- COMPONENTES ---
-
-      const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-        if (!isOpen) return null;
-        return (
-          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in p-4 backdrop-blur-sm">
-            <div className={`${cardClass} w-full max-w-md border-brand-primary`}>
-              <h2 className="text-2xl font-bold text-brand-primary mb-4">{title}</h2>
-              <p className="text-gray-300 mb-6">{message}</p>
-              <div className="flex justify-end gap-4">
-                <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancelar</button>
-                <button onClick={onConfirm} className="px-4 py-2 bg-danger text-white rounded font-bold hover:opacity-90">Confirmar</button>
-              </div>
-            </div>
-          </div>
-        );
+      // --- Componentes SVG ---
+      const Icon = ({ d }) => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d={d} clipRule="evenodd" /></svg>;
+      const Icons = {
+        Home: () => <Icon d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />,
+        Report: () => <Icon d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />,
+        Box: () => <Icon d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />,
+        Plus: () => <Icon d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />,
+        Download: () => <Icon d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" />
       };
 
-      const PasswordModal = ({ isOpen, onClose, onConfirm }) => {
-        const [pwd, setPwd] = useState('');
-        if (!isOpen) return null;
-        return (
-          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in backdrop-blur-sm">
-            <div className={`${cardClass} w-full max-w-md border-brand-primary`}>
-              <h2 className="text-2xl font-bold text-brand-primary mb-4">Acesso Restrito</h2>
-              <form onSubmit={(e) => { e.preventDefault(); onConfirm(pwd); }}>
-                <input type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} className={commonInputClass} placeholder="Digite a senha..." autoFocus />
-                <div className="flex justify-end gap-4 mt-4">
-                  <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-700 rounded">Cancelar</button>
-                  <button type="submit" className={btnClass}>Entrar</button>
-                </div>
-              </form>
+      // --- Modais Auxiliares ---
+      const ModalWrapper = ({ children, title, onClose }) => (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 animate-pop-in p-4 backdrop-blur-sm">
+          <div className="bg-brand-surface border border-brand-primary w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-neon">
+            <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-brand-primary">{title}</h2>
+              <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
             </div>
+            <div className="p-6">{children}</div>
           </div>
-        );
-      };
+        </div>
+      );
 
-      const StockFormModal = ({ isOpen, onClose, itemToEdit }) => {
-        const { addStockItem, updateStockItem } = useContext(AppContext);
-        const [form, setForm] = useState({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 });
-
-        useEffect(() => { if (itemToEdit) setForm(itemToEdit); else setForm({ test_type: TestType.DENGUE, lote: '', validade: '', quantity: 0 }); }, [itemToEdit]);
-
-        const handleSubmit = async (e) => {
-          e.preventDefault();
-          try { if (itemToEdit) await updateStockItem(itemToEdit.id, form); else await addStockItem(form); onClose(); } catch (e) { alert("Erro ao salvar"); }
-        };
-
-        if (!isOpen) return null;
-        return (
-          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in p-4 backdrop-blur-sm">
-            <div className={`${cardClass} w-full max-w-lg border-brand-primary`}>
-              <h2 className="text-2xl font-bold text-brand-primary mb-4">{itemToEdit ? 'Editar Estoque' : 'Adicionar Item'}</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div><label className="block text-sm text-gray-400">Tipo</label><select value={form.test_type} onChange={e => setForm({...form, test_type: e.target.value})} className={commonInputClass}>{Object.values(TestType).map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm text-gray-400">Lote</label><input value={form.lote} onChange={e => setForm({...form, lote: e.target.value.toUpperCase()})} className={commonInputClass} required /></div>
-                  <div><label className="block text-sm text-gray-400">Validade</label><input type="date" value={form.validade} onChange={e => setForm({...form, validade: e.target.value})} className={commonInputClass} required /></div>
-                </div>
-                <div><label className="block text-sm text-gray-400">Quantidade</label><input type="number" value={form.quantity} onChange={e => setForm({...form, quantity: parseInt(e.target.value) || 0})} className={commonInputClass} required /></div>
-                <div className="flex justify-end gap-4 pt-2">
-                  <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-700 rounded">Cancelar</button>
-                  <button type="submit" className={btnClass}>Salvar</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        );
-      };
-
-      const ReportFormModal = ({ isOpen, onClose, reportToEdit }) => {
-        const { addReport, updateReport, stock } = useContext(AppContext);
-        const [form, setForm] = useState({});
-
-        useEffect(() => {
-          const today = new Date().toISOString().split('T')[0];
-          if (reportToEdit) setForm({ ...reportToEdit });
-          else setForm({
-            test_type: TestType.DENGUE, patient_name: '', patient_id: '', birth_date: '', sex: 'Feminino',
-            execution_unit: '', sample_collection_date: today, technician_name: '', report_date: today,
-            lote: '', validade: '', symptom_start_date: today, sample_type: 'punção digital',
-            method: 'IMUNOCROMATOGRAFIA', result: DengueResult.NEGATIVE, city: '', manufacturer: '',
-            prontuario: '', result_value: '',
-          });
-        }, [reportToEdit, isOpen]);
-
-        const handleChange = (e) => { const { name, value } = e.target; setForm(prev => ({ ...prev, [name]: (e.target.type === 'text' ? value.toUpperCase() : value) })); };
-
-        const handleSubmit = async (e) => {
-          e.preventDefault();
-          if (!reportToEdit && (!form.lote || !form.validade)) { alert("Selecione um lote!"); return; }
-          try {
-            const data = { ...form };
-            if (data.test_type !== TestType.DENGUE) delete data.symptom_start_date;
-            if (reportToEdit) await updateReport(reportToEdit.id, data); else await addReport(data);
-            onClose();
-          } catch (e) { alert("Erro ao salvar no banco de dados."); console.error(e); }
-        };
-
-        if (!isOpen) return null;
-
-        return (
-          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50 animate-pop-in p-4 backdrop-blur-sm">
-            <div className={`${cardClass} w-full max-w-6xl border-brand-primary max-h-[95vh] overflow-y-auto`}>
-              <h2 className="text-2xl font-bold text-brand-primary mb-4 border-b border-gray-700 pb-2">{reportToEdit ? 'Editar Laudo' : 'Novo Laudo'}</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm text-gray-400">Tipo de Teste</label>
-                    <select name="test_type" value={form.test_type} onChange={e => {
-                       setForm(p => ({ ...p, test_type: e.target.value, result: e.target.value === TestType.COVID ? CovidResult.NEGATIVE : DengueResult.NEGATIVE, result_value: '' }));
-                    }} className={commonInputClass}>{Object.values(TestType).map(t => <option key={t} value={t}>{t}</option>)}</select>
-                  </div>
-                  {!reportToEdit && (
-                    <div className="md:col-span-2">
-                      <label className="block text-sm text-gray-400">Lote (Estoque)</label>
-                      <select name="lote" value={form.lote} onChange={(e) => {
-                        const sItem = stock.find(i => i.lote === e.target.value && i.test_type === form.test_type);
-                        setForm(p => ({ ...p, lote: e.target.value, validade: sItem ? sItem.validade : '' }));
-                      }} className={commonInputClass}>
-                        <option value="">Selecione...</option>
-                        {stock.filter(i => i.test_type === form.test_type && i.quantity > 0).map(i => <option key={i.id} value={i.lote}>{i.lote} (Qtd: {i.quantity})</option>)}
-                      </select>
-                    </div>
-                  )}
-                  <div className="md:col-span-2"><label className="block text-sm text-gray-400">Nome Paciente</label><input name="patient_name" value={form.patient_name || ''} onChange={handleChange} required className={commonInputClass}/></div>
-                  <div><label className="block text-sm text-gray-400">CPF/RG</label><input name="patient_id" value={form.patient_id || ''} onChange={handleChange} className={commonInputClass}/></div>
-                  <div><label className="block text-sm text-gray-400">Nascimento</label><input type="date" name="birth_date" value={form.birth_date || ''} onChange={handleChange} required className={commonInputClass}/></div>
-                  <div><label className="block text-sm text-gray-400">Sexo</label><select name="sex" value={form.sex} onChange={handleChange} className={commonInputClass}><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select></div>
-                  <div><label className="block text-sm text-gray-400">Data Coleta</label><input type="date" name="sample_collection_date" value={form.sample_collection_date || ''} onChange={handleChange} required className={commonInputClass}/></div>
-                  <div><label className="block text-sm text-gray-400">Unidade</label><input name="execution_unit" value={form.execution_unit || ''} onChange={handleChange} required className={commonInputClass}/></div>
-                  <div><label className="block text-sm text-gray-400">Técnico</label><input name="technician_name" value={form.technician_name || ''} onChange={handleChange} required className={commonInputClass}/></div>
-                  {form.test_type === TestType.DENGUE && (
-                    <>
-                      <div><label className="block text-sm text-gray-400">Início Sintomas</label><input type="date" name="symptom_start_date" value={form.symptom_start_date || ''} onChange={handleChange} className={commonInputClass}/></div>
-                      <div className="md:col-span-3"><label className="block text-sm text-gray-400 font-bold text-brand-primary">RESULTADO</label><select name="result" value={form.result} onChange={handleChange} className={`${commonInputClass} border-brand-primary`}>{Object.values(DengueResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                    </>
-                  )}
-                  {form.test_type === TestType.COVID && (
-                    <>
-                      <div><label className="block text-sm text-gray-400">Cidade</label><input name="city" value={form.city || ''} onChange={handleChange} className={commonInputClass}/></div>
-                      <div><label className="block text-sm text-gray-400">Fabricante</label><input name="manufacturer" value={form.manufacturer || ''} onChange={handleChange} className={commonInputClass}/></div>
-                      <div className="md:col-span-2"><label className="block text-sm text-gray-400 font-bold text-brand-primary">RESULTADO</label><select name="result" value={form.result} onChange={handleChange} className={`${commonInputClass} border-brand-primary`}>{Object.values(CovidResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                    </>
-                  )}
-                  {form.test_type === TestType.HCG && (
-                    <>
-                      <div><label className="block text-sm text-gray-400">Prontuário</label><input name="prontuario" value={form.prontuario || ''} onChange={handleChange} className={commonInputClass}/></div>
-                      <div className="md:col-span-3">
-                        <label className="block text-sm text-gray-400 font-bold text-brand-primary">RESULTADO (Valor de Referência)</label>
-                        <select name="result_value" value={form.result_value || ''} onChange={handleChange} className={`${commonInputClass} border-brand-primary`}>
-                          <option value="">Selecione...</option>
-                          <option value="POSITIVO">POSITIVO</option>
-                          <option value="NEGATIVO">NEGATIVO</option>
-                        </select>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className="flex justify-end gap-4 mt-6">
-                  <button type="button" onClick={onClose} className="px-6 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancelar</button>
-                  <button type="submit" className={btnClass}>Salvar Laudo</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        );
-      };
-
+      // --- GERAÇÃO DE PDF (REFORMULADA COM BASE NOS MODELOS) ---
       const ReportPDF = ({ report, onDone }) => {
         useEffect(() => {
-          const timer = setTimeout(() => {
-            const el = document.getElementById('printable-report');
-            if (!el) return;
-            const { jsPDF } = window.jspdf;
-            window.html2canvas(el, { scale: 2 }).then(cv => {
-              const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-              pdf.addImage(cv.toDataURL('image/png'), 'PNG', 0, 0, 210, (cv.height * 210) / cv.width);
-              const safeName = report.patient_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
+          const generate = async () => {
+            await new Promise(r => setTimeout(r, 800)); // Espera renderizar
+            const element = document.getElementById('pdf-content');
+            if(!element) return;
+            
+            try {
+              const canvas = await html2canvas(element, { scale: 2, logging: false, useCORS: true });
+              const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+              const imgData = canvas.toDataURL('image/png');
+              const pdfWidth = 210; 
+              const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+              pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+              
+              const safeName = (report.patient_name || 'paciente').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
               pdf.save(`laudo_${safeName}.pdf`);
               onDone();
-            });
-          }, 1000);
-          return () => clearTimeout(timer);
+            } catch (err) {
+              console.error(err);
+              alert("Erro ao gerar PDF");
+              onDone();
+            }
+          };
+          generate();
         }, [report]);
 
-        const Field = ({ l, v }) => (<div className="flex border-b border-dotted border-black mb-1"><span className="font-bold mr-2 whitespace-nowrap">{l}</span><span className="flex-1">{v}</span></div>);
-        const Result = ({ v }) => (<div className="border border-black p-4 mt-4 bg-gray-100"><div className="text-right font-bold">Resultado</div><div className="text-center text-4xl font-bold uppercase my-2">{v}</div></div>);
+        // Helpers de Layout do PDF
+        const Line = ({ label, value, full = false }) => (
+          <div className={`flex items-baseline mb-1 ${full ? 'w-full' : ''}`} style={{fontSize: '11pt'}}>
+            <span className="font-bold mr-1 whitespace-nowrap">{label}</span>
+            <span className="border-b border-black flex-1 pl-2">{value || ''}</span>
+          </div>
+        );
 
-        return (
-          <>
-            <div className="fixed inset-0 bg-black/90 z-[9999] flex flex-col items-center justify-center text-brand-primary animate-pulse">
-              <DocumentTextIcon /><span className="mt-2 text-xl font-bold">Gerando PDF...</span>
-            </div>
-            <div className="absolute top-0 -left-[9999px]">
-              <div id="printable-report" className="bg-white text-black p-12 w-[210mm] min-h-[297mm] flex flex-col font-sans">
-                <h1 className="text-3xl font-bold text-center mb-8">UBS SANTO AFONSO</h1>
-                <h2 className="text-xl font-bold text-center uppercase mb-8 border-b-2 border-black pb-2">{report.test_type}</h2>
-                <div className="grid grid-cols-1 gap-2 mb-6">
-                  <Field l="Nome:" v={report.patient_name} />
-                  <div className="flex gap-4">
-                    <div className="w-1/2"><Field l={report.test_type === TestType.HCG ? "Prontuário:" : "Doc:"} v={report.test_type === TestType.HCG ? report.prontuario : report.patient_id} /></div>
-                    <div className="w-1/2"><Field l="Nascimento:" v={new Date(report.birth_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} /></div>
-                  </div>
-                  <Field l="Unidade:" v={report.execution_unit} />
-                  <Field l="Data Coleta:" v={new Date(report.sample_collection_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} />
-                </div>
-                <div className="border-2 border-black p-4 mb-4">
-                  <p><strong>Método:</strong> {report.method}</p>
-                  <p><strong>Amostra:</strong> {report.sample_type}</p>
-                  <div className="flex justify-between mt-2">
-                    <span><strong>Lote:</strong> {report.lote}</span>
-                    <span><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</span>
-                  </div>
-                </div>
-                <Result v={report.test_type === TestType.HCG ? report.result_value : report.result} />
-                <div className="mt-auto pt-12">
-                  <div className="flex justify-between items-end">
-                    <div className="text-center"><div className="w-64 border-t-2 border-black mb-1"></div><p className="font-bold">{report.technician_name}</p><p>Técnico Responsável</p></div>
-                    <div>Data do Laudo: {new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</div>
-                  </div>
-                  <p className="text-center text-xs mt-8">Documento gerado eletronicamente. Confirme a autenticidade com a unidade.</p>
-                  <div className="text-center text-[8pt] mt-2 border-t border-gray-400 pt-1">Dev: Jaime Eduardo | Whats: 51985502897</div>
-                </div>
+        const Header = ({ title, sub }) => (
+          <div className="mb-6 flex justify-between items-start border-b-2 border-black pb-2">
+            <div className="flex gap-2 items-center">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Bras%C3%A3o_de_Novo_Hamburgo.svg/1200px-Bras%C3%A3o_de_Novo_Hamburgo.svg.png" className="h-16 w-auto grayscale contrast-200" alt="Brasão" />
+              <div className="text-xs font-bold leading-tight">
+                <p>Município de Novo Hamburgo</p>
+                <p>Estado do Rio Grande do Sul</p>
+                <p>Secretaria Municipal de Saúde</p>
               </div>
             </div>
-          </>
+            <div className="text-right">
+              <h1 className="text-xl font-bold uppercase">{title}</h1>
+              {sub && <h2 className="text-sm font-normal">{sub}</h2>}
+            </div>
+          </div>
         );
-      };
 
-      const Sidebar = ({ currentPage, setPage }) => {
-        const { isInventoryUnlocked, setIsInventoryUnlocked } = useContext(AppContext);
-        const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-        const navItems = [
-          { page: 'dashboard', label: 'Dashboard', icon: <HomeIcon /> },
-          { page: 'reports', label: 'Laudos', icon: <DocumentReportIcon /> },
-          { page: 'inventory', label: 'Estoque', icon: <ArchiveIcon /> },
-          { page: 'indicators', label: 'Indicadores', icon: <ChartBarIcon /> },
-        ];
+        // --- MODELO 1: DENGUE ---
+        const DengueLayout = () => (
+          <div className="p-8 bg-white text-black font-sans min-h-[297mm] relative">
+            <Header title="TESTE DE ANTÍGENO PARA DENGUE - NS1" sub="(Vida Rapid Test - Vida Biotecnologia)" />
+            
+            <div className="space-y-2 mb-6">
+              <Line label="Nome do usuário:" value={report.patient_name} full />
+              <Line label="Identidade/CPF:" value={report.patient_id} full />
+              <div className="flex gap-4">
+                <div className="w-2/3"><Line label="Data de Nascimento:" value={new Date(report.birth_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} /></div>
+                <div className="w-1/3"><Line label="Sexo:" value={report.sex} /></div>
+              </div>
+              <Line label="Unidade de realização do exame:" value={report.execution_unit} full />
+              <Line label="Data do início dos sintomas:" value={new Date(report.symptom_start_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} full />
+              <Line label="Data da coleta da amostra:" value={new Date(report.sample_collection_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} full />
+            </div>
+
+            <div className="border-2 border-black mb-6">
+              <div className="p-2 border-b border-black"><strong>Amostra:</strong> punção digital</div>
+              <div className="p-2 border-b border-black"><strong>Teste:</strong> Vida Rapid Test - Dengue NS1 (Vida Biotecnologia)</div>
+              <div className="flex border-b border-black">
+                <div className="w-1/2 p-2 border-r border-black"><strong>Lote:</strong> {report.lote}</div>
+                <div className="w-1/2 p-2"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</div>
+              </div>
+              <div className="p-2 border-b border-black"><strong>Método:</strong> Imunocromatografia</div>
+              <div className="p-2 bg-gray-100">
+                <p className="font-bold text-lg mb-2">RESULTADO DO TESTE:</p>
+                <p className="text-3xl font-bold uppercase text-center mb-2">{report.result}</p>
+              </div>
+            </div>
+
+            <div className="text-xs text-justify mb-8 leading-tight">
+              <p className="font-bold mb-2">⇨ Em caso de resultado NEGATIVO ou INCONCLUSIVO: REALIZAR NOVA COLETA A PARTIR DO 7º DIA DO INÍCIO DOS SINTOMAS, para o exame de análise de anticorpos IgM.</p>
+              <p className="mb-2">Dirigir-se ao Laboratório Público Municipal de Novo Hamburgo, localizado na Rua Pedro Adams Filho, n.º 6520, Bairro Operário, junto ao Hospital Municipal, das 7 às 18h, de segunda à sexta-feira. OBS: Essa coleta deve ser realizada, NO MÁXIMO, até o 30º dia de sintomas.</p>
+              <p><strong>Nota:</strong> O resultado deste teste laboratorial deve ser sempre considerado no contexto da clínica e dos dados epidemiológicos no estabelecimento do diagnóstico. Adverte-se que os testes rápidos (punção digital) deverão ser utilizados apenas como triagem.</p>
+            </div>
+
+            <div className="mt-auto">
+              <Line label="Técnico Executor:" value={report.technician_name} full />
+              <div className="flex gap-4 mt-4">
+                <div className="w-1/3"><Line label="Data:" value={new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} /></div>
+                <div className="w-2/3"><Line label="Assinatura e carimbo:" value="" /></div>
+              </div>
+            </div>
+          </div>
+        );
+
+        // --- MODELO 2: COVID ---
+        const CovidLayout = () => (
+          <div className="p-8 bg-white text-black font-sans min-h-[297mm] relative border-4 border-double border-black m-4">
+            <div className="text-center border-b-2 border-black pb-2 mb-4">
+              <h1 className="text-2xl font-bold">LAUDO</h1>
+              <h2 className="text-xl font-bold bg-gray-200 mt-2 py-1 border-t border-b border-black">TESTE RÁPIDO DE ANTÍGENO COVID-19</h2>
+            </div>
+
+            <div className="space-y-2 mb-4 text-sm font-bold">
+              <div className="flex justify-between">
+                <div className="w-2/3 flex"><span className="mr-2">Nome do paciente:</span><span className="flex-1 border-b border-dotted border-black">{report.patient_name}</span></div>
+                <div className="w-1/3 flex"><span className="mr-2">Cidade:</span><span className="flex-1 border-b border-dotted border-black">{report.city}</span></div>
+              </div>
+              <div className="flex justify-between">
+                <div className="w-1/3 flex"><span className="mr-2">Sexo:</span><span className="flex-1 border-b border-dotted border-black">{report.sex}</span></div>
+                <div className="w-2/3 flex"><span className="mr-2">Data de nascimento:</span><span className="flex-1 border-b border-dotted border-black">{new Date(report.birth_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</span></div>
+              </div>
+            </div>
+
+            <div className="border-2 border-black p-4 mb-4 text-sm">
+              <p className="font-bold underline mb-2">TESTE</p>
+              <p><strong>Fabricante:</strong> {report.manufacturer || 'Não informado'}</p>
+              <p><strong>Lote:</strong> {report.lote}</p>
+              <p><strong>Método:</strong> Imunocromatografia</p>
+              <div className="flex gap-4 mt-2">
+                <strong>Amostra:</strong>
+                <span>( {report.sample_type === 'swab nasofaríngeo' ? 'X' : ' '} ) swab nasofaríngeo</span>
+                <span>( {report.sample_type === 'swab nasal' ? 'X' : ' '} ) swab nasal</span>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <p className="font-bold underline mb-2">RESULTADO DO TESTE</p>
+              <div className="ml-4 space-y-2 text-lg">
+                <p>( {report.result === 'POSITIVO' ? 'X' : ' '} ) Positivo</p>
+                <p>( {report.result === 'NEGATIVO' ? 'X' : ' '} ) Negativo</p>
+              </div>
+            </div>
+
+            <div className="text-xs mb-8">
+              <p className="font-bold underline mb-2">Observações:</p>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>O teste rápido é utilizado como auxílio diagnóstico para a COVID-19.</li>
+                <li>Mediante avaliação clínica e epidemiológica, testes de antígeno com resultado positivo podem ser considerados confirmatórios.</li>
+                <li>Dada a sensibilidade esperada, um resultado negativo não exclui uma possível infecção.</li>
+              </ol>
+            </div>
+
+            <div className="mt-auto flex justify-between items-end">
+              <div className="text-center">
+                <p className="border-t border-black px-8 pt-1">Responsável Técnico</p>
+                <p className="text-xs">(carimbo e assinatura) - {report.technician_name}</p>
+              </div>
+              <div className="flex items-baseline">
+                <span className="font-bold mr-2">Data:</span>
+                <span className="border-b border-black min-w-[100px] text-center">{new Date(report.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</span>
+              </div>
+            </div>
+          </div>
+        );
+
+        // --- MODELO 3: HCG ---
+        const HcgLayout = () => (
+          <div className="p-10 bg-white text-black font-sans min-h-[297mm] relative">
+            <div className="flex justify-between items-center mb-8 border-b-2 border-black pb-4">
+               <div className="flex gap-2 items-center">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Bras%C3%A3o_de_Novo_Hamburgo.svg/1200px-Bras%C3%A3o_de_Novo_Hamburgo.svg.png" className="h-12 w-auto grayscale contrast-200" />
+                  <div className="text-[8pt] font-bold leading-tight">
+                    <p>Prefeitura Municipal de Novo Hamburgo</p>
+                    <p>Estado do Rio Grande do Sul</p>
+                    <p>Secretaria Municipal de Saúde</p>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold tracking-widest border-l-2 border-black pl-4">SAÚDE</div>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <Line label="Nome do usuário:" value={report.patient_name} full />
+              <div className="flex gap-4">
+                <div className="w-1/2"><Line label="Prontuário:" value={report.prontuario} /></div>
+                <div className="w-1/2"><Line label="Identidade:" value={report.patient_id} /></div>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-1/2"><Line label="Data de Nascimento:" value={new Date(report.birth_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} /></div>
+                <div className="w-1/2"><Line label="Sexo:" value="FEMININO" /></div>
+              </div>
+              <Line label="Unidade de realização do exame:" value={report.execution_unit} full />
+              <Line label="Data da coleta da amostra:" value={new Date(report.sample_collection_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})} full />
+            </div>
+
+            <h1 className="text-2xl font-bold text-center uppercase mb-8">TESTE RÁPIDO PARA DETECÇÃO DE HCG</h1>
+
+            <div className="border border-black mb-6">
+              <div className="p-2 border-b border-black"><strong>Amostra:</strong> urina</div>
+              <div className="flex border-b border-black p-2">
+                <div className="w-1/3"><strong>Teste:</strong> Teste Rápido HCG</div>
+                <div className="w-1/3"><strong>Lote:</strong> {report.lote}</div>
+                <div className="w-1/3"><strong>Validade:</strong> {new Date(report.validade).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</div>
+              </div>
+              <div className="p-2 border-b border-black"><strong>Método:</strong> Imunocromatografia</div>
+              <div className="p-4 bg-gray-100 text-center">
+                <strong className="text-xl mr-4">RESULTADO DO TESTE:</strong>
+                <span className="text-3xl font-bold border-b-2 border-black px-4">{report.result_value}</span>
+              </div>
+            </div>
+
+            <div className="text-xs text-justify mb-12">
+              <p className="font-bold mb-1">Valor de referência: NEGATIVO: &lt; 25mUI/mL - POSITIVO: &gt; 25mUI/mL</p>
+              <p>A produção do HCG se inicia nos primeiros dias após a concepção e é bastante variável entre os indivíduos. O valor negativo associado ao atraso menstrual de poucos dias não exclui gestação. Nestes casos, a critério clínico, sugerimos refazer o exame após sete dias.</p>
+            </div>
+
+            <div className="mt-auto flex justify-between items-end pb-8">
+              <div className="w-1/3">
+                <p className="font-bold mb-8">Responsável Técnico:</p>
+                <p className="border-t border-black pt-1">{report.technician_name}</p>
+              </div>
+              <div className="w-1/3 text-right">
+                <p className="border-t border-black pt-1 text-center">Assinatura e carimbo</p>
+              </div>
+            </div>
+            
+            <p className="text-[7pt] text-center border-t border-gray-300 pt-2">Este laudo possui caráter meramente informativo e ilustrativo.</p>
+          </div>
+        );
+
         return (
-          <>
-            <aside className="w-16 sm:w-64 bg-black bg-opacity-20 backdrop-blur-lg border-r border-gray-700/50 flex flex-col transition-all duration-300 animate-slide-in-left">
-              <div className="h-20 flex items-center px-4"><span className="text-brand-primary font-bold text-xl">UBS</span><span className="hidden sm:block ml-2 font-bold">SANTO AFONSO</span></div>
-              <nav className="flex-1 mt-6">
-                <ul>{navItems.map(item => (
-                  <li key={item.page} className="px-4 mb-2">
-                    <button onClick={() => { if(item.page === 'inventory' && !isInventoryUnlocked) setIsPasswordModalOpen(true); else setPage(item.page); }}
-                      className={`flex items-center w-full p-3 rounded-lg transition-all ${currentPage === item.page ? 'bg-brand-secondary text-black font-bold shadow-neon' : 'text-gray-300 hover:bg-brand-primary hover:text-black'}`}>
-                      {item.icon}<span className="hidden sm:block ml-4">{item.label}</span>
-                    </button>
-                  </li>
-                ))}</ul>
-              </nav>
-            </aside>
-            <PasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} onConfirm={(pwd) => { if(pwd === '159753') { setIsInventoryUnlocked(true); setPage('inventory'); setIsPasswordModalOpen(false); } else alert("Senha incorreta"); }} />
-          </>
+          <div className="fixed inset-0 bg-black z-[9999] flex flex-col items-center justify-center">
+            <div className="text-brand-primary text-xl font-bold animate-pulse mb-4">Gerando Documento...</div>
+            <div className="bg-white overflow-hidden" style={{ width: '210mm', minHeight: '297mm' }}>
+              <div id="pdf-content">
+                {report.test_type === TestType.DENGUE && <DengueLayout />}
+                {report.test_type === TestType.COVID && <CovidLayout />}
+                {report.test_type === TestType.HCG && <HcgLayout />}
+              </div>
+            </div>
+          </div>
         );
       };
 
-      const Dashboard = ({ setPage, openNewReport }) => {
+      // --- FORMULÁRIO ---
+      const ReportForm = ({ onClose, onSave, initialData, isEdit }) => {
+        const { stock } = useContext(AppContext);
+        const [form, setForm] = useState(initialData || {});
+
+        const handleChange = (e) => {
+          const { name, value } = e.target;
+          setForm(prev => ({ ...prev, [name]: name === 'result' ? value : value.toUpperCase() }));
+        };
+
+        const handleTypeChange = (e) => {
+          const type = e.target.value;
+          setForm(prev => ({
+            ...prev,
+            test_type: type,
+            result: type === TestType.COVID ? 'NEGATIVO' : 'NEGATIVO', // Default
+            sample_type: type === TestType.COVID ? 'swab nasal' : (type === TestType.HCG ? 'urina' : 'punção digital')
+          }));
+        };
+
+        return (
+          <ModalWrapper title={isEdit ? "Editar Laudo" : "Novo Laudo"} onClose={onClose}>
+            <form onSubmit={(e) => { e.preventDefault(); onSave(form); }} className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-brand-primary mb-1">Tipo de Exame</label>
+                  <select name="test_type" value={form.test_type} onChange={handleTypeChange} className="w-full bg-brand-gray border border-gray-600 rounded p-2 text-white">
+                    {Object.values(TestType).map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+
+                {!isEdit && (
+                  <div className="col-span-2 bg-gray-900 p-3 rounded border border-gray-700">
+                    <label className="block text-warning mb-1">Selecione o Lote do Estoque</label>
+                    <select name="lote" required value={form.lote || ''} onChange={(e) => {
+                        const item = stock.find(i => i.lote === e.target.value && i.test_type === form.test_type);
+                        if(item) setForm(prev => ({ ...prev, lote: item.lote, validade: item.validade }));
+                    }} className="w-full bg-black border border-warning rounded p-2 text-white">
+                      <option value="">Selecione...</option>
+                      {stock.filter(i => i.test_type === form.test_type && i.quantity > 0).map(i => (
+                        <option key={i.id} value={i.lote}>{i.lote} (Val: {new Date(i.validade).toLocaleDateString('pt-BR', {timeZone:'UTC'})}) - Qtd: {i.quantity}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="col-span-2"><label>Nome Paciente</label><input required name="patient_name" value={form.patient_name || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+                
+                {form.test_type === TestType.HCG ? (
+                  <>
+                    <div><label>Prontuário</label><input name="prontuario" value={form.prontuario || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+                    <div><label>Identidade</label><input name="patient_id" value={form.patient_id || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+                  </>
+                ) : (
+                  <div><label>CPF/RG</label><input name="patient_id" value={form.patient_id || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+                )}
+
+                <div><label>Data Nascimento</label><input required type="date" name="birth_date" value={form.birth_date || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+                
+                <div><label>Sexo</label><select name="sex" value={form.sex} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2"><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select></div>
+                <div><label>Data Coleta</label><input required type="date" name="sample_collection_date" value={form.sample_collection_date || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+                <div><label>Unidade</label><input required name="execution_unit" value={form.execution_unit || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+                <div><label>Técnico</label><input required name="technician_name" value={form.technician_name || ''} onChange={handleChange} className="w-full bg-brand-gray border-gray-600 rounded p-2" /></div>
+
+                {/* Campos Específicos */}
+                {form.test_type === TestType.DENGUE && (
+                  <div className="col-span-2 grid grid-cols-2 gap-4 bg-gray-800/50 p-2 rounded">
+                    <div><label>Início Sintomas</label><input type="date" name="symptom_start_date" value={form.symptom_start_date || ''} onChange={handleChange} className="w-full bg-brand-gray rounded p-2" /></div>
+                    <div><label className="text-brand-primary">Resultado</label><select name="result" value={form.result} onChange={handleChange} className="w-full bg-brand-gray border-brand-primary rounded p-2">{Object.values(DengueResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                  </div>
+                )}
+
+                {form.test_type === TestType.COVID && (
+                  <div className="col-span-2 grid grid-cols-2 gap-4 bg-gray-800/50 p-2 rounded">
+                    <div><label>Cidade</label><input name="city" value={form.city || ''} onChange={handleChange} className="w-full bg-brand-gray rounded p-2" /></div>
+                    <div><label>Fabricante</label><input name="manufacturer" value={form.manufacturer || ''} onChange={handleChange} className="w-full bg-brand-gray rounded p-2" /></div>
+                    <div><label>Tipo Amostra</label><select name="sample_type" value={form.sample_type} onChange={handleChange} className="w-full bg-brand-gray rounded p-2"><option value="swab nasal">Swab Nasal</option><option value="swab nasofaríngeo">Swab Nasofaríngeo</option></select></div>
+                    <div><label className="text-brand-primary">Resultado</label><select name="result" value={form.result} onChange={handleChange} className="w-full bg-brand-gray border-brand-primary rounded p-2">{Object.values(CovidResult).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
+                  </div>
+                )}
+
+                {form.test_type === TestType.HCG && (
+                  <div className="col-span-2 bg-gray-800/50 p-2 rounded">
+                    <label className="text-brand-primary block mb-1">Resultado (Valor de Referência)</label>
+                    <select name="result_value" value={form.result_value || ''} onChange={handleChange} className="w-full bg-brand-gray border-brand-primary rounded p-2">
+                      <option value="">Selecione...</option>
+                      <option value="POSITIVO">POSITIVO</option>
+                      <option value="NEGATIVO">NEGATIVO</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">Cancelar</button>
+                <button type="submit" className="px-4 py-2 bg-brand-secondary text-black font-bold rounded shadow-neon hover:shadow-none transition-all">Salvar Laudo</button>
+              </div>
+            </form>
+          </ModalWrapper>
+        );
+      };
+
+      // --- TELAS ---
+      const Dashboard = ({ setPage, onNewReport }) => {
         const { reports, stock } = useContext(AppContext);
-        const low = stock.filter(i => i.quantity <= 5);
+        const lowStock = stock.filter(i => i.quantity <= 5);
         return (
-          <div className="animate-fade-in p-6 space-y-6 w-full">
-            <header className="flex justify-between items-center">
-              <h1 className="text-4xl font-bold text-brand-primary">DASHBOARD</h1>
-              <button onClick={() => { setPage('reports'); openNewReport(); }} className={btnClass}>
-                <PlusIcon /> NOVO LAUDO
-              </button>
+          <div className="p-6 space-y-6 animate-pop-in">
+            <header className="flex justify-between items-center mb-8">
+              <h1 className="text-4xl font-bold text-brand-primary tracking-widest">DASHBOARD</h1>
+              <button onClick={onNewReport} className="bg-brand-primary text-black px-6 py-3 rounded font-bold shadow-neon hover:scale-105 transition-transform flex gap-2 items-center"><Icons.Plus /> NOVO LAUDO</button>
             </header>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className={cardClass}><div className="flex items-center gap-4"><div className="p-3 bg-blue-900/30 text-blue-400 rounded-full"><DocumentTextIcon /></div><div><p className="text-gray-400">Total Laudos</p><p className="text-3xl font-bold text-white">{reports.length}</p></div></div></div>
-              <div className={cardClass}><div className="flex items-center gap-4"><div className="p-3 bg-green-900/30 text-brand-primary rounded-full"><ArchiveIcon /></div><div><p className="text-gray-400">Estoque Total</p><p className="text-3xl font-bold text-white">{stock.reduce((a,b)=>a+b.quantity,0)}</p></div></div></div>
-              <div className={cardClass}><div className="flex items-center gap-4"><div className="p-3 bg-red-900/30 text-danger rounded-full"><AlertIcon /></div><div><p className="text-gray-400">Estoque Baixo</p><p className="text-3xl font-bold text-white">{low.length}</p></div></div></div>
+              <div className="bg-brand-surface p-6 rounded border border-gray-800 flex items-center gap-4">
+                <div className="p-3 bg-blue-900/50 text-blue-400 rounded"><Icons.Report /></div>
+                <div><p className="text-gray-400">Laudos Emitidos</p><p className="text-3xl font-bold">{reports.length}</p></div>
+              </div>
+              <div className="bg-brand-surface p-6 rounded border border-gray-800 flex items-center gap-4">
+                <div className="p-3 bg-green-900/50 text-brand-primary rounded"><Icons.Box /></div>
+                <div><p className="text-gray-400">Estoque Total</p><p className="text-3xl font-bold">{stock.reduce((a,b)=>a+b.quantity,0)}</p></div>
+              </div>
+              <div className="bg-brand-surface p-6 rounded border border-gray-800 flex items-center gap-4">
+                <div className="p-3 bg-red-900/50 text-danger rounded"><Icons.Home /></div> {/* Alert Icon placeholder */}
+                <div><p className="text-gray-400">Estoque Crítico</p><p className="text-3xl font-bold">{lowStock.length}</p></div>
+              </div>
             </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className={cardClass}>
-                <h3 className="text-xl font-bold text-brand-secondary mb-4">⚠️ Alerta de Estoque</h3>
-                <ul className="space-y-2">{low.map(i => <li key={i.id} className="flex justify-between bg-gray-900 p-2 rounded border border-gray-800"><span>{i.test_type.split('-')[0]}</span><span className="text-danger font-bold">{i.quantity} un</span></li>)}</ul>
+              <div className="bg-brand-surface p-6 rounded border border-gray-800">
+                <h3 className="text-brand-secondary font-bold mb-4">⚠️ Alerta de Estoque</h3>
+                <ul className="space-y-2">
+                  {lowStock.map(i => <li key={i.id} className="flex justify-between text-sm border-b border-gray-800 pb-1"><span>{i.test_type.split('-')[0]}</span><span className="text-danger font-bold">{i.quantity} un</span></li>)}
+                </ul>
               </div>
-              <div className={`${cardClass} lg:col-span-2`}>
-                <h3 className="text-xl font-bold text-brand-secondary mb-4">📋 Últimos Laudos</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead><tr className="border-b border-gray-700 text-gray-400"><th className="p-2">Paciente</th><th>Teste</th><th>Data</th></tr></thead>
-                    <tbody>{reports.slice(0,5).map(r => <tr key={r.id} className="border-b border-gray-800"><td className="p-2 text-white">{r.patient_name}</td><td className="text-brand-primary">{r.test_type.split('-')[0]}</td><td className="text-gray-400">{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td></tr>)}</tbody>
-                  </table>
-                </div>
+              <div className="lg:col-span-2 bg-brand-surface p-6 rounded border border-gray-800">
+                <h3 className="text-brand-secondary font-bold mb-4">📋 Últimos Laudos</h3>
+                <table className="w-full text-left text-sm">
+                  <thead className="text-gray-500 border-b border-gray-700"><tr><th className="pb-2">Paciente</th><th>Exame</th><th>Data</th></tr></thead>
+                  <tbody>
+                    {reports.slice(0,5).map(r => (
+                      <tr key={r.id} className="border-b border-gray-800 text-gray-300">
+                        <td className="py-2">{r.patient_name}</td>
+                        <td className="text-brand-primary">{r.test_type.split('-')[0]}</td>
+                        <td>{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-            <div className="w-full aspect-video rounded-lg overflow-hidden border border-brand-gray shadow-neon"><img src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" className="w-full h-full object-cover" /></div>
+            
+            <div className="w-full aspect-video rounded border border-gray-800 overflow-hidden shadow-neon">
+               <img src="https://www.tjpb.jus.br/sites/default/files/media/2022/12/WhatsApp_Image_2022-12-01_at_10.37.10.jpeg" className="w-full h-full object-cover opacity-80" />
+            </div>
           </div>
         );
       };
 
-      const Reports = ({ autoOpen, setAutoOpen }) => {
-        const { reports, deleteReport } = useContext(AppContext);
-        const [modal, setModal] = useState(false);
-        const [edit, setEdit] = useState(null);
-        const [del, setDel] = useState(null);
-        const [pdf, setPdf] = useState(null);
-        const [q, setQ] = useState('');
+      const ReportsList = ({ autoOpen }) => {
+        const { reports } = useContext(AppContext);
+        const [search, setSearch] = useState('');
+        const [showModal, setShowModal] = useState(false);
+        const [pdfReport, setPdfReport] = useState(null);
         
-        // Abre o modal automaticamente se a prop autoOpen for verdadeira
-        useEffect(() => { if (autoOpen) { setEdit(null); setModal(true); setAutoOpen(false); } }, [autoOpen]);
+        // Handle Auto Open from Dashboard
+        useEffect(() => { if(autoOpen) setShowModal(true); }, [autoOpen]);
 
-        const list = reports.filter(r => r.patient_name.toLowerCase().includes(q.toLowerCase()));
+        const filtered = reports.filter(r => r.patient_name.toLowerCase().includes(search.toLowerCase()));
 
         return (
-          <div className="animate-fade-in p-6 space-y-6 w-full h-full flex flex-col">
-            <header className="flex justify-between"><h1 className="text-4xl font-bold text-brand-primary">LAUDOS</h1><button onClick={() => { setEdit(null); setModal(true); }} className={btnClass}><PlusIcon /> NOVO</button></header>
-            <input placeholder="Buscar paciente..." value={q} onChange={e => setQ(e.target.value)} className={commonInputClass} />
-            <div className={`${cardClass} flex-1 overflow-auto`}>
-              <table className="w-full text-left">
-                <thead className="sticky top-0 bg-brand-surface"><tr className="text-brand-secondary border-b border-gray-700"><th className="p-4">Paciente</th><th>Teste</th><th>Data</th><th>Ações</th></tr></thead>
-                <tbody>{list.map(r => (
-                  <tr key={r.id} className="border-b border-gray-800 hover:bg-gray-800/50">
-                    <td className="p-4 font-bold">{r.patient_name}</td><td>{r.test_type}</td><td>{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td>
-                    <td className="flex gap-2 p-4">
-                      <button onClick={() => setPdf(r)} className="text-brand-primary hover:scale-110 transition"><DownloadIcon /></button>
-                      <button onClick={() => { setEdit(r); setModal(true); }} className="text-warning hover:scale-110 transition"><PencilIcon /></button>
-                      <button onClick={() => setDel(r)} className="text-danger hover:scale-110 transition"><TrashIcon /></button>
-                    </td>
-                  </tr>
-                ))}</tbody>
-              </table>
+          <div className="p-6 h-full flex flex-col animate-pop-in">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-4xl font-bold text-brand-primary">LAUDOS</h1>
+              <input placeholder="Buscar paciente..." className="bg-brand-surface border border-gray-700 p-2 rounded w-64 text-white" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            {modal && <ReportFormModal isOpen={true} onClose={() => setModal(false)} reportToEdit={edit} />}
-            {del && <ConfirmationModal isOpen={true} onClose={() => setDel(null)} onConfirm={async () => { await deleteReport(del.id); setDel(null); }} title="Excluir" message="Confirma?" />}
-            {pdf && <ReportPDF report={pdf} onDone={() => setPdf(null)} />}
+            
+            <div className="flex-1 bg-brand-surface border border-gray-800 rounded overflow-hidden flex flex-col">
+              <div className="overflow-y-auto flex-1">
+                <table className="w-full text-left">
+                  <thead className="bg-gray-900 text-brand-secondary sticky top-0">
+                    <tr><th className="p-4">Paciente</th><th>Exame</th><th>Data</th><th>Ações</th></tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map(r => (
+                      <tr key={r.id} className="border-b border-gray-800 hover:bg-gray-800/50">
+                        <td className="p-4 font-bold">{r.patient_name}</td>
+                        <td>{r.test_type}</td>
+                        <td>{new Date(r.report_date).toLocaleDateString('pt-BR', {timeZone:'UTC'})}</td>
+                        <td className="p-4">
+                          <button onClick={() => setPdfReport(r)} className="text-brand-primary hover:text-white mr-4" title="Baixar PDF"><Icons.Download /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {showModal && <ReportForm onClose={() => setShowModal(false)} onSave={async (data) => { /* Lógica no App */ }} />}
+            {pdfReport && <ReportPDF report={pdfReport} onDone={() => setPdfReport(null)} />}
           </div>
         );
       };
 
-      const Inventory = () => {
-        const { stock, deleteStockItem } = useContext(AppContext);
-        const [modal, setModal] = useState(false);
-        const [edit, setEdit] = useState(null);
-        const [del, setDel] = useState(null);
-        return (
-          <div className="animate-fade-in p-6 space-y-6 w-full">
-            <header className="flex justify-between"><h1 className="text-4xl font-bold text-brand-primary">ESTOQUE</h1><button onClick={() => { setEdit(null); setModal(true); }} className={btnClass}><PlusIcon /> ADICIONAR</button></header>
-            <div className={`${cardClass} overflow-auto`}>
-              <table className="w-full text-left"><thead className="text-brand-secondary border-b border-gray-700"><tr><th className="p-4">Teste</th><th>Lote</th><th>Validade</th><th>Qtd</th><th>Ações</th></tr></thead>
-              <tbody>{stock.map(i => <tr key={i.id} className="border-b border-gray-800"><td className="p-4">{i.test_type}</td><td>{i.lote}</td><td>{new Date(i.validade).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td className="font-bold text-white">{i.quantity}</td><td className="flex gap-2 p-4"><button onClick={()=>{setEdit(i);setModal(true)}} className="text-warning"><PencilIcon/></button><button onClick={()=>setDel(i)} className="text-danger"><TrashIcon/></button></td></tr>)}</tbody></table>
-            </div>
-            {modal && <StockFormModal isOpen={true} onClose={() => setModal(false)} itemToEdit={edit} />}
-            {del && <ConfirmationModal isOpen={true} onClose={() => setDel(null)} onConfirm={async () => { await deleteStockItem(del.id); setDel(null); }} title="Excluir" message="Confirma?" />}
-          </div>
-        );
-      };
-
-      const Indicators = () => {
-        const { indicators, addIndicator, updateIndicator, deleteIndicator } = useContext(AppContext);
-        const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' });
-        const [edit, setEdit] = useState(null);
-        const [del, setDel] = useState(null);
-        useEffect(() => { if (edit) setForm(edit); else setForm({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' }); }, [edit]);
-        const handleSubmit = async (e) => { e.preventDefault(); if (edit) { await updateIndicator(edit.id, form); setEdit(null); } else await addIndicator(form); setForm({ date: new Date().toISOString().split('T')[0], gmus: '', pressure: '', hgt: '', weight: '', height: '', professional: '' }); };
-        const exportCSV = () => { const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8,Data,Gmus,Pressao,HGT,Peso,Altura,Profissional\n" + indicators.map(i => `${i.date},${i.gmus},${i.pressure},${i.hgt},${i.weight},${i.height},${i.professional}`).join('\n')); link.download = "indicadores.csv"; link.click(); };
-        
-        return (
-          <div className="animate-fade-in p-6 space-y-6 w-full">
-            <h1 className="text-4xl font-bold text-brand-primary">INDICADORES</h1>
-            <div className={cardClass}>
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className={commonInputClass} required />
-                <input placeholder="G'mus" value={form.gmus} onChange={e => setForm({...form, gmus: e.target.value})} className={commonInputClass} required />
-                <input placeholder="Pressão" value={form.pressure} onChange={e => setForm({...form, pressure: e.target.value})} className={commonInputClass} />
-                <input placeholder="HGT" value={form.hgt} onChange={e => setForm({...form, hgt: e.target.value})} className={commonInputClass} />
-                <input placeholder="Peso" value={form.weight} onChange={e => setForm({...form, weight: e.target.value})} className={commonInputClass} />
-                <input placeholder="Altura" value={form.height} onChange={e => setForm({...form, height: e.target.value})} className={commonInputClass} />
-                <input placeholder="Profissional" value={form.professional} onChange={e => setForm({...form, professional: e.target.value})} className={`${commonInputClass} md:col-span-2`} required />
-                <button type="submit" className={`${btnClass} md:col-span-4`}>{edit ? 'ATUALIZAR' : 'REGISTRAR'}</button>
-                {edit && <button type="button" onClick={() => setEdit(null)} className="md:col-span-4 bg-gray-700 text-white rounded p-2">Cancelar</button>}
-              </form>
-            </div>
-            <div className={cardClass}>
-              <button onClick={exportCSV} className="mb-4 bg-brand-accent text-black px-4 py-2 rounded font-bold flex gap-2"><DownloadIcon /> CSV</button>
-              <div className="overflow-auto"><table className="w-full text-left text-sm"><thead className="text-brand-secondary border-b border-gray-700"><tr><th>Data</th><th>G'mus</th><th>Pressão</th><th>HGT</th><th>Profissional</th><th>Ações</th></tr></thead><tbody>{indicators.map(i => <tr key={i.id} className="border-b border-gray-800"><td className="p-2">{new Date(i.date).toLocaleDateString('pt-BR',{timeZone:'UTC'})}</td><td>{i.gmus}</td><td>{i.pressure}</td><td>{i.hgt}</td><td>{i.professional}</td><td className="flex gap-2"><button onClick={() => setEdit(i)} className="text-warning"><PencilIcon /></button><button onClick={() => setDel(i)} className="text-danger"><TrashIcon /></button></td></tr>)}</tbody></table></div>
-            </div>
-            {del && <ConfirmationModal isOpen={true} onClose={() => setDel(null)} onConfirm={async () => { await deleteIndicator(del.id); setDel(null); }} title="Excluir" message="Confirma?" />}
-          </div>
-        );
-      };
-
-      // --- App Principal ---
+      // --- APP PRINCIPAL ---
       const App = () => {
         const [page, setPage] = useState('dashboard');
-        const [data, setData] = useState({ reports: [], stock: [], indicators: [] });
+        const [data, setData] = useState({ reports: [], stock: [] });
         const [loading, setLoading] = useState(true);
-        const [unlocked, setUnlocked] = useState(false);
-        const [autoOpenNewReport, setAutoOpenNewReport] = useState(false); // Estado para controlar abertura automática
+        const [triggerReportModal, setTriggerReportModal] = useState(false);
 
         const fetchData = useCallback(async () => {
           setLoading(true);
-          try {
-            const [r, s, i] = await Promise.all([
-              supabaseClient.from('reports').select('*').order('created_at', { ascending: false }),
-              supabaseClient.from('stock').select('*').order('test_type', { ascending: true }),
-              supabaseClient.from('indicators').select('*').order('date', { ascending: false })
-            ]);
-            setData({ reports: r.data || [], stock: s.data || [], indicators: i.data || [] });
-          } catch (e) { console.error(e); } finally { setLoading(false); }
+          const [r, s] = await Promise.all([
+            supabaseClient.from('reports').select('*').order('created_at', {ascending:false}),
+            supabaseClient.from('stock').select('*').order('test_type', {ascending:true})
+          ]);
+          setData({ reports: r.data || [], stock: s.data || [] });
+          setLoading(false);
         }, []);
 
         useEffect(() => { fetchData(); }, [fetchData]);
 
-        const crud = useMemo(() => ({
-          addReport: async (d) => { 
-            // 1. Salva o Laudo no Supabase
-            const { error: rError } = await supabaseClient.from('reports').insert([d]); 
-            if (rError) throw rError;
+        const handleSaveReport = async (formData) => {
+          try {
+            // 1. Salvar Laudo
+            const { error } = await supabaseClient.from('reports').insert([formData]);
+            if (error) throw error;
 
-            // 2. Desconta do Estoque no Supabase
-            const { data: stockItems } = await supabaseClient
-                .from('stock')
-                .select('*')
-                .eq('lote', d.lote)
-                .eq('test_type', d.test_type)
-                .single();
-
-            if (stockItems && stockItems.quantity > 0) {
-                await supabaseClient
-                    .from('stock')
-                    .update({ quantity: stockItems.quantity - 1 })
-                    .eq('id', stockItems.id);
+            // 2. Baixar Estoque
+            const stockItem = data.stock.find(i => i.lote === formData.lote && i.test_type === formData.test_type);
+            if (stockItem && stockItem.quantity > 0) {
+              await supabaseClient.from('stock').update({ quantity: stockItem.quantity - 1 }).eq('id', stockItem.id);
             }
 
-            await fetchData(); 
-          },
-          updateReport: async (id, d) => { await supabaseClient.from('reports').update(d).eq('id', id); await fetchData(); },
-          deleteReport: async (id) => { await supabaseClient.from('reports').delete().eq('id', id); await fetchData(); },
-          addStockItem: async (d) => { await supabaseClient.from('stock').insert([d]); await fetchData(); },
-          updateStockItem: async (id, d) => { await supabaseClient.from('stock').update(d).eq('id', id); await fetchData(); },
-          deleteStockItem: async (id) => { await supabaseClient.from('stock').delete().eq('id', id); await fetchData(); },
-          addIndicator: async (d) => { await supabaseClient.from('indicators').insert([d]); await fetchData(); },
-          updateIndicator: async (id, d) => { await supabaseClient.from('indicators').update(d).eq('id', id); await fetchData(); },
-          deleteIndicator: async (id) => { await supabaseClient.from('indicators').delete().eq('id', id); await fetchData(); },
-        }), [fetchData]);
-
-        const renderPage = () => {
-          if (loading) return null; 
-          switch (page) {
-            case 'reports': return <Reports autoOpen={autoOpenNewReport} setAutoOpen={setAutoOpenNewReport} />;
-            case 'inventory': return <Inventory />;
-            case 'indicators': return <Indicators />;
-            default: return <Dashboard setPage={setPage} openNewReport={() => setAutoOpenNewReport(true)} />;
+            await fetchData();
+            setTriggerReportModal(false);
+          } catch (e) {
+            console.error(e);
+            alert("Erro ao salvar laudo: " + e.message);
           }
         };
 
+        const MainContent = () => {
+          if (page === 'dashboard') return <Dashboard setPage={setPage} onNewReport={() => setTriggerReportModal(true)} />;
+          if (page === 'reports') return <ReportsList autoOpen={false} />;
+          return <div className="p-10 text-center">Em construção...</div>;
+        };
+
+        if (loading) return <div className="h-screen flex items-center justify-center text-brand-primary animate-pulse font-bold text-2xl">CARREGANDO SISTEMA...</div>;
+
         return (
-          <AppContext.Provider value={{ ...data, isInventoryUnlocked: unlocked, setIsInventoryUnlocked: setUnlocked, ...crud }}>
-            <div className="flex h-screen w-full bg-brand-dark font-sans text-white overflow-hidden">
-              <Sidebar currentPage={page} setPage={setPage} />
-              <main className="flex-1 h-full overflow-y-auto relative">{renderPage()}</main>
+          <AppContext.Provider value={{ ...data }}>
+            <div className="flex h-screen bg-brand-dark text-white font-sans overflow-hidden">
+              <nav className="w-20 lg:w-64 bg-black border-r border-gray-800 flex flex-col items-center lg:items-start py-6">
+                <div className="text-brand-primary font-bold text-2xl px-6 mb-10 hidden lg:block">UBS <span className="text-white">SYS</span></div>
+                <div className="w-full space-y-2 px-2">
+                  <button onClick={() => setPage('dashboard')} className={`w-full p-3 rounded flex items-center gap-4 ${page==='dashboard' ? 'bg-brand-secondary text-black font-bold shadow-neon' : 'text-gray-400 hover:text-white hover:bg-gray-900'}`}><Icons.Home /><span className="hidden lg:block">Dashboard</span></button>
+                  <button onClick={() => setPage('reports')} className={`w-full p-3 rounded flex items-center gap-4 ${page==='reports' ? 'bg-brand-secondary text-black font-bold shadow-neon' : 'text-gray-400 hover:text-white hover:bg-gray-900'}`}><Icons.Report /><span className="hidden lg:block">Laudos</span></button>
+                </div>
+              </nav>
+              <main className="flex-1 relative overflow-hidden">
+                <MainContent />
+                {triggerReportModal && <ReportForm onClose={() => setTriggerReportModal(false)} onSave={handleSaveReport} />}
+              </main>
             </div>
           </AppContext.Provider>
         );
